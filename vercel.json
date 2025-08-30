@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/:shortCode([a-zA-Z0-9_-]{6,12})",
+      "destination": "/api/[shortCode]?shortCode=:shortCode"
+    }
+  ]
+}

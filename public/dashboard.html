@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linkly Dashboard</title>
+
+    <!-- Firebase SDKs (Required for authentication) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+
+    <style>
+        /*primary brand color */
+        :root {
+            --primary-color: #4F46E5;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            color: #333;
+        }
+        .header a {
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: bold;
+        }
+        #links-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+        }
+        #links-table th, #links-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #ddd;
+            text-align: left;
+        }
+        #links-table th {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        #links-table td a {
+            color: var(--primary-color);
+            font-weight: bold;
+            text-decoration: none;
+        }
+        #links-table td.original-url {
+            max-width: 300px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        #loading-message {
+            color: #555;
+            font-size: 1.1em;
+        }
+
+         #links-table .qr-code-btn {
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 5px 10px;
+            cursor: pointer;
+        }
+        #links-table .qr-code-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* Modal Styling */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            width: 300px;
+        }
+        .modal-close-btn {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        #qrcode-container {
+            padding: 20px; /* Add some space around the QR code */
+        }
+
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>My Links</h1>
+            <a href="/">← Back to Shortener</a>
+        </div>
+        
+        <p id="loading-message">Loading your links...</p>
+        
+        <table id="links-table">
+            <thead>
+                <tr>
+                    <th>Original URL</th>
+                    <th>Short Link</th>
+                    <th>Clicks</th>
+                    <th>QR Code</th>
+                </tr>
+            </thead>
+            <tbody id="links-tbody">
+                <!-- Link rows will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+    </div>
+
+     <!-- QR Code Modal (Hidden by default) -->
+    <div id="qr-modal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close-btn">&times;</span>
+            <h2>Your QR Code</h2>
+            <div id="qrcode-container"></div>
+            <p>Right-click the QR code to save it.</p>
+        </div>
+    </div>
+
+    <script>
+        // --- 1. INITIALIZATION ---
+                const firebaseConfig = {
+  apiKey: "AIzaSyDRuTdgt9l5KEcGNEdXadm0FXRUndPsWAE",
+  authDomain: "linkly-project-43464.firebaseapp.com",
+  projectId: "linkly-project-43464",
+  storageBucket: "linkly-project-43464.firebasestorage.app",
+  messagingSenderId: "289406240228",
+  appId: "1:289406240228:web:4b7e82d2a51089e8fbf3f1",
+  measurementId: "G-CPNES7BTDN"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+        // --- 2. AUTHENTICATION & DATA FETCHING ---
+        const loadingMessage = document.getElementById('loading-message');
+        const linksTable = document.getElementById('links-table');
+        const linksTbody = document.getElementById('links-tbody');
+
+        // Check user's login state
+        auth.onAuthStateChanged(async (user) => {
+            if (user) {
+                // If user is logged in, fetch their links
+                await fetchUserLinks(user);
+            } else {
+                // If not logged in, protect the page and redirect
+                alert('You must be logged in to view the dashboard.');
+                window.location.href = '/';
+            }
+        });
+
+        // Function to call our backend API and get the links
+        async function fetchUserLinks(user) {
+            try {
+                const idToken = await user.getIdToken(true); // Get token for authentication
+                const response = await fetch('/api/links', {
+                    headers: {
+                        'Authorization': `Bearer ${idToken}`
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to fetch links. Status: ' + response.status);
+                }
+
+                const links = await response.json();
+                renderLinks(links);
+
+            } catch (error) {
+                console.error('Error fetching links:', error);
+                loadingMessage.textContent = 'An error occurred while fetching your links.';
+            }
+        }
+
+       /* NEW Code to Add (This is the complete renderLinks function) */
+        function renderLinks(links) {
+            // Clear any previous content
+            linksTbody.innerHTML = ''; 
+            
+            // Hide the loading message
+            loadingMessage.style.display = 'none';
+            // Show the table
+            linksTable.style.display = 'table';
+
+            if (links.length === 0) {
+                const row = document.createElement('tr');
+                const cell = document.createElement('td');
+                cell.colSpan = 4; // Now spans 4 columns
+                cell.textContent = 'You have not created any links yet.';
+                row.appendChild(cell);
+                linksTbody.appendChild(row);
+                return;
+            }
+
+            // Create a table row for each link
+            links.forEach(link => {
+                const row = document.createElement('tr');
+                
+                // Use window.location.origin to be flexible for deployment
+                const shortUrl = `${window.location.origin}/${link.shortCode}`;
+
+                row.innerHTML = `
+                    <td class="original-url" title="${link.originalUrl}">${link.originalUrl}</td>
+                    <td><a href="${shortUrl}" target="_blank">${shortUrl}</a></td>
+                    <td>${link.clickCount}</td>
+                    <td>
+                        <button class="qr-code-btn" data-url="${shortUrl}">Show QR</button>
+                    </td>
+                `;
+                
+                linksTbody.appendChild(row);
+            });
+        }
+
+         // --- 3. QR CODE MODAL LOGIC ---
+        const modal = document.getElementById('qr-modal');
+        const qrContainer = document.getElementById('qrcode-container');
+        const closeModalBtn = document.querySelector('.modal-close-btn');
+
+        // Event listener for the whole table to catch button clicks
+        linksTable.addEventListener('click', function(e) {
+            // Check if a QR code button was clicked
+            if (e.target && e.target.classList.contains('qr-code-btn')) {
+                const url = e.target.dataset.url;
+                
+                // Clear any previous QR code to prevent duplicates
+                qrContainer.innerHTML = '';
+
+                // Generate new QR code using the library
+                new QRCode(qrContainer, {
+                    text: url,
+                    width: 256,
+                    height: 256,
+                });
+
+                // Show the modal
+                modal.style.display = 'flex';
+            }
+        });
+
+        // Close the modal when the 'x' is clicked
+        closeModalBtn.addEventListener('click', function() {
+            modal.style.display = 'none';
+        });
+
+        // Close the modal if the user clicks outside of the content area
+        window.addEventListener('click', function(e) {
+            if (e.target == modal) {
+                modal.style.display = 'none';
+            }
+        });
+        
+    </script>
+</body>
+</html>

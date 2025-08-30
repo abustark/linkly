@@ -1,4 +1,9 @@
-node_modules/
+# Dependencies - Prevents uploading thousands of package files
+node_modules
+
+# Environment Variables - Protects your MongoDB password
 .env
-*.log
-.DS_Store
+
+# Firebase Service Account Key - Protects your Firebase project admin key
+serviceAccountKey.json
+.vercel
