@@ -1,4 +1,10 @@
 {
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3"
+    }
+  },
+  "public": "public",
   "rewrites": [
     {
       "source": "/:shortCode([a-zA-Z0-9_-]{6,12})",

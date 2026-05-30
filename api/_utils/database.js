@@ -14,10 +14,7 @@ async function connectToDatabase() {
 
     try {
         // Connect to the database using the MONGODB_URI from our environment variables
-        const db = await mongoose.connect(process.env.MONGODB_URI, {
-            useNewUrlParser: true,
-            useUnifiedTopology: true,
-        });
+        const db = await mongoose.connect(process.env.MONGODB_URI);
 
         // Cache the connection for future use
         cachedDb = db;

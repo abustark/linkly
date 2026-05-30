@@ -2,9 +2,11 @@
 const connectToDatabase = require('./_utils/database');
 const Url = require('./_models/Url');
 
-// This is the serverless function handler
 module.exports = async (req, res) => {
-    // Connect to the database on-demand
+    if (req.method !== 'GET') {
+        return res.status(405).json({ error: 'Method Not Allowed' });
+    }
+
     await connectToDatabase();
 
     // In Vercel, dynamic path parameters are in req.query

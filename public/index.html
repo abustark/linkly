@@ -17,6 +17,10 @@
 
     <style>
 
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --primary-color: #4F46E5;
             --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
@@ -49,6 +53,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             transition: background 0.5s ease;
+            overflow-x: hidden;
         }
 
         [data-theme="dark"] body {
@@ -159,6 +164,31 @@
             transform: translateY(0);
         }
 
+         button.loading {
+            pointer-events: none; /* Disable clicks */
+            position: relative;
+            color: transparent !important; /* Hide original text */
+        }
+
+        button.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin-top: -10px;
+            margin-left: -10px;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
         #result {
             margin-top: 25px;
             padding: 20px;
@@ -225,7 +255,7 @@
         #user-bar #user-info {
             display: flex !important;
             align-items: center;
-            gap: 15px;
+            gap: 20px;
         }
         
         #user-bar #user-info span {
@@ -437,8 +467,8 @@ const auth = firebase.auth();
                 userInfoDiv.style.display = 'block';
                 userInfoDiv.innerHTML = `
                     <span>Welcome, ${user.displayName}!</span>
-                    <a href="/dashboard.html" style="margin-left: 15px; text-decoration: none;">Dashboard</a>
-                    <button onclick="signOutUser()" style="margin-left: 10px;">Logout</button>
+                      <a href="/dashboard.html">Dashboard</a>
+                    <button onclick="signOutUser()">Logout</button>
                 `;
             } else {
                 // User is signed out
@@ -464,19 +494,24 @@ const auth = firebase.auth();
             const customAlias = document.getElementById('customAlias').value.trim();
             const resultDiv = document.getElementById('result');
             const shortUrlLink = document.getElementById('shortUrl');
+            const submitButton = this.querySelector('button[type="submit"]');
 
-            // Get the current user
-            const user = auth.currentUser;
+            submitButton.classList.add('loading');
+            submitButton.disabled = true;
+            resultDiv.style.display = 'none';
+
             const headers = { 'Content-Type': 'application/json' };
+            const user = auth.currentUser;
 
             if (user) {
                 try {
-                    // Get the Firebase ID token for the authenticated user
                     const idToken = await user.getIdToken(true);
                     headers['Authorization'] = `Bearer ${idToken}`;
                 } catch (error) {
                     console.error('Could not get auth token:', error);
                     alert('Authentication error. Please try logging in again.');
+                    submitButton.classList.remove('loading');
+                    submitButton.disabled = false;
                     return;
                 }
             }
@@ -484,10 +519,10 @@ const auth = firebase.auth();
             try {
                 const response = await fetch('/api/shorten', {
                     method: 'POST',
-                    headers: headers, // Use the headers object (with or without token)
+                    headers: headers,
                     body: JSON.stringify({ 
                         originalUrl: longUrl, 
-                        customAlias: customAlias // Send the alias to the backend
+                        customAlias: customAlias
                     }),
                 });
 
@@ -504,6 +539,9 @@ const auth = firebase.auth();
             } catch (error) {
                 alert(`Error: ${error.message}`);
                 resultDiv.style.display = 'none';
+            } finally {
+                submitButton.classList.remove('loading');
+                submitButton.disabled = false;
             }
         });
 
