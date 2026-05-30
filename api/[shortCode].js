@@ -7,12 +7,12 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    await connectToDatabase();
-
-    // In Vercel, dynamic path parameters are in req.query
-    const { shortCode } = req.query;
-
     try {
+        await connectToDatabase();
+
+        // In Vercel, dynamic path parameters are in req.query
+        const { shortCode } = req.query;
+
         // Find the URL document in the database
         const url = await Url.findOne({ shortCode: shortCode });
 

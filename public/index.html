@@ -3,564 +3,597 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linkly - URL Shortener</title>
+    <title>Linkly | Smart URL Shortener</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%234F46E5'></rect><text x='50%' y='50%' font-family='Arial, sans-serif' font-size='80' font-weight='bold' fill='white' text-anchor='middle' dominant-baseline='central'>L</text></svg>">
-
-     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    
-    
-    <!-- Google Identity Services SDK -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
 
     <style>
-
-        *, *::before, *::after {
-            box-sizing: border-box;
-        }
-
         :root {
-            --primary-color: #4F46E5;
-            --primary-gradient: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
-            --glass-bg: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --glass-shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --text-primary: #1f2937;
-            --text-secondary: #4b5563;
-            --success-bg: rgba(34, 197, 94, 0.1);
-            --success-border: rgba(34, 197, 94, 0.2);
+            --bg: #f4f6fb;
+            --surface: #ffffff;
+            --surface-2: #f8f9fd;
+            --text: #111827;
+            --muted: #596074;
+            --line: #dce2ee;
+            --brand: #0f766e;
+            --brand-2: #0e7490;
+            --danger: #c2410c;
+            --success: #166534;
+            --shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+            --radius: 12px;
         }
-
         [data-theme="dark"] {
-            --glass-bg: rgba(30, 30, 40, 0.3);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-            --card-bg: rgba(30, 30, 40, 0.85);
-            --text-primary: #f9fafb;
-            --text-secondary: #d1d5db;
-            --success-bg: rgba(34, 197, 94, 0.15);
-            --success-border: rgba(34, 197, 94, 0.3);
+            --bg: #0b1220;
+            --surface: #111a2f;
+            --surface-2: #16213b;
+            --text: #e6edf8;
+            --muted: #9fb0cd;
+            --line: #253557;
+            --brand: #14b8a6;
+            --brand-2: #06b6d4;
+            --danger: #f97316;
+            --success: #22c55e;
+            --shadow: 0 20px 50px rgba(2, 6, 23, 0.45);
         }
 
+        * { box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            font-family: "Plus Jakarta Sans", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 10% -10%, #d1fae5 0%, transparent 38%),
+                radial-gradient(circle at 95% 0%, #cffafe 0%, transparent 34%),
+                var(--bg);
             min-height: 100vh;
-            transition: background 0.5s ease;
-            overflow-x: hidden;
         }
 
-        [data-theme="dark"] body {
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+        .wrap {
+            width: min(1080px, 92vw);
+            margin: 28px auto 36px;
         }
 
-        /* Glassmorphism Container */
-        .container {
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: var(--glass-shadow);
-            position: relative;
-            overflow: hidden;
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
+        .topbar {
+            background: rgba(255,255,255,0.9);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            align-items: center;
+            backdrop-filter: blur(6px);
         }
 
-        .container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            z-index: -1;
-        }
-
-        h1 {
-            text-align: center;
-            background: var(--primary-gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            font-size: 2rem;
-            margin-bottom: 10px;
+        .brand {
             font-weight: 800;
-            line-height: 1.2;
-            letter-spacing: -0.02em;
+            letter-spacing: 0.2px;
+            color: #0f172a;
         }
 
-        [data-theme="dark"] h1 {
-            background: linear-gradient(135deg, #818cf8 0%, #c084fc 100%);
-            -webkit-background-clip: text;
-            background-clip: text;
+        .top-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        .container p {
+        .btn, button {
+            font: inherit;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            padding: 10px 14px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            color: white;
+            box-shadow: 0 8px 24px rgba(15, 118, 110, 0.25);
+        }
+        .btn-primary:hover { transform: translateY(-1px); }
+        .btn-ghost {
+            background: var(--surface);
+            border-color: var(--line);
+            color: var(--text);
+        }
+        .btn-danger {
+            background: #fff7ed;
+            color: var(--danger);
+            border-color: #fed7aa;
+        }
+        .theme-toggle {
+            min-width: 92px;
             text-align: center;
-            color: var(--text-secondary);
-            margin-bottom: 25px;
-            font-size: 1rem;
-            line-height: 1.5;
-            opacity: 0.9;
         }
 
-        input {
+        .hero {
+            margin-top: 18px;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 16px;
+        }
+
+        .panel {
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .main-panel { padding: 22px; }
+        .main-panel h1 {
+            margin: 0 0 6px;
+            font-size: clamp(1.5rem, 3vw, 2rem);
+        }
+        .main-panel p {
+            margin: 0 0 18px;
+            color: var(--muted);
+            line-height: 1.45;
+        }
+
+        .input-row {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+        }
+        .field {
+            display: grid;
+            gap: 6px;
+        }
+        .field label {
+            font-size: 0.87rem;
+            color: var(--muted);
+        }
+        .field input {
             width: 100%;
-            padding: 14px 18px;
-            margin: 12px 0;
-            border: 2px solid rgba(79, 70, 229, 0.3);
-            border-radius: 12px;
-            font-size: 15px;
-            background: var(--card-bg);
-            color: var(--text-primary);
-            transition: all 0.3s ease;
-            box-sizing: border-box;
-            font-family: inherit;
+            padding: 12px 13px;
+            border-radius: 10px;
+            border: 1px solid var(--line);
+            background: var(--surface-2);
+            color: var(--text);
             outline: none;
         }
-
-        [data-theme="dark"] input {
-            border-color: rgba(124, 58, 237, 0.3);
+        .field input:focus {
+            border-color: #14b8a6;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.18);
         }
 
-        input:focus {
-            border-color: var(--primary-color);
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-        }
-
-        button {
-            background: var(--primary-gradient);
-            color: white;
-            padding: 14px 28px;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 15px;
-            font-weight: 600;
-            transition: all 0.3s ease;
-            width: 100%;
+        .submit-row {
             margin-top: 10px;
-            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.3);
-            font-family: inherit;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .status-inline {
+            font-size: 0.9rem;
+            color: var(--muted);
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(79, 70, 229, 0.4);
-        }
-
-        button:active {
-            transform: translateY(0);
-        }
-
-         button.loading {
-            pointer-events: none; /* Disable clicks */
-            position: relative;
-            color: transparent !important; /* Hide original text */
-        }
-
-        button.loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin-top: -10px;
-            margin-left: -10px;
-            border: 3px solid rgba(255, 255, 255, 0.5);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        #result {
-            margin-top: 25px;
-            padding: 20px;
-            background: var(--success-bg);
-            border: 1px solid var(--success-border);
-            border-radius: 15px;
-            display: none;
-            animation: slideUp 0.5s ease;
-        }
-
-        @keyframes slideUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        #result h3 {
-            margin-top: 0;
-            color: var(--text-primary);
-            font-size: 1.2rem;
-        }
-
-        #shortUrl {
-            display: block;
-            margin: 15px 0;
-            padding: 12px;
-            background: var(--card-bg);
+        .result {
+            margin-top: 16px;
+            border: 1px solid #bbf7d0;
+            background: #f0fdf4;
             border-radius: 10px;
+            padding: 14px;
+            display: none;
+        }
+        .result-url {
+            display: block;
+            margin: 8px 0 12px;
             word-break: break-all;
-            color: var(--primary-color);
-            font-weight: 600;
+            color: #0f766e;
+            font-weight: 700;
             text-decoration: none;
-            border: 1px solid var(--glass-border);
+        }
+        .result-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
         }
 
-        #copyBtn {
-            width: auto;
-            margin: 15px auto 0;
-            padding: 10px 20px;
+        .side-panel {
+            padding: 18px;
+            display: grid;
+            gap: 12px;
+            align-content: start;
+        }
+        .stat {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            background: var(--surface-2);
+        }
+        .stat .label {
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+        .stat .value {
+            margin-top: 4px;
+            font-weight: 800;
+            font-size: 1.3rem;
         }
 
-        /* User Bar with Glassmorphism */
-        #user-bar {
-            max-width: 500px;
-            margin: 20px auto 15px auto;
-            padding: 15px 25px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--glass-border);
-            border-radius: 15px;
-            box-shadow: var(--glass-shadow);
+        .recent {
+            margin-top: 16px;
+            background: var(--surface);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 16px;
+        }
+        .recent-head {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            width: 100%;
+            margin-bottom: 10px;
         }
-
-        #user-bar #user-info {
-            display: flex !important;
-            align-items: center;
-            gap: 20px;
+        .recent h2 {
+            margin: 0;
+            font-size: 1rem;
         }
-        
-        #user-bar #user-info span {
-            color: var(--text-primary);
-            font-weight: 500;
+        .recent-list {
+            display: grid;
+            gap: 8px;
         }
-
-        #user-bar #user-info a {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 8px;
-            background: rgba(79, 70, 229, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        #user-bar #user-info a:hover {
-            background: rgba(79, 70, 229, 0.2);
-        }
-
-        #user-bar #user-info button {
-            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-            padding: 6px 12px;
-            font-size: 14px;
-            border-radius: 8px;
-            font-weight: 500;
-        }
-
-        /* Dark Mode Toggle */
-        .theme-toggle {
-            background: var(--card-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            width: 50px;
-            height: 25px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .theme-toggle::before {
-            content: '';
-            position: absolute;
-            top: 3px;
-            left: 3px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: var(--primary-gradient);
-            transition: all 0.3s ease;
-            transform: translateX(0);
-        }
-
-        [data-theme="dark"] .theme-toggle::before {
-            transform: translateX(25px);
-        }
-
-        /* GSI Button Container Styling */
-        #gsi-button-container {
+        .recent-item {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            background: var(--surface-2);
+            padding: 10px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
+            gap: 10px;
+            align-items: center;
+        }
+        .recent-url {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            color: var(--muted);
+            font-size: 0.86rem;
+        }
+        .recent-short {
+            font-weight: 700;
+            color: #0f766e;
+            text-decoration: none;
+            white-space: nowrap;
         }
 
-        footer {
-            margin-top: 40px;
-            text-align: center;
-            padding: 20px;
-            color: var(--text-primary); 
+        .empty {
+            color: var(--muted);
             font-size: 0.9rem;
+            border: 1px dashed var(--line);
+            border-radius: 10px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .toast {
+            position: fixed;
+            right: 16px;
+            bottom: 16px;
+            background: #0f172a;
+            color: #f8fafc;
+            padding: 10px 12px;
+            border-radius: 10px;
+            opacity: 0;
+            transform: translateY(10px);
+            pointer-events: none;
+            transition: 0.25s ease;
+            max-width: 85vw;
+        }
+        .toast.show {
             opacity: 1;
-            position: relative;
-            z-index: 1;
+            transform: translateY(0);
         }
 
-        .footer-gear {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            margin-left: 5px;
-            animation: rotate 2s linear infinite;
-            color: var(--primary-color); /* Added color for gear */
+        @media (max-width: 920px) {
+            .hero { grid-template-columns: 1fr; }
         }
-
-        @keyframes rotate {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
-            body {
-                padding: 15px;
-                margin: 20px auto;
-            }
-            
-            .container {
-                padding: 20px;
-                margin: 0 auto;
-            }
-            
-            h1 {
-                font-size: 1.8rem;
-            }
-            
-            #user-bar {
-                flex-direction: column;
-                gap: 10px;
-                text-align: center;
-            }
-            
-            footer {
-                margin-top: 30px;
-                padding: 15px;
-            }
+        @media (max-width: 640px) {
+            .topbar { align-items: flex-start; }
+            .submit-row { flex-direction: column; align-items: stretch; }
         }
     </style>
-
 </head>
-
 <body>
+    <div class="wrap">
+        <header class="topbar">
+            <div class="brand">Linkly</div>
+            <div class="top-actions">
+                <button id="themeToggleBtn" class="btn btn-ghost theme-toggle" type="button">Dark</button>
+                <div id="gsi-button-container"></div>
+                <button id="dashboardBtn" class="btn btn-ghost" style="display:none;">Dashboard</button>
+                <button id="logoutBtn" class="btn btn-danger" style="display:none;">Logout</button>
+            </div>
+        </header>
 
-    <!-- separate bar for user info -->
-    <div id="user-bar">
-        <div id="auth-container">
-            <!-- Google Sign-In button will be rendered here -->
-            <div id="gsi-button-container"></div>
-            <!-- User info and logout will appear here -->
-            <div id="user-info" style="display: none;"></div>
-        </div>
+        <section class="hero">
+            <div class="panel main-panel">
+                <h1>Shorten links in one clean flow</h1>
+                <p>Create share-ready links with optional custom aliases. The latest short link stays ready for copy or quick open.</p>
+
+                <form id="shortenForm">
+                    <div class="input-row">
+                        <div class="field">
+                            <label for="longUrl">Destination URL</label>
+                            <input type="url" id="longUrl" placeholder="https://your-long-link.com/page" required>
+                        </div>
+                        <div class="field">
+                            <label for="customAlias">Custom alias (optional)</label>
+                            <input type="text" id="customAlias" placeholder="my-campaign-link">
+                        </div>
+                    </div>
+
+                    <div class="submit-row">
+                        <button id="submitBtn" type="submit" class="btn btn-primary">Shorten URL</button>
+                        <div id="inlineStatus" class="status-inline">Ready</div>
+                    </div>
+                </form>
+
+                <div id="result" class="result">
+                    <strong>Your short URL</strong>
+                    <a id="shortUrl" class="result-url" href="#" target="_blank" rel="noopener noreferrer"></a>
+                    <div class="result-actions">
+                        <button id="copyBtn" class="btn btn-ghost" type="button">Copy</button>
+                        <button id="openBtn" class="btn btn-ghost" type="button">Open</button>
+                    </div>
+                </div>
+            </div>
+
+            <aside class="panel side-panel">
+                <div class="stat">
+                    <div class="label">Signed-in status</div>
+                    <div class="value" id="authState">Guest</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Session user</div>
+                    <div class="value" id="userName" style="font-size:1rem;">Not logged in</div>
+                </div>
+                <div class="stat">
+                    <div class="label">Quick tip</div>
+                    <div class="value" style="font-size:0.95rem; line-height:1.45;">Use a custom alias for cleaner portfolio links.</div>
+                </div>
+            </aside>
+        </section>
+
+        <section class="recent">
+            <div class="recent-head">
+                <h2>Recent Links (This Browser)</h2>
+                <button id="clearRecentBtn" class="btn btn-ghost" type="button">Clear</button>
+            </div>
+            <div id="recentList" class="recent-list"></div>
+        </section>
     </div>
 
-    <!-- Main application card -->
-    <div class="container">
-    
-        <h1>🔗 Linkly URL Shortener</h1>
-        <p>Make your long URLs short and sweet!</p>
-        
-        <form id="shortenForm">
-            <input type="url" id="longUrl" placeholder="Paste your long URL here..." required>
-             <input type="text" id="customAlias" placeholder="Optional: your-custom-alias" style="margin-top: 5px;">
-            <button type="submit">Shorten URL</button>
-        </form>
-        
-        <div id="result">
-            <h3>Your Short URL:</h3>
-            <p><a id="shortUrl" href="#" target="_blank"></a></p>
-            <button id="copyBtn">Copy to Clipboard</button>
-        </div>
-
-    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
-        // --- 1. INITIALIZATION ---
         const firebaseConfig = {
-  apiKey: "AIzaSyDRuTdgt9l5KEcGNEdXadm0FXRUndPsWAE",
-  authDomain: "linkly-project-43464.firebaseapp.com",
-  projectId: "linkly-project-43464",
-  storageBucket: "linkly-project-43464.firebasestorage.app",
-  messagingSenderId: "289406240228",
-  appId: "1:289406240228:web:4b7e82d2a51089e8fbf3f1",
-  measurementId: "G-CPNES7BTDN"
-};
+            apiKey: "AIzaSyDRuTdgt9l5KEcGNEdXadm0FXRUndPsWAE",
+            authDomain: "linkly-project-43464.firebaseapp.com",
+            projectId: "linkly-project-43464",
+            storageBucket: "linkly-project-43464.firebasestorage.app",
+            messagingSenderId: "289406240228",
+            appId: "1:289406240228:web:4b7e82d2a51089e8fbf3f1",
+            measurementId: "G-CPNES7BTDN"
+        };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
+        const auth = firebase.auth();
 
-        // DOM elements
-        const authContainer = document.getElementById('auth-container');
-        const gsiButtonContainer = document.getElementById('gsi-button-container');
-        const userInfoDiv = document.getElementById('user-info');
+        const shortenForm = document.getElementById("shortenForm");
+        const longUrlInput = document.getElementById("longUrl");
+        const customAliasInput = document.getElementById("customAlias");
+        const submitBtn = document.getElementById("submitBtn");
+        const inlineStatus = document.getElementById("inlineStatus");
+        const result = document.getElementById("result");
+        const shortUrl = document.getElementById("shortUrl");
+        const copyBtn = document.getElementById("copyBtn");
+        const openBtn = document.getElementById("openBtn");
+        const toast = document.getElementById("toast");
+        const gsiButtonContainer = document.getElementById("gsi-button-container");
+        const dashboardBtn = document.getElementById("dashboardBtn");
+        const logoutBtn = document.getElementById("logoutBtn");
+        const authState = document.getElementById("authState");
+        const userName = document.getElementById("userName");
+        const recentList = document.getElementById("recentList");
+        const clearRecentBtn = document.getElementById("clearRecentBtn");
+        const themeToggleBtn = document.getElementById("themeToggleBtn");
 
-        // --- 2. GOOGLE IDENTITY SERVICES (GIS) SETUP ---
-         window.onload = function () {
+        const RECENT_KEY = "linkly_recent_links";
+        const THEME_KEY = "linkly_theme";
+        let toastTimer = null;
+
+        function applyTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeToggleBtn.textContent = theme === "dark" ? "Light" : "Dark";
+        }
+
+        const initialTheme = localStorage.getItem(THEME_KEY) || "light";
+        applyTheme(initialTheme);
+
+        function showToast(message) {
+            toast.textContent = message;
+            toast.classList.add("show");
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+        }
+
+        function updateInlineStatus(message, isError) {
+            inlineStatus.textContent = message;
+            inlineStatus.style.color = isError ? "#b91c1c" : "var(--muted)";
+        }
+
+        function getRecentLinks() {
+            try {
+                return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+            } catch {
+                return [];
+            }
+        }
+
+        function setRecentLinks(entries) {
+            localStorage.setItem(RECENT_KEY, JSON.stringify(entries.slice(0, 6)));
+        }
+
+        function pushRecentLink(entry) {
+            const entries = getRecentLinks().filter((e) => e.shortUrl !== entry.shortUrl);
+            entries.unshift(entry);
+            setRecentLinks(entries);
+            renderRecent();
+        }
+
+        function renderRecent() {
+            const entries = getRecentLinks();
+            recentList.innerHTML = "";
+
+            if (!entries.length) {
+                recentList.innerHTML = '<div class="empty">No recent links yet. Create your first one above.</div>';
+                return;
+            }
+
+            entries.forEach((entry) => {
+                const row = document.createElement("div");
+                row.className = "recent-item";
+                row.innerHTML = `
+                    <div class="recent-url" title="${entry.originalUrl}">${entry.originalUrl}</div>
+                    <a class="recent-short" href="${entry.shortUrl}" target="_blank" rel="noopener noreferrer">${entry.shortUrl}</a>
+                `;
+                recentList.appendChild(row);
+            });
+        }
+
+        async function handleCredentialResponse(response) {
+            try {
+                const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+                await auth.signInWithCredential(credential);
+                showToast("Signed in");
+            } catch (error) {
+                console.error("Sign in error:", error);
+                showToast("Sign in failed");
+            }
+        }
+
+        window.onload = function () {
             google.accounts.id.initialize({
-                client_id: '289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com', 
+                client_id: "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com",
                 callback: handleCredentialResponse
             });
 
-            // This renders the button as a fallback if the user closes the prompt
-            google.accounts.id.renderButton(
-                gsiButtonContainer,
-                { theme: "outline", size: "large" } 
-            );
+            google.accounts.id.renderButton(gsiButtonContainer, {
+                theme: "outline",
+                size: "large"
+            });
         };
 
-        // --- 3. FIREBASE AUTHENTICATION HANDLERS ---
-        // This function is called after a user signs in with Google
-        async function handleCredentialResponse(response) {
-            const googleIdToken = response.credential;
-            const credential = firebase.auth.GoogleAuthProvider.credential(googleIdToken);
-
-            try {
-                // Sign in to Firebase with the Google credential
-                const result = await auth.signInWithCredential(credential);
-                console.log("Successfully signed in with Firebase:", result.user.displayName);
-            } catch (error) {
-                console.error("Firebase sign-in error:", error);
-                alert("Error signing in. Please try again.");
-            }
-        }
-
-        // This function listens for changes in the user's login state
-        auth.onAuthStateChanged(user => {
+        auth.onAuthStateChanged((user) => {
             if (user) {
-                // User is signed in
-                gsiButtonContainer.style.display = 'none';
-                userInfoDiv.style.display = 'block';
-                userInfoDiv.innerHTML = `
-                    <span>Welcome, ${user.displayName}!</span>
-                      <a href="/dashboard.html">Dashboard</a>
-                    <button onclick="signOutUser()">Logout</button>
-                `;
+                authState.textContent = "Signed In";
+                userName.textContent = user.displayName || "User";
+                dashboardBtn.style.display = "inline-block";
+                logoutBtn.style.display = "inline-block";
+                gsiButtonContainer.style.display = "none";
             } else {
-                // User is signed out
-                gsiButtonContainer.style.display = 'block';
-                userInfoDiv.style.display = 'none';
-                userInfoDiv.innerHTML = '';
-
-                google.accounts.id.prompt(); 
-
+                authState.textContent = "Guest";
+                userName.textContent = "Not logged in";
+                dashboardBtn.style.display = "none";
+                logoutBtn.style.display = "none";
+                gsiButtonContainer.style.display = "block";
+                google.accounts.id.prompt();
             }
         });
 
-        // Function to sign the user out
-        function signOutUser() {
-            auth.signOut();
-        }
+        dashboardBtn.addEventListener("click", () => window.location.href = "/dashboard.html");
+        logoutBtn.addEventListener("click", async () => {
+            await auth.signOut();
+            showToast("Signed out");
+        });
 
-        // --- 4. URL SHORTENING LOGIC (UPDATED) ---
-        document.getElementById('shortenForm').addEventListener('submit', async function(e) {
+        clearRecentBtn.addEventListener("click", () => {
+            setRecentLinks([]);
+            renderRecent();
+            showToast("Recent links cleared");
+        });
+
+        themeToggleBtn.addEventListener("click", () => {
+            const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+            localStorage.setItem(THEME_KEY, next);
+            applyTheme(next);
+        });
+
+        shortenForm.addEventListener("submit", async (e) => {
             e.preventDefault();
-            
-            const longUrl = document.getElementById('longUrl').value;
-            const customAlias = document.getElementById('customAlias').value.trim();
-            const resultDiv = document.getElementById('result');
-            const shortUrlLink = document.getElementById('shortUrl');
-            const submitButton = this.querySelector('button[type="submit"]');
+            const originalUrl = longUrlInput.value.trim();
+            const customAlias = customAliasInput.value.trim();
 
-            submitButton.classList.add('loading');
-            submitButton.disabled = true;
-            resultDiv.style.display = 'none';
+            submitBtn.disabled = true;
+            updateInlineStatus("Creating short link...");
+            result.style.display = "none";
 
-            const headers = { 'Content-Type': 'application/json' };
+            const headers = { "Content-Type": "application/json" };
             const user = auth.currentUser;
-
             if (user) {
                 try {
-                    const idToken = await user.getIdToken(true);
-                    headers['Authorization'] = `Bearer ${idToken}`;
+                    headers.Authorization = `Bearer ${await user.getIdToken(true)}`;
                 } catch (error) {
-                    console.error('Could not get auth token:', error);
-                    alert('Authentication error. Please try logging in again.');
-                    submitButton.classList.remove('loading');
-                    submitButton.disabled = false;
+                    updateInlineStatus("Auth token failed", true);
+                    submitBtn.disabled = false;
                     return;
                 }
             }
 
             try {
-                const response = await fetch('/api/shorten', {
-                    method: 'POST',
-                    headers: headers,
-                    body: JSON.stringify({ 
-                        originalUrl: longUrl, 
-                        customAlias: customAlias
-                    }),
+                const response = await fetch("/api/shorten", {
+                    method: "POST",
+                    headers,
+                    body: JSON.stringify({ originalUrl, customAlias })
                 });
+                const payload = await response.json();
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Something went wrong');
+                    throw new Error(payload.error || "Could not shorten URL");
                 }
 
-                const data = await response.json();
-                shortUrlLink.href = data.shortUrl;
-                shortUrlLink.textContent = data.shortUrl;
-                resultDiv.style.display = 'block';
+                shortUrl.href = payload.shortUrl;
+                shortUrl.textContent = payload.shortUrl;
+                result.style.display = "block";
+                updateInlineStatus("Created successfully");
 
+                pushRecentLink({
+                    originalUrl: payload.originalUrl,
+                    shortUrl: payload.shortUrl
+                });
+                showToast("Short URL ready");
             } catch (error) {
-                alert(`Error: ${error.message}`);
-                resultDiv.style.display = 'none';
+                updateInlineStatus(error.message, true);
+                showToast(error.message);
             } finally {
-                submitButton.classList.remove('loading');
-                submitButton.disabled = false;
+                submitBtn.disabled = false;
             }
         });
 
-        // (Clipboard logic remains the same)
-        document.getElementById('copyBtn').addEventListener('click', function() {
-            const shortUrl = document.getElementById('shortUrl').textContent;
-            navigator.clipboard.writeText(shortUrl).then(() => {
-                this.textContent = 'Copied!';
-                setTimeout(() => { this.textContent = 'Copy to Clipboard'; }, 2000);
-            });
+        copyBtn.addEventListener("click", async () => {
+            const value = shortUrl.textContent;
+            if (!value) return;
+            await navigator.clipboard.writeText(value);
+            showToast("Copied to clipboard");
         });
+
+        openBtn.addEventListener("click", () => {
+            if (shortUrl.href) window.open(shortUrl.href, "_blank", "noopener");
+        });
+
+        renderRecent();
     </script>
-
-    <footer>
-    © 2025 Basith AbuSyed. All rights reserved.<br>
-    This site is under active development. Check back occasionally for new features.
-    <span class="footer-gear">⚙️</span>
-</footer>
-
-
 </body>
 </html>
