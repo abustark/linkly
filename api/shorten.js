@@ -68,6 +68,6 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'Invalid URL format' });
         }
         console.error('Shorten error:', error);
-        res.status(500).json({ error: 'Error creating short URL' });
+        res.status(500).json({ error: error.message });
     }
 };
