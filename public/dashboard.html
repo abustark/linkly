@@ -3,294 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linkly | Dashboard</title>
+    <title>Linkly Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-
     <style>
         :root {
-            --bg: #f5f7fb;
-            --surface: #ffffff;
-            --surface-2: #f8f9fd;
-            --text: #111827;
-            --muted: #5f677b;
-            --line: #dbe2ee;
-            --brand: #0f766e;
-            --brand-2: #155e75;
-            --shadow: 0 18px 44px rgba(15, 23, 42, 0.07);
-            --radius: 12px;
+            --bg: #f7fafc;
+            --card: #fff;
+            --text: #0f172a;
+            --muted: #475569;
+            --line: #dbe3ef;
+            --brand: #0369a1;
+            --brand-2: #0284c7;
         }
         [data-theme="dark"] {
             --bg: #0b1220;
-            --surface: #111a2f;
-            --surface-2: #16213b;
-            --text: #e6edf8;
+            --card: #101b33;
+            --text: #e2e8f0;
             --muted: #9fb0cd;
             --line: #253557;
-            --brand: #14b8a6;
-            --brand-2: #06b6d4;
-            --shadow: 0 18px 44px rgba(2, 6, 23, 0.45);
+            --brand: #22d3ee;
+            --brand-2: #0ea5e9;
         }
-
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: "Plus Jakarta Sans", sans-serif;
+            font-family: Manrope, sans-serif;
+            background: linear-gradient(180deg, #ecfeff 0%, var(--bg) 140px);
             color: var(--text);
-            background:
-                radial-gradient(circle at 0% -10%, #d1fae5 0%, transparent 35%),
-                radial-gradient(circle at 100% 0%, #cffafe 0%, transparent 30%),
-                var(--bg);
             min-height: 100vh;
         }
-
-        .wrap {
-            width: min(1160px, 92vw);
-            margin: 28px auto 36px;
-        }
-
+        .wrap { width: min(980px, 92vw); margin: 26px auto 36px; }
         .topbar {
-            background: rgba(255,255,255,0.92);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            padding: 12px 16px;
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-        }
-        .brand { font-weight: 800; }
-        .top-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-        .theme-toggle { min-width: 92px; }
-
-        .btn {
-            border: 1px solid var(--line);
-            background: var(--surface);
-            color: var(--text);
-            border-radius: 10px;
-            font: inherit;
-            padding: 9px 12px;
-            cursor: pointer;
-            transition: 0.2s ease;
-        }
-        .btn:hover { transform: translateY(-1px); }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-            color: #fff;
-            border-color: transparent;
-        }
-
-        .stats {
-            margin-top: 16px;
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 12px;
-        }
-        .card {
-            background: var(--surface);
-            border: 1px solid var(--line);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-        }
-        .stat-card { padding: 14px; }
-        .stat-label { font-size: 0.83rem; color: var(--muted); }
-        .stat-value { margin-top: 6px; font-size: 1.45rem; font-weight: 800; }
-
-        .panel {
-            margin-top: 14px;
-            padding: 14px;
-        }
-        .sparkline-card {
-            margin-top: 14px;
-            padding: 14px;
-        }
-        .sparkline-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 8px;
-        }
-        .sparkline-title {
-            font-size: 0.92rem;
-            color: var(--muted);
-            font-weight: 600;
-        }
-        .sparkline-value {
-            font-size: 0.9rem;
-            color: var(--text);
-            font-weight: 700;
-        }
-        .sparkline {
-            width: 100%;
-            height: 90px;
-            border-radius: 10px;
-            background: var(--surface-2);
-            border: 1px solid var(--line);
-            display: block;
-        }
-
-        .controls {
-            display: grid;
-            grid-template-columns: 1.1fr auto auto;
             gap: 10px;
-            align-items: center;
+            margin-bottom: 14px;
         }
-        .search {
-            width: 100%;
-            padding: 10px 12px;
+        .brand { font-weight: 800; font-size: 1.05rem; }
+        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .id-badge {
             border: 1px solid var(--line);
-            border-radius: 10px;
-            background: var(--surface-2);
-            font: inherit;
-        }
-        .filters {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
-        }
-        .chip {
-            border: 1px solid var(--line);
-            background: var(--surface);
-            color: var(--text);
-            border-radius: 999px;
-            padding: 7px 10px;
-            font-size: 0.84rem;
-            cursor: pointer;
-        }
-        .chip.active {
-            background: #ccfbf1;
-            border-color: #5eead4;
-            color: #0f766e;
-            font-weight: 700;
-        }
-
-        .status-row {
-            margin-top: 10px;
+            background: var(--card);
             color: var(--muted);
-            font-size: 0.9rem;
-        }
-
-        .table-wrap {
-            margin-top: 10px;
-            overflow: auto;
-            border: 1px solid var(--line);
-            border-radius: 12px;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 860px;
-            background: #fff;
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--line);
-            vertical-align: middle;
-        }
-        th {
-            background: #f1f5f9;
-            font-size: 0.85rem;
-            color: #334155;
-            font-weight: 700;
-        }
-        .url-cell {
-            max-width: 300px;
+            border-radius: 999px;
+            padding: 8px 11px;
+            font-size: 0.8rem;
+            max-width: 260px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
-            color: var(--muted);
-            font-size: 0.88rem;
         }
-        .short-link {
-            color: #0f766e;
-            font-weight: 700;
-            text-decoration: none;
-        }
-        .badge {
+        .theme-switch {
+            position: relative;
+            width: 52px;
+            height: 30px;
             display: inline-block;
-            background: #e2e8f0;
-            color: #0f172a;
+        }
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .slider {
+            position: absolute;
+            inset: 0;
             border-radius: 999px;
-            padding: 4px 10px;
-            font-size: 0.8rem;
-            font-weight: 700;
+            background: #cbd5e1;
+            cursor: pointer;
+            transition: 0.2s ease;
+            border: 1px solid var(--line);
         }
-        .row-actions {
-            display: flex;
-            gap: 6px;
-            flex-wrap: wrap;
+        .slider::before {
+            content: "";
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            left: 3px;
+            top: 3px;
+            border-radius: 50%;
+            background: #fff;
+            transition: 0.2s ease;
         }
-        .tiny {
-            padding: 6px 9px;
-            font-size: 0.8rem;
-            border-radius: 8px;
+        .theme-switch input:checked + .slider {
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
         }
-
-        .empty {
-            padding: 16px;
-            color: var(--muted);
-            text-align: center;
+        .theme-switch input:checked + .slider::before {
+            transform: translateX(22px);
         }
-
+        .btn {
+            border: 1px solid var(--line);
+            background: var(--card);
+            color: var(--text);
+            border-radius: 10px;
+            padding: 9px 12px;
+            font: inherit;
+            cursor: pointer;
+        }
+        .btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border: none; color: #fff; }
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            padding: 14px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .stat .k { color: var(--muted); font-size: 0.85rem; }
+        .stat .v { margin-top: 4px; font-weight: 800; font-size: 1.35rem; }
+        .controls {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .search {
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+            font: inherit;
+            width: 100%;
+            background: var(--card);
+            color: var(--text);
+        }
+        .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+        .chip {
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            background: var(--card);
+            color: var(--text);
+            padding: 7px 10px;
+            font: inherit;
+            cursor: pointer;
+        }
+        .chip.active { background: #e0f2fe; border-color: #7dd3fc; }
+        .status { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
+        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
+        table { width: 100%; border-collapse: collapse; min-width: 760px; background: var(--card); }
+        th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; }
+        th { font-size: 0.83rem; color: var(--muted); }
+        .o { max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
+        .s { color: var(--brand); font-weight: 700; text-decoration: none; }
+        .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+        .tiny { padding: 6px 8px; font-size: 0.82rem; }
+        .spark {
+            margin-top: 12px;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            padding: 10px;
+        }
+        .spark-top { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
+        svg { width: 100%; height: 84px; display: block; border-radius: 8px; background: rgba(148, 163, 184, 0.08); }
         .modal {
             position: fixed;
             inset: 0;
             display: none;
             align-items: center;
             justify-content: center;
-            background: rgba(15, 23, 42, 0.45);
-            z-index: 10;
-            padding: 14px;
+            background: rgba(0,0,0,0.45);
+            padding: 12px;
         }
         .modal.open { display: flex; }
         .modal-box {
-            width: min(420px, 100%);
-            background: var(--surface);
+            background: var(--card);
             border: 1px solid var(--line);
             border-radius: 12px;
-            box-shadow: var(--shadow);
-            padding: 14px;
-        }
-        .modal-head {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        #qrcode-container {
-            background: #fff;
-            border-radius: 10px;
-            border: 1px solid var(--line);
             padding: 12px;
-            display: inline-block;
+            width: min(380px, 100%);
         }
-
-        .toast {
-            position: fixed;
-            right: 16px;
-            bottom: 16px;
-            background: #0f172a;
-            color: #f8fafc;
-            padding: 10px 12px;
-            border-radius: 10px;
-            opacity: 0;
-            transform: translateY(10px);
-            transition: 0.2s ease;
-            pointer-events: none;
-            z-index: 20;
+        #qrcode-container { display: inline-block; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
         }
-        .toast.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        @media (max-width: 920px) {
+        @media (max-width: 880px) {
             .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
             .controls { grid-template-columns: 1fr; }
         }
@@ -298,60 +196,44 @@
 </head>
 <body>
     <div class="wrap">
-        <header class="topbar card">
+        <div class="topbar">
             <div class="brand">Linkly Dashboard</div>
-            <div class="top-actions">
-                <button id="themeToggleBtn" class="btn theme-toggle" type="button">Dark</button>
-                <button id="backBtn" class="btn">Back to Shortener</button>
-                <button id="logoutBtn" class="btn btn-primary">Logout</button>
+            <div class="actions">
+                <label class="theme-switch" title="Toggle dark mode">
+                    <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
+                    <span class="slider"></span>
+                </label>
+                <div id="userIdBadge" class="id-badge">Logged in as: -</div>
+                <button id="backBtn" class="btn" type="button">Back</button>
+                <button id="logoutBtn" class="btn btn-primary" type="button">Logout</button>
             </div>
-        </header>
+        </div>
 
         <section class="stats">
-            <div class="card stat-card">
-                <div class="stat-label">Total Links</div>
-                <div class="stat-value" id="totalLinks">0</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-label">Total Clicks</div>
-                <div class="stat-value" id="totalClicks">0</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-label">Top Link Clicks</div>
-                <div class="stat-value" id="topClicks">0</div>
-            </div>
-            <div class="card stat-card">
-                <div class="stat-label">Created in Filter</div>
-                <div class="stat-value" id="filteredLinks">0</div>
-            </div>
+            <div class="card stat"><div class="k">Total Links</div><div id="totalLinks" class="v">0</div></div>
+            <div class="card stat"><div class="k">Total Clicks</div><div id="totalClicks" class="v">0</div></div>
+            <div class="card stat"><div class="k">Top Link Clicks</div><div id="topClicks" class="v">0</div></div>
+            <div class="card stat"><div class="k">Filtered Links</div><div id="filteredLinks" class="v">0</div></div>
         </section>
 
-        <section class="card sparkline-card">
-            <div class="sparkline-head">
-                <div class="sparkline-title">Clicks Trend (Latest 12 Links)</div>
-                <div id="sparklineSummary" class="sparkline-value">No data</div>
-            </div>
-            <svg id="clicksSparkline" class="sparkline" viewBox="0 0 360 90" preserveAspectRatio="none" aria-label="Clicks trend chart"></svg>
-        </section>
-
-        <section class="panel card">
+        <section class="card">
             <div class="controls">
-                <input id="searchInput" class="search" type="text" placeholder="Search by short code or original URL">
-                <div class="filters">
-                    <button class="chip active" data-filter="all">All</button>
-                    <button class="chip" data-filter="7d">7d</button>
-                    <button class="chip" data-filter="30d">30d</button>
+                <input id="searchInput" class="search" placeholder="Search by URL or short code">
+                <div class="chips">
+                    <button class="chip active" data-filter="all" type="button">All</button>
+                    <button class="chip" data-filter="7d" type="button">7d</button>
+                    <button class="chip" data-filter="30d" type="button">30d</button>
                 </div>
-                <button id="refreshBtn" class="btn">Refresh</button>
+                <button id="refreshBtn" class="btn" type="button">Refresh</button>
             </div>
-            <div id="statusRow" class="status-row">Loading your links...</div>
+            <div id="statusRow" class="status">Loading links...</div>
 
             <div class="table-wrap">
                 <table>
                     <thead>
                         <tr>
                             <th>Original URL</th>
-                            <th>Short Link</th>
+                            <th>Short URL</th>
                             <th>Clicks</th>
                             <th>Created</th>
                             <th>Actions</th>
@@ -360,25 +242,28 @@
                     <tbody id="linksTbody"></tbody>
                 </table>
             </div>
-            <div id="emptyState" class="empty" style="display:none;">No links found for this filter.</div>
+
+            <div class="spark">
+                <div class="spark-top"><span>Clicks Trend (Latest 12 Links)</span><span id="sparkSummary">No data</span></div>
+                <svg id="sparkline" viewBox="0 0 360 84" preserveAspectRatio="none"></svg>
+            </div>
         </section>
+
+        <footer class="footer">
+            © 2025 Basith AbuSyed. All rights reserved.<br>
+            This site is under active development. Check back occasionally for new features.
+        </footer>
     </div>
 
     <div id="qrModal" class="modal">
         <div class="modal-box">
-            <div class="modal-head">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                 <strong>QR Code</strong>
-                <button id="closeModalBtn" class="btn tiny">Close</button>
+                <button id="closeModalBtn" class="btn tiny" type="button">Close</button>
             </div>
             <div id="qrcode-container"></div>
-            <div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">
-                <button id="copyModalLinkBtn" class="btn tiny">Copy Link</button>
-                <button id="downloadQrBtn" class="btn tiny">Download QR</button>
-            </div>
         </div>
     </div>
-
-    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
         const firebaseConfig = {
@@ -390,156 +275,91 @@
             appId: "1:289406240228:web:4b7e82d2a51089e8fbf3f1",
             measurementId: "G-CPNES7BTDN"
         };
-
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
+
+        const THEME_KEY = "linkly_theme";
+        const themeToggle = document.getElementById("themeToggle");
+        const userIdBadge = document.getElementById("userIdBadge");
+        function setTheme(theme) {
+            document.documentElement.setAttribute("data-theme", theme);
+            themeToggle.checked = theme === "dark";
+            localStorage.setItem(THEME_KEY, theme);
+        }
+        setTheme(localStorage.getItem(THEME_KEY) || "light");
+        themeToggle.addEventListener("change", () => setTheme(themeToggle.checked ? "dark" : "light"));
 
         const linksTbody = document.getElementById("linksTbody");
         const statusRow = document.getElementById("statusRow");
-        const emptyState = document.getElementById("emptyState");
         const searchInput = document.getElementById("searchInput");
         const refreshBtn = document.getElementById("refreshBtn");
         const chips = Array.from(document.querySelectorAll(".chip"));
-        const totalLinksEl = document.getElementById("totalLinks");
-        const totalClicksEl = document.getElementById("totalClicks");
-        const topClicksEl = document.getElementById("topClicks");
-        const filteredLinksEl = document.getElementById("filteredLinks");
+        const totalLinks = document.getElementById("totalLinks");
+        const totalClicks = document.getElementById("totalClicks");
+        const topClicks = document.getElementById("topClicks");
+        const filteredLinks = document.getElementById("filteredLinks");
+        const sparkline = document.getElementById("sparkline");
+        const sparkSummary = document.getElementById("sparkSummary");
         const qrModal = document.getElementById("qrModal");
-        const qrContainer = document.getElementById("qrcode-container");
+        const qrcodeContainer = document.getElementById("qrcode-container");
         const closeModalBtn = document.getElementById("closeModalBtn");
-        const copyModalLinkBtn = document.getElementById("copyModalLinkBtn");
-        const downloadQrBtn = document.getElementById("downloadQrBtn");
-        const toast = document.getElementById("toast");
         const backBtn = document.getElementById("backBtn");
         const logoutBtn = document.getElementById("logoutBtn");
-        const themeToggleBtn = document.getElementById("themeToggleBtn");
-        const clicksSparkline = document.getElementById("clicksSparkline");
-        const sparklineSummary = document.getElementById("sparklineSummary");
 
         let allLinks = [];
         let currentFilter = "all";
-        let currentQrUrl = "";
-        let toastTimer = null;
-        const THEME_KEY = "linkly_theme";
 
-        function applyTheme(theme) {
-            document.documentElement.setAttribute("data-theme", theme);
-            themeToggleBtn.textContent = theme === "dark" ? "Light" : "Dark";
-        }
-
-        applyTheme(localStorage.getItem(THEME_KEY) || "light");
-
-        function showToast(message) {
-            toast.textContent = message;
-            toast.classList.add("show");
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => toast.classList.remove("show"), 1700);
-        }
-
-        function formatDate(input) {
-            if (!input) return "-";
-            const d = new Date(input);
-            if (Number.isNaN(d.getTime())) return "-";
-            return d.toLocaleDateString();
-        }
-
-        function daysAgo(input) {
-            if (!input) return 9999;
-            const d = new Date(input);
+        function daysAgo(date) {
+            const d = new Date(date);
             if (Number.isNaN(d.getTime())) return 9999;
-            const diff = Date.now() - d.getTime();
-            return diff / (1000 * 60 * 60 * 24);
+            return (Date.now() - d.getTime()) / 86400000;
+        }
+        function formatDate(date) {
+            const d = new Date(date);
+            return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
         }
 
-        function applyFilters() {
-            const q = searchInput.value.trim().toLowerCase();
-            let filtered = [...allLinks];
-
-            if (currentFilter === "7d") {
-                filtered = filtered.filter((l) => daysAgo(l.createdAt) <= 7);
-            } else if (currentFilter === "30d") {
-                filtered = filtered.filter((l) => daysAgo(l.createdAt) <= 30);
+        function renderSpark(links) {
+            const values = links.slice(0, 12).map((x) => Number(x.clickCount) || 0).reverse();
+            if (!values.length) {
+                sparkline.innerHTML = "";
+                sparkSummary.textContent = "No data";
+                return;
             }
-
-            if (q) {
-                filtered = filtered.filter((l) =>
-                    (l.originalUrl || "").toLowerCase().includes(q) ||
-                    (l.shortCode || "").toLowerCase().includes(q)
-                );
-            }
-
-            renderTable(filtered);
-            renderStats(filtered);
-            statusRow.textContent = `Showing ${filtered.length} of ${allLinks.length} links`;
+            const w = 360, h = 84, p = 10;
+            const max = Math.max(...values, 1);
+            const step = values.length > 1 ? (w - p * 2) / (values.length - 1) : 0;
+            const points = values.map((v, i) => `${p + i * step},${h - p - (v / max) * (h - p * 2)}`).join(" ");
+            const area = `${p},${h - p} ${points} ${w - p},${h - p}`;
+            sparkline.innerHTML = `
+                <polyline points="${area}" fill="rgba(14,165,233,0.2)" stroke="none"></polyline>
+                <polyline points="${points}" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round"></polyline>
+            `;
+            sparkSummary.textContent = `Max ${max}`;
         }
 
         function renderStats(filtered) {
-            const totalClicks = allLinks.reduce((sum, l) => sum + (Number(l.clickCount) || 0), 0);
-            const topClicks = allLinks.reduce((m, l) => Math.max(m, Number(l.clickCount) || 0), 0);
-            totalLinksEl.textContent = String(allLinks.length);
-            totalClicksEl.textContent = String(totalClicks);
-            topClicksEl.textContent = String(topClicks);
-            filteredLinksEl.textContent = String(filtered.length);
-            renderSparkline(allLinks);
+            totalLinks.textContent = String(allLinks.length);
+            totalClicks.textContent = String(allLinks.reduce((a, b) => a + (Number(b.clickCount) || 0), 0));
+            topClicks.textContent = String(allLinks.reduce((m, x) => Math.max(m, Number(x.clickCount) || 0), 0));
+            filteredLinks.textContent = String(filtered.length);
+            renderSpark(allLinks);
         }
 
-        function renderSparkline(links) {
-            const values = links
-                .slice(0, 12)
-                .map((l) => Number(l.clickCount) || 0)
-                .reverse();
-
-            if (!values.length) {
-                clicksSparkline.innerHTML = "";
-                sparklineSummary.textContent = "No data";
-                return;
-            }
-
-            const width = 360;
-            const height = 90;
-            const pad = 10;
-            const maxValue = Math.max(...values, 1);
-            const stepX = values.length > 1 ? (width - pad * 2) / (values.length - 1) : 0;
-
-            const points = values.map((v, i) => {
-                const x = pad + i * stepX;
-                const y = height - pad - (v / maxValue) * (height - pad * 2);
-                return `${x},${y}`;
-            }).join(" ");
-
-            const areaPoints = `${pad},${height - pad} ${points} ${width - pad},${height - pad}`;
-            clicksSparkline.innerHTML = `
-                <polyline points="${areaPoints}" fill="rgba(20,184,166,0.18)" stroke="none"></polyline>
-                <polyline points="${points}" fill="none" stroke="url(#lineGradient)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                <defs>
-                    <linearGradient id="lineGradient" x1="0" y1="0" x2="1" y2="0">
-                        <stop offset="0%" stop-color="#14b8a6"></stop>
-                        <stop offset="100%" stop-color="#06b6d4"></stop>
-                    </linearGradient>
-                </defs>
-            `;
-
-            sparklineSummary.textContent = `Max ${maxValue} clicks`;
-        }
-
-        function renderTable(links) {
+        function renderRows(links) {
             linksTbody.innerHTML = "";
-            emptyState.style.display = links.length ? "none" : "block";
-
-            links.forEach((link) => {
+            links.forEach((l) => {
+                const short = `${window.location.origin}/${l.shortCode}`;
                 const tr = document.createElement("tr");
-                const short = `${window.location.origin}/${link.shortCode}`;
                 tr.innerHTML = `
-                    <td class="url-cell" title="${link.originalUrl}">${link.originalUrl}</td>
-                    <td><a class="short-link" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
-                    <td><span class="badge">${link.clickCount || 0}</span></td>
-                    <td>${formatDate(link.createdAt)}</td>
+                    <td class="o" title="${l.originalUrl}">${l.originalUrl}</td>
+                    <td><a class="s" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
+                    <td>${l.clickCount || 0}</td>
+                    <td>${formatDate(l.createdAt)}</td>
                     <td>
                         <div class="row-actions">
-                            <button class="btn tiny copy-btn" data-url="${short}">Copy</button>
-                            <button class="btn tiny qr-btn" data-url="${short}">QR</button>
+                            <button class="btn tiny copy-btn" data-url="${short}" type="button">Copy</button>
+                            <button class="btn tiny qr-btn" data-url="${short}" type="button">QR</button>
                             <a class="btn tiny" href="${short}" target="_blank" rel="noopener noreferrer">Open</a>
                         </div>
                     </td>
@@ -548,100 +368,60 @@
             });
         }
 
-        async function fetchUserLinks(user) {
-            statusRow.textContent = "Loading your links...";
+        function applyFilters() {
+            const q = searchInput.value.trim().toLowerCase();
+            let list = [...allLinks];
+            if (currentFilter === "7d") list = list.filter((x) => daysAgo(x.createdAt) <= 7);
+            if (currentFilter === "30d") list = list.filter((x) => daysAgo(x.createdAt) <= 30);
+            if (q) list = list.filter((x) => (x.originalUrl || "").toLowerCase().includes(q) || (x.shortCode || "").toLowerCase().includes(q));
+            renderRows(list);
+            renderStats(list);
+            statusRow.textContent = `Showing ${list.length} of ${allLinks.length} links`;
+        }
+
+        async function loadLinks(user) {
+            statusRow.textContent = "Loading links...";
             try {
-                const idToken = await user.getIdToken(true);
-                const response = await fetch("/api/links", {
-                    headers: { Authorization: `Bearer ${idToken}` }
-                });
-
-                if (!response.ok) {
-                    throw new Error(`Failed with status ${response.status}`);
-                }
-
+                const token = await user.getIdToken(true);
+                const response = await fetch("/api/links", { headers: { Authorization: `Bearer ${token}` } });
+                if (!response.ok) throw new Error(`Status ${response.status}`);
                 allLinks = await response.json();
                 applyFilters();
             } catch (error) {
-                console.error("Error fetching links:", error);
-                statusRow.textContent = "Could not load links.";
-                renderTable([]);
-                renderStats([]);
+                console.error(error);
+                statusRow.textContent = "Failed to load links.";
             }
-        }
-
-        function openQr(url) {
-            currentQrUrl = url;
-            qrContainer.innerHTML = "";
-            new QRCode(qrContainer, { text: url, width: 220, height: 220 });
-            qrModal.classList.add("open");
-        }
-
-        function downloadQr() {
-            const img = qrContainer.querySelector("img");
-            const canvas = qrContainer.querySelector("canvas");
-            const src = img ? img.src : (canvas ? canvas.toDataURL("image/png") : "");
-            if (!src) return;
-            const a = document.createElement("a");
-            a.href = src;
-            a.download = "linkly-qr.png";
-            a.click();
         }
 
         linksTbody.addEventListener("click", async (e) => {
-            const target = e.target;
-            if (target.classList.contains("copy-btn")) {
-                await navigator.clipboard.writeText(target.dataset.url || "");
-                showToast("Copied link");
+            const t = e.target;
+            if (t.classList.contains("copy-btn")) {
+                await navigator.clipboard.writeText(t.dataset.url || "");
             }
-            if (target.classList.contains("qr-btn")) {
-                openQr(target.dataset.url || "");
+            if (t.classList.contains("qr-btn")) {
+                qrcodeContainer.innerHTML = "";
+                new QRCode(qrcodeContainer, { text: t.dataset.url || "", width: 220, height: 220 });
+                qrModal.classList.add("open");
             }
-        });
-
-        searchInput.addEventListener("input", applyFilters);
-        chips.forEach((chip) => {
-            chip.addEventListener("click", () => {
-                chips.forEach((c) => c.classList.remove("active"));
-                chip.classList.add("active");
-                currentFilter = chip.dataset.filter;
-                applyFilters();
-            });
-        });
-
-        refreshBtn.addEventListener("click", async () => {
-            const user = auth.currentUser;
-            if (user) await fetchUserLinks(user);
         });
 
         closeModalBtn.addEventListener("click", () => qrModal.classList.remove("open"));
-        qrModal.addEventListener("click", (e) => {
-            if (e.target === qrModal) qrModal.classList.remove("open");
-        });
-        copyModalLinkBtn.addEventListener("click", async () => {
-            if (!currentQrUrl) return;
-            await navigator.clipboard.writeText(currentQrUrl);
-            showToast("Copied link");
-        });
-        downloadQrBtn.addEventListener("click", downloadQr);
-
+        qrModal.addEventListener("click", (e) => { if (e.target === qrModal) qrModal.classList.remove("open"); });
+        searchInput.addEventListener("input", applyFilters);
+        chips.forEach((c) => c.addEventListener("click", () => {
+            chips.forEach((x) => x.classList.remove("active"));
+            c.classList.add("active");
+            currentFilter = c.dataset.filter;
+            applyFilters();
+        }));
+        refreshBtn.addEventListener("click", async () => { if (auth.currentUser) await loadLinks(auth.currentUser); });
         backBtn.addEventListener("click", () => window.location.href = "/");
-        logoutBtn.addEventListener("click", async () => {
-            await auth.signOut();
-            window.location.href = "/";
-        });
-        themeToggleBtn.addEventListener("click", () => {
-            const next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
-            localStorage.setItem(THEME_KEY, next);
-            applyTheme(next);
-        });
+        logoutBtn.addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
 
         auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = "/";
-                return;
-            }
-            await fetchUserLinks(user);
+            if (!user) { window.location.href = "/"; return; }
+            userIdBadge.textContent = `Logged in as: ${user.email || user.uid}`;
+            await loadLinks(user);
         });
     </script>
 </body>
