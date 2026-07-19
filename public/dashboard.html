@@ -161,8 +161,8 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>Original URL</th>
                             <th>Short URL</th>
+                            <th>Original URL</th>
                             <th>Clicks</th>
                             <th>Created</th>
                             <th class="actions-col">Actions</th>
@@ -352,8 +352,8 @@
                 const short = shortUrlOf(l);
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td><span class="o" title="Click to copy\u000d\u000a${l.originalUrl}" data-copy="${l.originalUrl}">${prettyUrl(l.originalUrl)}</span></td>
                     <td><a class="s" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
+                    <td><span class="o" title="Click to copy\u000d\u000a${l.originalUrl}" data-copy="${l.originalUrl}">${prettyUrl(l.originalUrl)}</span></td>
                     <td><span class="clicks-pill">${l.clickCount || 0}</span></td>
                     <td class="date" title="${formatDate(l.createdAt)}">${relDate(l.createdAt)}</td>
                     <td class="actions-col">

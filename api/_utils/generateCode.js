@@ -1,21 +1,32 @@
-// Generate a random, fixed-length, URL-safe short code.
-const ALPHABET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-const CODE_LENGTH = 6;
+// Generate a human-readable, URL-safe short code from a curated word list.
+const WORDS = require('./words');
 
-function generateShortCode() {
-    let code = '';
-    const bytes = new Uint8Array(CODE_LENGTH);
+function pickWord() {
     if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        const bytes = new Uint32Array(1);
         crypto.getRandomValues(bytes);
-        for (let i = 0; i < CODE_LENGTH; i += 1) {
-            code += ALPHABET[bytes[i] % ALPHABET.length];
-        }
-    } else {
-        for (let i = 0; i < CODE_LENGTH; i += 1) {
-            code += ALPHABET[Math.floor(Math.random() * ALPHABET.length)];
-        }
+        return WORDS[bytes[0] % WORDS.length];
     }
-    return code;
+    return WORDS[Math.floor(Math.random() * WORDS.length)];
 }
 
-module.exports = { generateShortCode, CODE_LENGTH };
+function randomSuffix() {
+    const bytes = new Uint32Array(1);
+    if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+        crypto.getRandomValues(bytes);
+        return (bytes[0] % 90) + 10; // 10-99
+    }
+    return (Math.floor(Math.random() * 90) + 10);
+}
+
+function generateShortCode() {
+    const word = pickWord();
+    // ~10% of the time add a numeric suffix up front to spread collisions;
+    // the uniqueness check in shorten.js will append a suffix if still taken.
+    if (Math.random() < 0.25) {
+        return `${word}${randomSuffix()}`;
+    }
+    return word;
+}
+
+module.exports = { generateShortCode, WORDS };

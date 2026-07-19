@@ -79,6 +79,11 @@ async function generateUniqueShortCode(Url) {
         const candidate = generateShortCode();
         const existing = await Url.findOne({ shortCode: candidate });
         if (!existing) return candidate;
+        // On collision, append a short random number to keep the word base.
+        const suffix = (Math.floor(Math.random() * 90) + 10);
+        const retry = `${candidate}${suffix}`;
+        const retryExisting = await Url.findOne({ shortCode: retry });
+        if (!retryExisting) return retry;
     }
     throw new Error('Could not generate a unique short code. Please try again.');
 }
