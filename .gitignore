@@ -6,4 +6,8 @@ node_modules
 
 # Firebase Service Account Key - Protects your Firebase project admin key
 serviceAccountKey.json
+api/serviceAccountKey.json
+
+# OpenCode local config (may contain API keys)
+.opencode.json
 .vercel

@@ -57,17 +57,45 @@ Add your screenshots in `public/screenshots/` and update these paths:
 ## Local Development
 1. Install dependencies:
    - `npm install`
-2. Configure local environment variables in `.env`:
-   - `MONGODB_URI=...`
+2. Configure environment variables:
+   - `.env` (already gitignored):
+     - `MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/linkly`
+     - `PORT=5000` (optional)
+   - `api/serviceAccountKey.json` (already gitignored): download your
+     Firebase Admin SDK service account JSON from the Firebase console
+     (Project settings → Service accounts → Generate new private key) and
+     place it here. Alternatively set `FIREBASE_SERVICE_ACCOUNT` (raw JSON
+     or base64) in the Vercel environment.
 3. Run locally:
    - `npm run dev`
 4. Open:
    - `http://localhost:5000`
 
+> Note: Google Sign-In uses the Firebase web config embedded in the pages.
+> Admin verification (dashboard, delete) uses the service account above.
+
+## OpenCode Model Launcher
+- File: `start-ai.bat`
+- Run from project root:
+  - `start-ai.bat`
+
+What it does:
+1. Checks `OPENROUTER_API_KEY`.
+2. If missing, prompts once and saves it as a Windows User Environment Variable.
+3. Shows model selector (1-9).
+4. Generates `.opencode.json` in the current folder.
+5. Launches `opencode`.
+
+Notes:
+- You usually paste the API key only once on your machine.
+- `.opencode.json` is gitignored because it may contain your key.
+- For another project, copy `start-ai.bat` there and run it.
+
 ## API Endpoints
-- `POST /api/shorten` - Create short URL
-- `GET /api/links` - Get logged-in user's links
-- `GET /:shortCode` - Redirect to original URL and increment click count
+- `POST /api/shorten` - Create short URL (optional `Authorization: Bearer <token>`)
+- `GET /api/links` - Get logged-in user's links (requires auth)
+- `DELETE /api/links/:shortCode` - Delete one of your links (requires auth)
+- `GET /:shortCode` - Redirect to original URL (302) and increment click count
 
 ## Author
-- Basith AbuSyed
+- Basith

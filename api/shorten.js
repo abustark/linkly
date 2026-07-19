@@ -3,6 +3,8 @@ const { generateShortCode } = require('./_utils/generateCode');
 const Url = require('./_models/Url');
 const admin = require('./_utils/firebase');
 
+const MAX_GENERATION_ATTEMPTS = 8;
+
 module.exports = async (req, res) => {
     const { originalUrl, customAlias } = req.body;
 
@@ -40,7 +42,7 @@ module.exports = async (req, res) => {
                 return res.status(409).json({ error: 'This custom alias is already in use.' });
             }
         } else {
-            shortCode = generateShortCode();
+            shortCode = await generateUniqueShortCode(Url);
         }
         
         const newUrlData = {
@@ -71,3 +73,12 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+async function generateUniqueShortCode(Url) {
+    for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
+        const candidate = generateShortCode();
+        const existing = await Url.findOne({ shortCode: candidate });
+        if (!existing) return candidate;
+    }
+    throw new Error('Could not generate a unique short code. Please try again.');
+}

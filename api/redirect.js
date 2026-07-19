@@ -26,8 +26,9 @@ module.exports = async (req, res) => {
         await url.save();
 
         // Perform the redirect to the original URL
-        // We use a 301 status code for a permanent redirect
-        res.redirect(301, url.originalUrl);
+        // We use a 302 status code so click counts stay accurate
+        // (a 301 permanent redirect can be cached by browsers/clients).
+        res.redirect(302, url.originalUrl);
 
     } catch (error) {
         console.error('Redirect error:', error);

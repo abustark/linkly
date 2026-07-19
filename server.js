@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -11,11 +12,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 const shortenRoute = require('./api/shorten');
 const linksRoute = require('./api/links');
-const redirectRoute = require('./api/[shortCode]');
+const redirectRoute = require('./api/redirect');
+require('./api/_utils/firebase');
 
 app.post('/api/shorten', (req, res) => shortenRoute(req, res));
 app.get('/api/links', (req, res) => linksRoute(req, res));
-app.get('/:shortCode', (req, res) => {
+app.delete('/api/links/:shortCode', (req, res) => {
+    req.query.shortCode = req.params.shortCode;
+    require('./api/deleteLink')(req, res);
+});
+app.get('/:shortCode', (req, res, next) => {
+    if (req.path.startsWith('/api') || req.path.includes('.')) return next();
     req.query.shortCode = req.params.shortCode;
     redirectRoute(req, res);
 });

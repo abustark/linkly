@@ -2,7 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Linkly Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -12,219 +13,215 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
         :root {
-            --bg: #f7fafc;
-            --card: #fff;
+            --bg: #f4f7fb;
+            --bg-2: #eaf2fb;
+            --card: #ffffff;
             --text: #0f172a;
-            --muted: #475569;
-            --line: #dbe3ef;
-            --brand: #0369a1;
-            --brand-2: #0284c7;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --brand: #2563eb;
+            --brand-2: #4f46e5;
+            --brand-soft: #eff4ff;
+            --ok-bg: #ecfdf5;
+            --ok-line: #a7f3d0;
+            --ok-text: #047857;
+            --danger: #dc2626;
+            --danger-soft: #fef2f2;
+            --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
+            --radius: 16px;
         }
         [data-theme="dark"] {
-            --bg: #0b1220;
-            --card: #101b33;
-            --text: #e2e8f0;
-            --muted: #9fb0cd;
-            --line: #253557;
-            --brand: #22d3ee;
-            --brand-2: #0ea5e9;
+            --bg: #0a0f1c;
+            --bg-2: #0e1424;
+            --card: #131a2b;
+            --text: #e8edf6;
+            --muted: #93a1bd;
+            --line: #243049;
+            --brand: #60a5fa;
+            --brand-2: #818cf8;
+            --brand-soft: #16223c;
+            --ok-bg: #06281f;
+            --ok-line: #0f5132;
+            --ok-text: #6ee7b7;
+            --danger: #f87171;
+            --danger-soft: #2a1620;
+            --shadow: 0 14px 40px -16px rgba(0, 0, 0, 0.6);
         }
         * { box-sizing: border-box; }
         body {
             margin: 0;
-            font-family: Manrope, sans-serif;
-            background: linear-gradient(180deg, #ecfeff 0%, var(--bg) 140px);
+            font-family: Manrope, system-ui, -apple-system, sans-serif;
+            background: radial-gradient(900px 480px at 100% -12%, var(--bg-2), transparent 70%), var(--bg);
             color: var(--text);
             min-height: 100vh;
+            min-height: 100dvh;
+            -webkit-font-smoothing: antialiased;
         }
-        .wrap { width: min(980px, 92vw); margin: 26px auto 36px; }
+        .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 14px 24px 36px; }
+
         .topbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
+            display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 18px; width: 100%;
         }
-        .brand { font-weight: 800; font-size: 1.05rem; }
-        .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
+        .logo {
+            width: 32px; height: 32px; border-radius: 10px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 0.95rem;
+            box-shadow: var(--shadow);
+        }
+        .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
         .id-badge {
-            border: 1px solid var(--line);
-            background: var(--card);
-            color: var(--muted);
-            border-radius: 999px;
-            padding: 8px 11px;
-            font-size: 0.8rem;
-            max-width: 260px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            border: 1px solid var(--line); background: var(--card); color: var(--muted);
+            border-radius: 999px; padding: 7px 12px; font-size: 0.74rem; max-width: 130px;
+            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
         }
-        .theme-switch {
-            position: relative;
-            width: 52px;
-            height: 30px;
-            display: inline-block;
-        }
-        .theme-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .theme-switch { position: relative; width: 48px; height: 28px; display: inline-block; flex-shrink: 0; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            inset: 0;
-            border-radius: 999px;
-            background: #cbd5e1;
-            cursor: pointer;
-            transition: 0.2s ease;
-            border: 1px solid var(--line);
+            position: absolute; inset: 0; border-radius: 999px; background: #cbd5e1; cursor: pointer;
+            transition: 0.2s ease; border: 1px solid var(--line);
         }
         .slider::before {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            left: 3px;
-            top: 3px;
-            border-radius: 50%;
-            background: #fff;
-            transition: 0.2s ease;
+            content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
+            border-radius: 50%; background: #fff; transition: 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
         }
-        .theme-switch input:checked + .slider {
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-        }
-        .theme-switch input:checked + .slider::before {
-            transform: translateX(22px);
-        }
+        .slider::after { content: "☀"; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #334155; }
+        .theme-switch input:checked + .slider { background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
+        .theme-switch input:checked + .slider::before { transform: translateX(20px); }
+        .theme-switch input:checked + .slider::after { content: "☾"; right: auto; left: 7px; color: #e8edf6; }
         .btn {
-            border: 1px solid var(--line);
-            background: var(--card);
-            color: var(--text);
-            border-radius: 10px;
-            padding: 9px 12px;
-            font: inherit;
-            cursor: pointer;
+            border: 1px solid var(--line); background: var(--card); color: var(--text);
+            border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease; white-space: nowrap;
         }
+        .btn:hover { border-color: var(--brand); }
         .btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border: none; color: #fff; }
+        .btn-primary:hover { filter: brightness(1.05); }
+        .btn-danger { color: var(--danger); border-color: var(--line); }
+        .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
+
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stat {
+            background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+            padding: 16px; box-shadow: var(--shadow);
+        }
+        .stat .k { color: var(--muted); font-size: 0.76rem; font-weight: 600; }
+        .stat .v { margin-top: 4px; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
+
         .card {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 14px;
+            background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
+            padding: 18px; box-shadow: var(--shadow);
         }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(4, minmax(0, 1fr));
-            gap: 10px;
-            margin-bottom: 12px;
-        }
-        .stat .k { color: var(--muted); font-size: 0.85rem; }
-        .stat .v { margin-top: 4px; font-weight: 800; font-size: 1.35rem; }
-        .controls {
-            display: grid;
-            grid-template-columns: 1fr auto auto;
-            gap: 8px;
-            margin-bottom: 10px;
-        }
+        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
         .search {
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 10px;
-            font: inherit;
-            width: 100%;
-            background: var(--card);
-            color: var(--text);
+            border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 15px; font: inherit; font-size: 1rem;
+            width: 100%; background: var(--bg); color: var(--text);
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
         }
+        [data-theme="dark"] .search { background: #0c1322; }
+        .search::placeholder { color: var(--muted); }
+        .search:focus { outline: none; border-color: var(--brand); background: var(--card); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
         .chips { display: flex; gap: 6px; flex-wrap: wrap; }
         .chip {
-            border: 1px solid var(--line);
-            border-radius: 999px;
-            background: var(--card);
-            color: var(--text);
-            padding: 7px 10px;
-            font: inherit;
-            cursor: pointer;
+            border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--muted);
+            padding: 8px 13px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease;
         }
-        .chip.active { background: #e0f2fe; border-color: #7dd3fc; }
-        .status { color: var(--muted); font-size: 0.9rem; margin-bottom: 10px; }
-        .table-wrap { overflow: auto; border: 1px solid var(--line); border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 760px; background: var(--card); }
-        th, td { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; }
-        th { font-size: 0.83rem; color: var(--muted); }
-        .o { max-width: 290px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); }
-        .s { color: var(--brand); font-weight: 700; text-decoration: none; }
-        .row-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-        .tiny { padding: 6px 8px; font-size: 0.82rem; }
-        .spark {
-            margin-top: 12px;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 10px;
+        .chip:hover { border-color: var(--brand); }
+        .chip.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-color: transparent; }
+        .toolbar-row { display: flex; gap: 10px; align-items: center; }
+
+        .status { color: var(--muted); font-size: 0.86rem; margin-bottom: 12px; }
+
+        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; -webkit-overflow-scrolling: touch; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); }
+        th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
+        th { font-size: 0.73rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+        th.actions-col, td.actions-col { text-align: center; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover { background: var(--brand-soft); }
+        td .o {
+            max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted);
+            cursor: pointer; transition: color 0.15s ease;
         }
-        .spark-top { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9rem; }
-        svg { width: 100%; height: 84px; display: block; border-radius: 8px; background: rgba(148, 163, 184, 0.08); }
-        .modal {
-            position: fixed;
-            inset: 0;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            background: rgba(0,0,0,0.45);
-            padding: 12px;
+        td .o:hover { color: var(--brand); }
+        .clicks-pill {
+            display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--brand);
+            background: var(--brand-soft); padding: 3px 9px; border-radius: 999px; white-space: nowrap;
         }
+        .date { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
+        .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; justify-content: center; }
+        .row-actions .tiny { padding: 5px 9px; font-size: 0.78rem; }
+
+        .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; }
+        .pager .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .page-info { font-size: 0.86rem; color: var(--muted); font-weight: 600; }
+
+        .spark { margin-top: 16px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; }
+        .spark-top { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.88rem; font-weight: 600; }
+        svg { width: 100%; height: 84px; display: block; border-radius: 8px; background: rgba(0,0,0,0.02); }
+
+        .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); padding: 12px; z-index: 50; }
         .modal.open { display: flex; }
-        .modal-box {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 12px;
-            padding: 12px;
-            width: min(380px, 100%);
+        .modal-box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; width: min(360px, 100%); }
+        #qrcode-container { display: inline-block; background: #fff; padding: 12px; border-radius: 10px; border: 1px solid var(--line); }
+
+        .toast {
+            position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0));
+            background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 11px;
+            opacity: 0; transform: translateY(10px); transition: 0.25s ease; pointer-events: none;
+            font-size: 0.88rem; box-shadow: var(--shadow); z-index: 60;
         }
-        #qrcode-container { display: inline-block; background: #fff; padding: 10px; border-radius: 8px; border: 1px solid var(--line); }
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.9rem;
-            line-height: 1.6;
+        .toast.show { opacity: 1; transform: translateY(0); }
+        .empty { text-align: center; color: var(--muted); padding: 28px 10px; }
+
+        footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 20px 0 0; line-height: 1.6; }
+
+        @media (min-width: 560px) {
+            .wrap { padding: 16px 20px 40px; }
+            .brand { font-size: 1.15rem; }
+            .logo { width: 34px; height: 34px; }
+            .id-badge { max-width: 220px; font-size: 0.78rem; padding: 8px 14px; }
+            .stats { gap: 12px; }
+            .controls { grid-template-columns: 1fr auto auto; align-items: center; }
+            .card { padding: 22px; }
         }
-        @media (max-width: 880px) {
-            .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .controls { grid-template-columns: 1fr; }
+        @media (min-width: 760px) {
+            .stats { grid-template-columns: repeat(4, 1fr); }
         }
     </style>
 </head>
 <body>
     <div class="wrap">
         <div class="topbar">
-            <div class="brand">Linkly Dashboard</div>
+            <div class="brand"><span class="logo">L</span> Linkly</div>
             <div class="actions">
                 <label class="theme-switch" title="Toggle dark mode">
                     <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
                     <span class="slider"></span>
                 </label>
-                <div id="userIdBadge" class="id-badge">Logged in as: -</div>
+                <div id="userIdBadge" class="id-badge">-</div>
                 <button id="backBtn" class="btn" type="button">Back</button>
                 <button id="logoutBtn" class="btn btn-primary" type="button">Logout</button>
             </div>
         </div>
 
         <section class="stats">
-            <div class="card stat"><div class="k">Total Links</div><div id="totalLinks" class="v">0</div></div>
-            <div class="card stat"><div class="k">Total Clicks</div><div id="totalClicks" class="v">0</div></div>
-            <div class="card stat"><div class="k">Top Link Clicks</div><div id="topClicks" class="v">0</div></div>
-            <div class="card stat"><div class="k">Filtered Links</div><div id="filteredLinks" class="v">0</div></div>
+            <div class="stat"><div class="k">Total Links</div><div id="totalLinks" class="v">0</div></div>
+            <div class="stat"><div class="k">Total Clicks</div><div id="totalClicks" class="v">0</div></div>
+            <div class="stat"><div class="k">Top Link</div><div id="topClicks" class="v">0</div></div>
+            <div class="stat"><div class="k">Filtered</div><div id="filteredLinks" class="v">0</div></div>
         </section>
 
         <section class="card">
             <div class="controls">
                 <input id="searchInput" class="search" placeholder="Search by URL or short code">
-                <div class="chips">
-                    <button class="chip active" data-filter="all" type="button">All</button>
-                    <button class="chip" data-filter="7d" type="button">7d</button>
-                    <button class="chip" data-filter="30d" type="button">30d</button>
+                <div class="toolbar-row">
+                    <div class="chips">
+                        <button class="chip active" data-filter="all" type="button">All</button>
+                        <button class="chip" data-filter="7d" type="button">7d</button>
+                        <button class="chip" data-filter="30d" type="button">30d</button>
+                    </div>
+                    <button id="refreshBtn" class="btn" type="button">Refresh</button>
                 </div>
-                <button id="refreshBtn" class="btn" type="button">Refresh</button>
             </div>
             <div id="statusRow" class="status">Loading links...</div>
 
@@ -236,11 +233,17 @@
                             <th>Short URL</th>
                             <th>Clicks</th>
                             <th>Created</th>
-                            <th>Actions</th>
+                            <th class="actions-col">Actions</th>
                         </tr>
                     </thead>
                     <tbody id="linksTbody"></tbody>
                 </table>
+            </div>
+
+            <div class="pager">
+                <button id="prevPage" class="btn tiny" type="button">← Prev</button>
+                <span id="pageInfo" class="page-info">Page 1</span>
+                <button id="nextPage" class="btn tiny" type="button">Next →</button>
             </div>
 
             <div class="spark">
@@ -249,21 +252,23 @@
             </div>
         </section>
 
-        <footer class="footer">
-            © 2025 Basith AbuSyed. All rights reserved.<br>
-            This site is under active development. Check back occasionally for new features.
+        <footer>
+            © <span id="year">2025</span> Basith. All rights reserved.<br>
+            Linkly is under active development.
         </footer>
     </div>
 
     <div id="qrModal" class="modal">
         <div class="modal-box">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                 <strong>QR Code</strong>
                 <button id="closeModalBtn" class="btn tiny" type="button">Close</button>
             </div>
             <div id="qrcode-container"></div>
         </div>
     </div>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
         const firebaseConfig = {
@@ -305,9 +310,24 @@
         const closeModalBtn = document.getElementById("closeModalBtn");
         const backBtn = document.getElementById("backBtn");
         const logoutBtn = document.getElementById("logoutBtn");
+        const toast = document.getElementById("toast");
+        const prevPage = document.getElementById("prevPage");
+        const nextPage = document.getElementById("nextPage");
+        const pageInfo = document.getElementById("pageInfo");
+        let toastTimer = null;
+
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add("show");
+            if (toastTimer) clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
+        }
 
         let allLinks = [];
         let currentFilter = "all";
+        let currentPage = 1;
+        let totalPages = 1;
+        let accountTotal = 0;
 
         function daysAgo(date) {
             const d = new Date(date);
@@ -317,6 +337,22 @@
         function formatDate(date) {
             const d = new Date(date);
             return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
+        }
+        function relDate(date) {
+            const d = new Date(date);
+            if (Number.isNaN(d.getTime())) return "-";
+            const diff = (Date.now() - d.getTime()) / 86400000;
+            if (diff < 1) return "Today";
+            if (diff < 2) return "Yesterday";
+            if (diff < 30) return `${Math.floor(diff)}d ago`;
+            if (diff < 365) return `${Math.floor(diff / 30)}mo ago`;
+            return `${Math.floor(diff / 365)}y ago`;
+        }
+        function prettyUrl(url) {
+            if (!url) return "-";
+            let u = url.replace(/^https?:\/\//i, "").replace(/^www\./i, "");
+            if (u.length > 42) u = u.slice(0, 42) + "\u2026";
+            return u;
         }
 
         function renderSpark(links) {
@@ -332,35 +368,42 @@
             const points = values.map((v, i) => `${p + i * step},${h - p - (v / max) * (h - p * 2)}`).join(" ");
             const area = `${p},${h - p} ${points} ${w - p},${h - p}`;
             sparkline.innerHTML = `
-                <polyline points="${area}" fill="rgba(14,165,233,0.2)" stroke="none"></polyline>
-                <polyline points="${points}" fill="none" stroke="#0ea5e9" stroke-width="3" stroke-linecap="round"></polyline>
+                <polyline points="${area}" fill="rgba(37,99,235,0.18)" stroke="none"></polyline>
+                <polyline points="${points}" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"></polyline>
             `;
             sparkSummary.textContent = `Max ${max}`;
         }
 
         function renderStats(filtered) {
-            totalLinks.textContent = String(allLinks.length);
+            totalLinks.textContent = String(accountTotal);
             totalClicks.textContent = String(allLinks.reduce((a, b) => a + (Number(b.clickCount) || 0), 0));
             topClicks.textContent = String(allLinks.reduce((m, x) => Math.max(m, Number(x.clickCount) || 0), 0));
             filteredLinks.textContent = String(filtered.length);
             renderSpark(allLinks);
         }
 
+        function shortUrlOf(l) { return `${window.location.origin}/${l.shortCode}`; }
+
         function renderRows(links) {
             linksTbody.innerHTML = "";
+            if (!links.length) {
+                linksTbody.innerHTML = '<tr><td colspan="5" class="empty">No links found. Create one from the home page.</td></tr>';
+                return;
+            }
             links.forEach((l) => {
-                const short = `${window.location.origin}/${l.shortCode}`;
+                const short = shortUrlOf(l);
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
-                    <td class="o" title="${l.originalUrl}">${l.originalUrl}</td>
+                    <td><span class="o" title="Click to copy\u000d\u000a${l.originalUrl}" data-copy="${l.originalUrl}">${prettyUrl(l.originalUrl)}</span></td>
                     <td><a class="s" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
-                    <td>${l.clickCount || 0}</td>
-                    <td>${formatDate(l.createdAt)}</td>
-                    <td>
+                    <td><span class="clicks-pill">${l.clickCount || 0}</span></td>
+                    <td class="date" title="${formatDate(l.createdAt)}">${relDate(l.createdAt)}</td>
+                    <td class="actions-col">
                         <div class="row-actions">
                             <button class="btn tiny copy-btn" data-url="${short}" type="button">Copy</button>
                             <button class="btn tiny qr-btn" data-url="${short}" type="button">QR</button>
                             <a class="btn tiny" href="${short}" target="_blank" rel="noopener noreferrer">Open</a>
+                            <button class="btn tiny btn-danger del-btn" data-code="${l.shortCode}" type="button">Delete</button>
                         </div>
                     </td>
                 `;
@@ -379,29 +422,71 @@
             statusRow.textContent = `Showing ${list.length} of ${allLinks.length} links`;
         }
 
-        async function loadLinks(user) {
+        async function loadLinks(user, page = 1) {
             statusRow.textContent = "Loading links...";
+            linksTbody.innerHTML = '<tr><td colspan="5" class="empty">Loading\u2026</td></tr>';
             try {
                 const token = await user.getIdToken(true);
-                const response = await fetch("/api/links", { headers: { Authorization: `Bearer ${token}` } });
+                const response = await fetch(`/api/links?page=${page}`, { headers: { Authorization: `Bearer ${token}` } });
                 if (!response.ok) throw new Error(`Status ${response.status}`);
-                allLinks = await response.json();
+                const data = await response.json();
+                allLinks = data.links || [];
+                currentPage = data.page || 1;
+                totalPages = data.totalPages || 1;
+                accountTotal = data.total || 0;
                 applyFilters();
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+                prevPage.disabled = currentPage <= 1;
+                nextPage.disabled = currentPage >= totalPages;
             } catch (error) {
                 console.error(error);
                 statusRow.textContent = "Failed to load links.";
+                linksTbody.innerHTML = '<tr><td colspan="5" class="empty">Could not load your links.</td></tr>';
+                showToast("Failed to load links");
             }
         }
 
-        linksTbody.addEventListener("click", async (e) => {
+        document.body.addEventListener("click", async (e) => {
             const t = e.target;
+            if (t.classList && t.classList.contains("o") && t.dataset.copy) {
+                try { await navigator.clipboard.writeText(t.dataset.copy); showToast("Original URL copied"); } catch {}
+                return;
+            }
             if (t.classList.contains("copy-btn")) {
                 await navigator.clipboard.writeText(t.dataset.url || "");
+                showToast("Copied");
             }
             if (t.classList.contains("qr-btn")) {
                 qrcodeContainer.innerHTML = "";
                 new QRCode(qrcodeContainer, { text: t.dataset.url || "", width: 220, height: 220 });
                 qrModal.classList.add("open");
+            }
+            if (t.classList.contains("del-btn")) {
+                const code = t.dataset.code;
+                if (!code) return;
+                if (!confirm(`Delete short link "${code}"? This cannot be undone.`)) return;
+                t.disabled = true;
+                t.textContent = "Deleting...";
+                try {
+                    const token = await auth.currentUser.getIdToken(true);
+                    const response = await fetch(`/api/links/${code}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+                    if (!response.ok) {
+                        const data = await response.json().catch(() => ({}));
+                        throw new Error(data.error || `Status ${response.status}`);
+                    }
+                    allLinks = allLinks.filter((x) => x.shortCode !== code);
+                    applyFilters();
+                    statusRow.textContent = `Deleted ${code}. Showing ${allLinks.length} links.`;
+                    accountTotal = Math.max(0, accountTotal - 1);
+                    if (allLinks.length === 0 && currentPage > 1) {
+                        await loadLinks(auth.currentUser, currentPage - 1);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    alert(`Delete failed: ${error.message}`);
+                    t.disabled = false;
+                    t.textContent = "Delete";
+                }
             }
         });
 
@@ -414,15 +499,20 @@
             currentFilter = c.dataset.filter;
             applyFilters();
         }));
-        refreshBtn.addEventListener("click", async () => { if (auth.currentUser) await loadLinks(auth.currentUser); });
+        refreshBtn.addEventListener("click", async () => { if (auth.currentUser) await loadLinks(auth.currentUser, currentPage); });
+        prevPage.addEventListener("click", async () => { if (auth.currentUser && currentPage > 1) await loadLinks(auth.currentUser, currentPage - 1); });
+        nextPage.addEventListener("click", async () => { if (auth.currentUser && currentPage < totalPages) await loadLinks(auth.currentUser, currentPage + 1); });
         backBtn.addEventListener("click", () => window.location.href = "/");
         logoutBtn.addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = "/"; return; }
-            userIdBadge.textContent = `Logged in as: ${user.email || user.uid}`;
-            await loadLinks(user);
+            userIdBadge.textContent = `${user.email || user.uid}`;
+            await loadLinks(user, 1);
         });
+
+        const yearEl = document.getElementById("year");
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
     </script>
 </body>
 </html>

@@ -80,7 +80,11 @@ function getServiceAccount() {
     const rawServiceAccount = process.env.FIREBASE_SERVICE_ACCOUNT;
 
     if (!rawServiceAccount) {
-        return require('../serviceAccountKey.json');
+        const serviceAccount = require('../serviceAccountKey.json');
+        if (serviceAccount.private_key) {
+            serviceAccount.private_key = serviceAccount.private_key.replace(/\\n/g, '\n');
+        }
+        return serviceAccount;
     }
 
     const serviceAccount = parseServiceAccount(rawServiceAccount);

@@ -4,17 +4,28 @@ setlocal EnableDelayedExpansion
 color 0A
 cls
 echo ===============================
-echo        AI MODEL SELECTOR
+echo          START AI
 echo ===============================
 
 if "%OPENROUTER_API_KEY%"=="" (
-    echo OPENROUTER_API_KEY is not set.
-    echo Run set-openrouter-key.bat once, then reopen terminal.
+    echo OPENROUTER_API_KEY not found.
     echo.
-    pause
-    exit /b 1
+    echo Paste key once to save for future use.
+    set /p OR_KEY=Paste OPENROUTER_API_KEY: 
+    if "!OR_KEY!"=="" (
+        echo No key entered.
+        pause
+        exit /b 1
+    )
+    set "OPENROUTER_API_KEY=!OR_KEY!"
+    setx OPENROUTER_API_KEY "!OR_KEY!" >nul
+    echo Key saved.
+    echo.
 )
 
+echo ===============================
+echo      AI MODEL SELECTOR
+echo ===============================
 echo 1. GLM 4.5 Air
 echo 2. Qwen3 Coder
 echo 3. Gemma 4
@@ -23,8 +34,9 @@ echo 5. GPT OSS 120B
 echo 6. Laguna
 echo 7. Inclusion AI
 echo 8. Llama Nemotron
+echo 9. Kimi K2.6
 echo ===============================
-set /p choice=Enter choice (1-8): 
+set /p choice=Enter choice (1-9): 
 
 if "%choice%"=="1" (
     set "MODEL=z-ai/glm-4.5-air:free"
@@ -57,6 +69,10 @@ if "%choice%"=="7" (
 if "%choice%"=="8" (
     set "MODEL=nvidia/llama-nemotron-embed-vl-1b-v2:free"
     set "PROFILE=Llama Nemotron"
+)
+if "%choice%"=="9" (
+    set "MODEL=moonshotai/kimi-k2.6:free"
+    set "PROFILE=Kimi K2.6"
 )
 
 if not defined MODEL (

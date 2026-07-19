@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Linkly URL Shortener</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <title>Linkly — Short, clean links</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,283 +13,265 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
-            --bg: #f7fafc;
+            --bg: #f4f7fb;
+            --bg-2: #eaf2fb;
             --card: #ffffff;
             --text: #0f172a;
-            --muted: #475569;
-            --line: #dbe3ef;
-            --brand: #0369a1;
-            --brand-2: #0284c7;
-            --ok-bg: #ecfeff;
-            --ok-line: #a5f3fc;
-            --danger: #b91c1c;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --brand: #2563eb;
+            --brand-2: #4f46e5;
+            --brand-soft: #eff4ff;
+            --ok-bg: #ecfdf5;
+            --ok-line: #a7f3d0;
+            --ok-text: #047857;
+            --danger: #dc2626;
+            --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
+            --radius: 16px;
         }
         [data-theme="dark"] {
-            --bg: #0b1220;
-            --card: #101b33;
-            --text: #e2e8f0;
-            --muted: #9fb0cd;
-            --line: #253557;
-            --brand: #22d3ee;
-            --brand-2: #0ea5e9;
-            --ok-bg: #082f49;
-            --ok-line: #0e7490;
-            --danger: #fca5a5;
+            --bg: #0a0f1c;
+            --bg-2: #0e1424;
+            --card: #131a2b;
+            --text: #e8edf6;
+            --muted: #93a1bd;
+            --line: #243049;
+            --brand: #60a5fa;
+            --brand-2: #818cf8;
+            --brand-soft: #16223c;
+            --ok-bg: #06281f;
+            --ok-line: #0f5132;
+            --ok-text: #6ee7b7;
+            --danger: #f87171;
+            --shadow: 0 14px 40px -16px rgba(0, 0, 0, 0.6);
         }
         * { box-sizing: border-box; }
+        html, body { min-height: 100%; }
         body {
             margin: 0;
-            font-family: Manrope, sans-serif;
-            background: linear-gradient(180deg, #ecfeff 0%, var(--bg) 140px);
+            font-family: Manrope, system-ui, -apple-system, sans-serif;
             color: var(--text);
+            background: radial-gradient(900px 480px at 50% -12%, var(--bg-2), transparent 70%), var(--bg);
             min-height: 100vh;
-        }
-        [data-theme="dark"] body,
-        [data-theme="dark"] {
-            background: linear-gradient(180deg, #082f49 0%, var(--bg) 140px);
-        }
-        .wrap {
-            width: min(920px, 92vw);
-            margin: 26px auto 38px;
-        }
-        .topbar {
+            min-height: 100dvh;
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .topbar {
+            width: 100%;
+            padding: 18px 24px;
+            display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
+            justify-content: space-between;
+            gap: 12px;
         }
         .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             font-weight: 800;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
+            letter-spacing: -0.02em;
+        }
+        .logo {
+            width: 32px;
+            height: 32px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-2));
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            box-shadow: var(--shadow);
         }
         .actions {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
             align-items: center;
+            flex-wrap: wrap;
+            justify-content: flex-end;
         }
         .id-badge {
             border: 1px solid var(--line);
             background: var(--card);
             color: var(--muted);
             border-radius: 999px;
-            padding: 8px 11px;
-            font-size: 0.8rem;
-            max-width: 240px;
+            padding: 7px 12px;
+            font-size: 0.75rem;
+            max-width: 140px;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
-        .theme-switch {
-            position: relative;
-            width: 52px;
-            height: 30px;
-            display: inline-block;
-        }
-        .theme-switch input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
+        .theme-switch { position: relative; width: 48px; height: 28px; display: inline-block; flex-shrink: 0; }
+        .theme-switch input { opacity: 0; width: 0; height: 0; }
         .slider {
-            position: absolute;
-            inset: 0;
-            border-radius: 999px;
-            background: #cbd5e1;
-            cursor: pointer;
-            transition: 0.2s ease;
-            border: 1px solid var(--line);
+            position: absolute; inset: 0; border-radius: 999px;
+            background: #cbd5e1; cursor: pointer; transition: 0.2s ease; border: 1px solid var(--line);
         }
         .slider::before {
-            content: "";
-            position: absolute;
-            width: 22px;
-            height: 22px;
-            left: 3px;
-            top: 3px;
-            border-radius: 50%;
-            background: #fff;
-            transition: 0.2s ease;
+            content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
+            border-radius: 50%; background: #fff; transition: 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
         }
-        .theme-switch input:checked + .slider {
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-        }
-        .theme-switch input:checked + .slider::before {
-            transform: translateX(22px);
-        }
+        .slider::after { content: "☀"; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #334155; }
+        .theme-switch input:checked + .slider { background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
+        .theme-switch input:checked + .slider::before { transform: translateX(20px); }
+        .theme-switch input:checked + .slider::after { content: "☾"; right: auto; left: 7px; color: #e8edf6; }
         .btn {
-            border: 1px solid var(--line);
-            background: var(--card);
-            color: var(--text);
-            border-radius: 10px;
-            padding: 9px 12px;
-            font: inherit;
-            cursor: pointer;
+            border: 1px solid var(--line); background: var(--card); color: var(--text);
+            border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease;
         }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-            border: none;
-            color: #fff;
+        .btn:hover { border-color: var(--brand); }
+        .btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border: none; color: #fff; }
+        .btn-primary:hover { filter: brightness(1.05); }
+
+        main {
+            flex: 1;
+            width: 100%;
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 16px 24px 40px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
-        .hero {
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 24px;
+        .hero { text-align: center; margin-bottom: 24px; }
+        .pill {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.72rem; font-weight: 600;
+            color: var(--brand); background: var(--brand-soft); border: 1px solid var(--line);
+            padding: 5px 12px; border-radius: 999px; margin-bottom: 14px;
         }
         h1 {
             margin: 0;
-            font-size: clamp(1.6rem, 3vw, 2.1rem);
-            line-height: 1.25;
+            font-size: clamp(2rem, 7vw, 3rem);
+            line-height: 1.08;
+            letter-spacing: -0.03em;
+            font-weight: 800;
         }
-        .subtitle {
-            margin: 8px 0 20px;
-            color: var(--muted);
+        h1 .grad { background: linear-gradient(135deg, var(--brand), var(--brand-2)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .subtitle { margin: 14px auto 0; color: var(--muted); font-size: 1rem; max-width: 460px; line-height: 1.6; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
         }
-        .label {
-            display: block;
-            font-size: 0.88rem;
-            color: var(--muted);
-            margin-bottom: 6px;
-        }
+        .field { margin-bottom: 14px; }
+        .label { display: block; font-size: 0.8rem; color: var(--muted); font-weight: 600; margin-bottom: 6px; }
         .input {
-            width: 100%;
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 12px;
-            background: var(--card);
-            color: var(--text);
-            margin-bottom: 10px;
-            font: inherit;
+            width: 100%; border: 1.5px solid var(--line); border-radius: 12px;
+            padding: 14px 16px; background: var(--bg); color: var(--text); font: inherit; font-size: 1rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
         }
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr auto;
-            gap: 10px;
-            align-items: start;
-        }
-        .helper {
-            margin-top: 6px;
-            color: var(--muted);
-            font-size: 0.88rem;
-        }
+        .input::placeholder { color: var(--muted); }
+        .input:focus { outline: none; border-color: var(--brand); background: var(--card); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+        [data-theme="dark"] .input { background: #0c1322; }
+        .form-row { display: grid; grid-template-columns: 1fr; gap: 10px; }
+        .submit-btn { height: 50px; font-size: 1rem; font-weight: 700; width: 100%; }
+        .status { margin-top: 12px; font-size: 0.86rem; color: var(--muted); min-height: 18px; text-align: center; }
+
         .result {
-            display: none;
-            margin-top: 14px;
-            border: 1px solid var(--ok-line);
-            background: var(--ok-bg);
-            border-radius: 10px;
-            padding: 12px;
+            display: none; margin-top: 16px;
+            border: 1px solid var(--ok-line); background: var(--ok-bg);
+            border-radius: 12px; padding: 16px;
         }
+        .result-head { display: flex; align-items: center; gap: 8px; color: var(--ok-text); font-weight: 700; font-size: 0.9rem; }
         .result a {
-            display: block;
-            margin: 8px 0;
-            color: var(--brand);
-            font-weight: 700;
-            word-break: break-all;
+            display: block; margin: 10px 0 14px; color: var(--brand); font-weight: 700;
+            word-break: break-all; text-decoration: none; font-size: 1rem;
         }
-        .result-actions {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-        .status {
-            margin-top: 8px;
-            font-size: 0.9rem;
-            color: var(--muted);
-        }
-        .recent {
-            margin-top: 16px;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 14px;
-            padding: 14px;
-        }
-        .recent h2 {
-            margin: 0 0 10px;
-            font-size: 1rem;
-        }
-        .recent-list { display: grid; gap: 8px; }
+        .result-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+        .result-actions .btn { flex: 1; padding: 10px; font-size: 0.88rem; text-align: center; }
+
+        .recent { margin-top: 28px; }
+        .recent h2 { margin: 0 0 12px; font-size: 0.76rem; color: var(--muted); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+        .recent-list { display: grid; gap: 10px; }
         .recent-item {
-            border: 1px solid var(--line);
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 0.9rem;
+            display: flex; flex-direction: column; gap: 4px;
+            border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; background: var(--card);
+            transition: 0.15s ease;
+        }
+        .recent-item:hover { border-color: var(--brand); box-shadow: 0 4px 16px rgba(37, 99, 235, 0.08); }
+        .recent-item .s {
+            color: var(--brand); font-weight: 700; text-decoration: none; font-size: 0.95rem;
         }
         .recent-item .o {
-            color: var(--muted);
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+            font-size: 0.82rem; line-height: 1.4;
         }
-        .recent-item .s {
-            display: block;
-            margin-top: 3px;
-            color: var(--brand);
-            font-weight: 700;
-            text-decoration: none;
-        }
-        .footer {
-            margin-top: 24px;
-            text-align: center;
-            color: var(--muted);
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
+
+        footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 24px 20px 28px; line-height: 1.6; }
         .toast {
-            position: fixed;
-            right: 14px;
-            bottom: 14px;
-            background: #0f172a;
-            color: #fff;
-            padding: 10px 12px;
-            border-radius: 8px;
-            opacity: 0;
-            transform: translateY(8px);
-            transition: 0.2s ease;
-            pointer-events: none;
+            position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0));
+            background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 11px;
+            opacity: 0; transform: translateY(10px); transition: 0.25s ease; pointer-events: none;
+            font-size: 0.88rem; box-shadow: var(--shadow); z-index: 60;
         }
         .toast.show { opacity: 1; transform: translateY(0); }
-        @media (max-width: 700px) {
-            .form-row { grid-template-columns: 1fr; }
+
+        @media (min-width: 560px) {
+            .topbar { padding: 20px 32px; }
+            .brand { font-size: 1.15rem; }
+            .logo { width: 34px; height: 34px; }
+            .id-badge { max-width: 220px; font-size: 0.78rem; padding: 8px 14px; }
+            main { padding: 20px 32px 40px; }
+            .form-row { grid-template-columns: 1fr auto; align-items: end; }
+            .submit-btn { width: auto; padding: 0 28px; }
+            .card { padding: 28px; }
         }
     </style>
 </head>
 <body>
-    <div class="wrap">
-        <div class="topbar">
-            <div class="brand">Linkly</div>
-            <div class="actions">
-                <label class="theme-switch" title="Toggle dark mode">
-                    <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
-                    <span class="slider"></span>
-                </label>
-                <div id="userIdBadge" class="id-badge">Logged in as: guest</div>
-                <div id="gsi-button-container"></div>
-                <button id="dashboardBtn" class="btn" style="display:none;" type="button">Dashboard</button>
-                <button id="logoutBtn" class="btn" style="display:none;" type="button">Logout</button>
-            </div>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo">L</span>
+            Linkly
         </div>
+        <div class="actions">
+            <label class="theme-switch" title="Toggle dark mode">
+                <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
+                <span class="slider"></span>
+            </label>
+            <div id="userIdBadge" class="id-badge">guest</div>
+            <div id="gsi-button-container"></div>
+            <button id="dashboardBtn" class="btn" style="display:none;" type="button">Dashboard</button>
+            <button id="logoutBtn" class="btn" style="display:none;" type="button">Logout</button>
+        </div>
+    </header>
 
+    <main>
         <section class="hero">
-            <h1>Linkly URL Shortener</h1>
-            <p class="subtitle">Shorten long URLs instantly, add an optional custom alias, and share clean links.</p>
+            <span class="pill">● Free &amp; fast URL shortener</span>
+            <h1>Shorten links in <span class="grad">one click</span></h1>
+            <p class="subtitle">Paste a long URL, get a clean shareable link. Optional custom alias, dark mode, and a personal dashboard.</p>
+        </section>
 
+        <section class="card">
             <form id="shortenForm">
-                <label class="label" for="longUrl">Long URL</label>
-                <div class="form-row">
-                    <input class="input" id="longUrl" type="url" placeholder="https://example.com/very/long/path" required>
-                    <button id="submitBtn" class="btn btn-primary" type="submit">Shorten URL</button>
+                <div class="field">
+                    <label class="label" for="longUrl">Long URL</label>
+                    <div class="form-row">
+                        <input class="input" id="longUrl" type="url" inputmode="url" placeholder="https://example.com/very/long/path" required>
+                        <button id="submitBtn" class="btn btn-primary submit-btn" type="submit">Shorten</button>
+                    </div>
                 </div>
 
-                <label class="label" for="customAlias">Custom alias (optional)</label>
-                <input class="input" id="customAlias" type="text" placeholder="my-campaign">
-                <div id="status" class="status">Ready</div>
+                <div class="field" style="margin-bottom:0;">
+                    <label class="label" for="customAlias">Custom alias <span style="font-weight:500;">(optional)</span></label>
+                    <input class="input" id="customAlias" type="text" placeholder="my-campaign">
+                </div>
+
+                <div id="status" class="status">Ready when you are.</div>
             </form>
 
             <div id="result" class="result">
-                <strong>Short URL created</strong>
+                <div class="result-head">✓ Short URL created</div>
                 <a id="shortUrl" href="#" target="_blank" rel="noopener noreferrer"></a>
                 <div class="result-actions">
                     <button id="copyBtn" class="btn" type="button">Copy</button>
@@ -298,15 +281,15 @@
         </section>
 
         <section class="recent">
-            <h2>Recent Links (This Browser)</h2>
+            <h2>Recent links (this browser)</h2>
             <div id="recentList" class="recent-list"></div>
         </section>
+    </main>
 
-        <footer class="footer">
-            © 2025 Basith AbuSyed. All rights reserved.<br>
-            This site is under active development. Check back occasionally for new features.
-        </footer>
-    </div>
+    <footer>
+        © <span id="year">2025</span> Basith. All rights reserved.<br>
+        Linkly is under active development.
+    </footer>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
@@ -356,9 +339,7 @@
             localStorage.setItem(THEME_KEY, theme);
         }
         setTheme(localStorage.getItem(THEME_KEY) || "light");
-        themeToggle.addEventListener("change", () => {
-            setTheme(themeToggle.checked ? "dark" : "light");
-        });
+        themeToggle.addEventListener("change", () => setTheme(themeToggle.checked ? "dark" : "light"));
 
         function getRecent() {
             try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
@@ -376,7 +357,7 @@
             items.forEach((it) => {
                 const div = document.createElement("div");
                 div.className = "recent-item";
-                div.innerHTML = `<div class="o" title="${it.originalUrl}">${it.originalUrl}</div><a class="s" href="${it.shortUrl}" target="_blank" rel="noopener noreferrer">${it.shortUrl}</a>`;
+                div.innerHTML = `<a class="s" href="${it.shortUrl}" target="_blank" rel="noopener noreferrer">${it.shortUrl}</a><span class="o" title="${it.originalUrl}">${it.originalUrl}</span>`;
                 recentList.appendChild(div);
             });
         }
@@ -388,6 +369,8 @@
                 showToast("Signed in");
             } catch (error) {
                 console.error(error);
+                statusEl.style.color = "var(--danger)";
+                statusEl.textContent = "Sign in failed. Please try again.";
                 showToast("Sign in failed");
             }
         }
@@ -402,16 +385,16 @@
 
         auth.onAuthStateChanged((user) => {
             if (user) {
-                userIdBadge.textContent = `Logged in as: ${user.email || user.uid}`;
+                userIdBadge.textContent = `${user.email || user.uid}`;
                 dashboardBtn.style.display = "inline-block";
                 logoutBtn.style.display = "inline-block";
                 gsiButtonContainer.style.display = "none";
             } else {
-                userIdBadge.textContent = "Logged in as: guest";
+                userIdBadge.textContent = "guest";
                 dashboardBtn.style.display = "none";
                 logoutBtn.style.display = "none";
                 gsiButtonContainer.style.display = "block";
-                google.accounts.id.prompt();
+                if (window.google && google.accounts) google.accounts.id.prompt();
             }
         });
 
@@ -470,6 +453,9 @@
         });
 
         renderRecent();
+
+        const yearEl = document.getElementById("year");
+        if (yearEl) yearEl.textContent = new Date().getFullYear();
     </script>
 </body>
 </html>
