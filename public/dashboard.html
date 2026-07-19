@@ -8,46 +8,11 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/shared.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <style>
-        :root {
-            --bg: #f4f7fb;
-            --bg-2: #eaf2fb;
-            --card: #ffffff;
-            --text: #0f172a;
-            --muted: #64748b;
-            --line: #e2e8f0;
-            --brand: #2563eb;
-            --brand-2: #4f46e5;
-            --brand-soft: #eff4ff;
-            --ok-bg: #ecfdf5;
-            --ok-line: #a7f3d0;
-            --ok-text: #047857;
-            --danger: #dc2626;
-            --danger-soft: #fef2f2;
-            --shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.18);
-            --radius: 16px;
-        }
-        [data-theme="dark"] {
-            --bg: #0a0f1c;
-            --bg-2: #0e1424;
-            --card: #131a2b;
-            --text: #e8edf6;
-            --muted: #93a1bd;
-            --line: #243049;
-            --brand: #60a5fa;
-            --brand-2: #818cf8;
-            --brand-soft: #16223c;
-            --ok-bg: #06281f;
-            --ok-line: #0f5132;
-            --ok-text: #6ee7b7;
-            --danger: #f87171;
-            --danger-soft: #2a1620;
-            --shadow: 0 14px 40px -16px rgba(0, 0, 0, 0.6);
-        }
-        * { box-sizing: border-box; }
         body {
             margin: 0;
             font-family: Manrope, system-ui, -apple-system, sans-serif;
@@ -57,81 +22,64 @@
             min-height: 100dvh;
             -webkit-font-smoothing: antialiased;
         }
-        .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: 14px 24px 36px; }
+        .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: var(--s3) var(--s5) var(--s6); }
 
-        .topbar {
-            display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0 18px; width: 100%;
-        }
-        .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.1rem; letter-spacing: -0.02em; }
-        .logo {
-            width: 32px; height: 32px; border-radius: 10px;
-            background: linear-gradient(135deg, var(--brand), var(--brand-2));
-            display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 0.95rem;
-            box-shadow: var(--shadow);
-        }
-        .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
-        .id-badge {
-            border: 1px solid var(--line); background: var(--card); color: var(--muted);
-            border-radius: 999px; padding: 7px 12px; font-size: 0.74rem; max-width: 130px;
-            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-        }
-        .theme-switch { position: relative; width: 48px; height: 28px; display: inline-block; flex-shrink: 0; }
-        .theme-switch input { opacity: 0; width: 0; height: 0; }
-        .slider {
-            position: absolute; inset: 0; border-radius: 999px; background: #cbd5e1; cursor: pointer;
-            transition: 0.2s ease; border: 1px solid var(--line);
-        }
-        .slider::before {
-            content: ""; position: absolute; width: 20px; height: 20px; left: 3px; top: 3px;
-            border-radius: 50%; background: #fff; transition: 0.2s ease; box-shadow: 0 1px 3px rgba(0,0,0,0.25);
-        }
-        .slider::after { content: "☀"; position: absolute; right: 7px; top: 50%; transform: translateY(-50%); font-size: 11px; color: #334155; }
-        .theme-switch input:checked + .slider { background: linear-gradient(135deg, var(--brand), var(--brand-2)); }
-        .theme-switch input:checked + .slider::before { transform: translateX(20px); }
-        .theme-switch input:checked + .slider::after { content: "☾"; right: auto; left: 7px; color: #e8edf6; }
-        .btn {
-            border: 1px solid var(--line); background: var(--card); color: var(--text);
-            border-radius: 10px; padding: 9px 14px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease; white-space: nowrap;
-        }
-        .btn:hover { border-color: var(--brand); }
-        .btn-primary { background: linear-gradient(135deg, var(--brand), var(--brand-2)); border: none; color: #fff; }
-        .btn-primary:hover { filter: brightness(1.05); }
-        .btn-danger { color: var(--danger); border-color: var(--line); }
-        .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
-
-        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 16px; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); margin: var(--s4) 0; }
         .stat {
-            background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-            padding: 16px; box-shadow: var(--shadow);
+            background: var(--bg); border-radius: var(--r-lg);
+            padding: var(--s4);
         }
         .stat .k { color: var(--muted); font-size: 0.76rem; font-weight: 600; }
-        .stat .v { margin-top: 4px; font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
+        .stat .v { margin-top: var(--s2); font-weight: 800; font-size: 1.5rem; letter-spacing: -0.02em; }
 
-        .card {
-            background: var(--card); border: 1px solid var(--line); border-radius: var(--radius);
-            padding: 18px; box-shadow: var(--shadow);
+        .panel {
+            background: var(--card); border: 1px solid var(--line);
+            border-radius: var(--r-lg); padding: var(--s5);
         }
-        .controls { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 12px; }
+        .controls { display: grid; grid-template-columns: 1fr; gap: var(--s3); margin-bottom: var(--s4); }
         .search {
-            border: 1.5px solid var(--line); border-radius: 12px; padding: 12px 15px; font: inherit; font-size: 1rem;
-            width: 100%; background: var(--bg); color: var(--text);
+            border: 1.5px solid var(--line); border-radius: var(--r-md); padding: 14px 16px; font: inherit; font-size: 1rem;
+            width: 100%; background: var(--bg); color: var(--text); min-height: var(--tap);
             transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
         }
         [data-theme="dark"] .search { background: #0c1322; }
         .search::placeholder { color: var(--muted); }
         .search:focus { outline: none; border-color: var(--brand); background: var(--card); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-        .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+        .chips { display: flex; gap: var(--s2); flex-wrap: wrap; }
         .chip {
-            border: 1px solid var(--line); border-radius: 999px; background: var(--card); color: var(--muted);
-            padding: 8px 13px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease;
+            border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--card); color: var(--muted);
+            padding: 9px 15px; font: inherit; font-weight: 600; cursor: pointer; transition: 0.15s ease; min-height: var(--tap);
         }
         .chip:hover { border-color: var(--brand); }
         .chip.active { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-color: transparent; }
-        .toolbar-row { display: flex; gap: 10px; align-items: center; }
+        .toolbar-row { display: flex; gap: var(--s3); align-items: center; }
+        .toolbar-row .btn { flex: 0 0 auto; }
 
-        .status { color: var(--muted); font-size: 0.86rem; margin-bottom: 12px; }
+        .status { color: var(--muted); font-size: 0.86rem; margin-bottom: var(--s3); }
 
-        .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 13px; -webkit-overflow-scrolling: touch; }
+        /* Link cards (mobile-first; table on desktop) */
+        .links-cards { display: grid; gap: var(--s3); }
+        .link-card {
+            border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s4);
+            background: var(--card); display: flex; flex-direction: column; gap: var(--s3);
+            animation: cardIn 0.3s ease both; transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+        .link-card:hover { border-color: var(--brand); box-shadow: 0 4px 16px -8px rgba(37, 99, 235, 0.18); }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        @media (prefers-reduced-motion: reduce) { .link-card { animation: none; } }
+        .link-card .lc-top { display: flex; flex-direction: column; gap: var(--s1); min-width: 0; }
+        .link-card .lc-short { color: var(--brand); font-weight: 700; text-decoration: none; font-size: 1.02rem; word-break: break-all; }
+        .link-card .lc-orig { color: var(--muted); font-size: 0.85rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+        .link-card .lc-meta { display: flex; align-items: center; gap: var(--s3); color: var(--muted); font-size: 0.82rem; }
+        .link-card .clicks-pill {
+            display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--brand);
+            background: var(--brand-soft); padding: 3px 10px; border-radius: var(--r-pill); white-space: nowrap;
+        }
+        .link-card .lc-actions { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s2); }
+        .link-card .lc-actions .btn { width: 100%; }
+        .link-card .lc-actions .btn.del { grid-column: 1 / -1; }
+
+        .table-wrap { display: none; overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); -webkit-overflow-scrolling: touch; }
         table { width: 100%; border-collapse: collapse; background: var(--card); }
         th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; }
         th { font-size: 0.73rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
@@ -143,49 +91,29 @@
             cursor: pointer; transition: color 0.15s ease;
         }
         td .o:hover { color: var(--brand); }
-        .clicks-pill {
-            display: inline-block; font-size: 0.78rem; font-weight: 700; color: var(--brand);
-            background: var(--brand-soft); padding: 3px 9px; border-radius: 999px; white-space: nowrap;
-        }
         .date { color: var(--muted); font-size: 0.85rem; white-space: nowrap; }
-        .row-actions { display: flex; gap: 6px; flex-wrap: nowrap; justify-content: center; }
-        .row-actions .tiny { padding: 5px 9px; font-size: 0.78rem; }
+        .row-actions { display: flex; gap: var(--s2); flex-wrap: nowrap; justify-content: center; }
+        .row-actions .tiny { padding: 0 12px; min-height: 38px; font-size: 0.85rem; }
 
-        .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 14px; }
+        .pager { display: flex; align-items: center; justify-content: center; gap: var(--s3); margin-top: var(--s4); }
         .pager .btn:disabled { opacity: 0.4; cursor: not-allowed; }
         .page-info { font-size: 0.86rem; color: var(--muted); font-weight: 600; }
 
-        .spark { margin-top: 16px; border: 1px solid var(--line); border-radius: 13px; padding: 14px; }
-        .spark-top { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.88rem; font-weight: 600; }
-        svg { width: 100%; height: 84px; display: block; border-radius: 8px; background: rgba(0,0,0,0.02); }
+        .spark { margin-top: var(--s4); border: 1px solid var(--line); border-radius: var(--r-md); padding: var(--s4); }
+        .spark-top { display: flex; justify-content: space-between; margin-bottom: var(--s3); font-size: 0.88rem; font-weight: 600; }
+        svg { width: 100%; height: 84px; display: block; border-radius: var(--r-sm); background: var(--bg); }
+        .empty { text-align: center; color: var(--muted); padding: 28px 10px; font-size: 0.9rem; }
 
-        .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); padding: 12px; z-index: 50; }
-        .modal.open { display: flex; }
-        .modal-box { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; width: min(360px, 100%); }
-        #qrcode-container { display: inline-block; background: #fff; padding: 12px; border-radius: 10px; border: 1px solid var(--line); }
+        #qrcode-container { display: inline-block; background: #fff; padding: var(--s3); border-radius: var(--r-sm); border: 1px solid var(--line); }
 
-        .toast {
-            position: fixed; right: 16px; bottom: calc(16px + env(safe-area-inset-bottom, 0));
-            background: #0f172a; color: #fff; padding: 12px 16px; border-radius: 11px;
-            opacity: 0; transform: translateY(10px); transition: 0.25s ease; pointer-events: none;
-            font-size: 0.88rem; box-shadow: var(--shadow); z-index: 60;
-        }
-        .toast.show { opacity: 1; transform: translateY(0); }
-        .empty { text-align: center; color: var(--muted); padding: 28px 10px; }
+        footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: var(--s5) var(--s4) calc(var(--s6) + env(safe-area-inset-bottom, 0px)); line-height: 1.6; }
 
-        footer { text-align: center; color: var(--muted); font-size: 0.8rem; padding: 20px 0 0; line-height: 1.6; }
-
-        @media (min-width: 560px) {
-            .wrap { padding: 16px 20px 40px; }
-            .brand { font-size: 1.15rem; }
-            .logo { width: 34px; height: 34px; }
-            .id-badge { max-width: 220px; font-size: 0.78rem; padding: 8px 14px; }
-            .stats { gap: 12px; }
-            .controls { grid-template-columns: 1fr auto auto; align-items: center; }
-            .card { padding: 22px; }
-        }
         @media (min-width: 760px) {
             .stats { grid-template-columns: repeat(4, 1fr); }
+            .controls { grid-template-columns: 1fr auto auto; align-items: center; }
+            .panel { padding: var(--s6); }
+            .links-cards { display: none; }
+            .table-wrap { display: block; }
         }
     </style>
 </head>
@@ -193,14 +121,13 @@
     <div class="wrap">
         <div class="topbar">
             <div class="brand"><span class="logo">L</span> Linkly</div>
-            <div class="actions">
+            <div class="topbar-actions">
+                <button id="dashboardHomeBtn" class="btn desktop-only" type="button">Home</button>
                 <label class="theme-switch" title="Toggle dark mode">
                     <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
                     <span class="slider"></span>
                 </label>
-                <div id="userIdBadge" class="id-badge">-</div>
-                <button id="backBtn" class="btn" type="button">Back</button>
-                <button id="logoutBtn" class="btn btn-primary" type="button">Logout</button>
+                <button id="avatarBtn" class="avatar" type="button" aria-label="Account menu"></button>
             </div>
         </div>
 
@@ -211,7 +138,7 @@
             <div class="stat"><div class="k">Filtered</div><div id="filteredLinks" class="v">0</div></div>
         </section>
 
-        <section class="card">
+        <section class="panel">
             <div class="controls">
                 <input id="searchInput" class="search" placeholder="Search by URL or short code">
                 <div class="toolbar-row">
@@ -224,6 +151,8 @@
                 </div>
             </div>
             <div id="statusRow" class="status">Loading links...</div>
+
+            <div class="links-cards" id="linksCards"></div>
 
             <div class="table-wrap">
                 <table>
@@ -270,9 +199,9 @@
 
     <div id="confirmModal" class="modal">
         <div class="modal-box">
-            <strong id="confirmTitle">Confirm</strong>
-            <p id="confirmMsg" style="margin:10px 0 16px;color:var(--muted);font-size:0.9rem;"></p>
-            <div style="display:flex;gap:8px;justify-content:flex-end;">
+            <div class="modal-title" id="confirmTitle">Confirm</div>
+            <p class="modal-text" id="confirmMsg"></p>
+            <div class="modal-actions">
                 <button id="confirmCancel" class="btn tiny" type="button">Cancel</button>
                 <button id="confirmOk" class="btn tiny btn-danger" type="button">Delete</button>
             </div>
@@ -281,6 +210,31 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+    <div id="sheetBackdrop" class="sheet-backdrop"></div>
+    <div id="profileSheet" class="sheet" role="dialog" aria-label="Account">
+        <div class="sheet-grab"></div>
+        <div class="sheet-header">
+            <span class="avatar" id="sheetAvatar"></span>
+            <div style="min-width:0;">
+                <div class="sheet-name" id="sheetName">Guest</div>
+                <div class="sheet-email" id="sheetEmail"></div>
+            </div>
+        </div>
+        <div class="sheet-list">
+            <button class="sheet-item" id="sheetHome" type="button" data-close-sheet>
+                <span class="ic">⌂</span> Home
+            </button>
+            <button class="sheet-item" id="sheetDashboard" type="button" data-close-sheet>
+                <span class="ic">▦</span> Dashboard
+            </button>
+            <div class="sheet-divider"></div>
+            <button class="sheet-item logout" id="sheetLogout" type="button" data-close-sheet>
+                <span class="ic">⏻</span> Logout
+            </button>
+        </div>
+    </div>
+
+    <script src="/shared.js"></script>
     <script>
         const firebaseConfig = {
             apiKey: "AIzaSyDRuTdgt9l5KEcGNEdXadm0FXRUndPsWAE",
@@ -294,18 +248,10 @@
         if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
 
-        const THEME_KEY = "linkly_theme";
+        const L = window.Linkly;
         const themeToggle = document.getElementById("themeToggle");
-        const userIdBadge = document.getElementById("userIdBadge");
-        function setTheme(theme) {
-            document.documentElement.setAttribute("data-theme", theme);
-            themeToggle.checked = theme === "dark";
-            localStorage.setItem(THEME_KEY, theme);
-        }
-        setTheme(localStorage.getItem(THEME_KEY) || "light");
-        themeToggle.addEventListener("change", () => setTheme(themeToggle.checked ? "dark" : "light"));
-
         const linksTbody = document.getElementById("linksTbody");
+        const linksCards = document.getElementById("linksCards");
         const statusRow = document.getElementById("statusRow");
         const searchInput = document.getElementById("searchInput");
         const refreshBtn = document.getElementById("refreshBtn");
@@ -319,9 +265,6 @@
         const qrModal = document.getElementById("qrModal");
         const qrcodeContainer = document.getElementById("qrcode-container");
         const closeModalBtn = document.getElementById("closeModalBtn");
-        const backBtn = document.getElementById("backBtn");
-        const logoutBtn = document.getElementById("logoutBtn");
-        const toast = document.getElementById("toast");
         const confirmModal = document.getElementById("confirmModal");
         const confirmTitle = document.getElementById("confirmTitle");
         const confirmMsg = document.getElementById("confirmMsg");
@@ -330,16 +273,10 @@
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageInfo = document.getElementById("pageInfo");
-        let toastTimer = null;
         let pendingDeleteCode = null;
         let pendingDeleteBtn = null;
 
-        function showToast(msg) {
-            toast.textContent = msg;
-            toast.classList.add("show");
-            if (toastTimer) clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
-        }
+        function showToast(msg) { L.showToast(msg); }
 
         let allLinks = [];
         let currentFilter = "all";
@@ -429,6 +366,35 @@
             });
         }
 
+        function renderCards(links) {
+            linksCards.innerHTML = "";
+            if (!links.length) {
+                linksCards.innerHTML = '<div class="empty">No links found. Create one from the home page.</div>';
+                return;
+            }
+            links.forEach((l) => {
+                const short = shortUrlOf(l);
+                const card = document.createElement("div");
+                card.className = "link-card";
+                card.innerHTML = `
+                    <div class="lc-top">
+                        <a class="lc-short" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a>
+                        <span class="lc-orig" title="Click to copy\u000d\u000a${l.originalUrl}" data-copy="${l.originalUrl}">${prettyUrl(l.originalUrl)}</span>
+                    </div>
+                    <div class="lc-meta">
+                        <span class="clicks-pill">${l.clickCount || 0} clicks</span>
+                        <span class="date">${relDate(l.createdAt)}</span>
+                    </div>
+                    <div class="lc-actions">
+                        <button class="btn copy-btn" data-url="${short}" type="button">Copy</button>
+                        <button class="btn qr-btn" data-url="${short}" type="button">QR</button>
+                        <button class="btn del btn-danger del-btn" data-code="${l.shortCode}" type="button">Delete</button>
+                    </div>
+                `;
+                linksCards.appendChild(card);
+            });
+        }
+
         function applyFilters() {
             const q = searchInput.value.trim().toLowerCase();
             let list = [...allLinks];
@@ -436,6 +402,7 @@
             if (currentFilter === "30d") list = list.filter((x) => daysAgo(x.createdAt) <= 30);
             if (q) list = list.filter((x) => (x.originalUrl || "").toLowerCase().includes(q) || (x.shortCode || "").toLowerCase().includes(q));
             renderRows(list);
+            renderCards(list);
             renderStats(list);
             statusRow.textContent = `Showing ${list.length} of ${allLinks.length} links`;
         }
@@ -443,6 +410,7 @@
         async function loadLinks(user, page = 1) {
             statusRow.textContent = "Loading links...";
             linksTbody.innerHTML = '<tr><td colspan="5" class="empty">Loading\u2026</td></tr>';
+            linksCards.innerHTML = '<div class="empty">Loading\u2026</div>';
             try {
                 const token = await user.getIdToken(true);
                 const response = await fetch(`/api/links?page=${page}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -460,6 +428,7 @@
                 console.error(error);
                 statusRow.textContent = "Failed to load links.";
                 linksTbody.innerHTML = '<tr><td colspan="5" class="empty">Could not load your links.</td></tr>';
+                linksCards.innerHTML = '<div class="empty">Could not load your links.</div>';
                 showToast("Failed to load links");
             }
         }
@@ -542,12 +511,20 @@
         refreshBtn.addEventListener("click", async () => { if (auth.currentUser) await loadLinks(auth.currentUser, currentPage); });
         prevPage.addEventListener("click", async () => { if (auth.currentUser && currentPage > 1) await loadLinks(auth.currentUser, currentPage - 1); });
         nextPage.addEventListener("click", async () => { if (auth.currentUser && currentPage < totalPages) await loadLinks(auth.currentUser, currentPage + 1); });
-        backBtn.addEventListener("click", () => window.location.href = "/");
-        logoutBtn.addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
+        document.getElementById("dashboardHomeBtn").addEventListener("click", () => { window.location.href = "/"; });
+        document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
+        document.getElementById("sheetDashboard").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
+        document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = "/"; return; }
-            userIdBadge.textContent = `${user.email || user.uid}`;
+            L.renderAvatar(user);
+            const sheetAvatar = document.getElementById("sheetAvatar");
+            sheetAvatar.textContent = document.getElementById("avatarBtn").textContent;
+            const sa = document.getElementById("avatarBtn").querySelector("img");
+            if (sa) sheetAvatar.appendChild(sa.cloneNode(true));
+            document.getElementById("sheetName").textContent = user.displayName || "Account";
+            document.getElementById("sheetEmail").textContent = user.email || "";
             await loadLinks(user, 1);
         });
 
