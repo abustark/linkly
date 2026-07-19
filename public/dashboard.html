@@ -268,6 +268,17 @@
         </div>
     </div>
 
+    <div id="confirmModal" class="modal">
+        <div class="modal-box">
+            <strong id="confirmTitle">Confirm</strong>
+            <p id="confirmMsg" style="margin:10px 0 16px;color:var(--muted);font-size:0.9rem;"></p>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+                <button id="confirmCancel" class="btn tiny" type="button">Cancel</button>
+                <button id="confirmOk" class="btn tiny btn-danger" type="button">Delete</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
     <script>
@@ -311,10 +322,17 @@
         const backBtn = document.getElementById("backBtn");
         const logoutBtn = document.getElementById("logoutBtn");
         const toast = document.getElementById("toast");
+        const confirmModal = document.getElementById("confirmModal");
+        const confirmTitle = document.getElementById("confirmTitle");
+        const confirmMsg = document.getElementById("confirmMsg");
+        const confirmCancel = document.getElementById("confirmCancel");
+        const confirmOk = document.getElementById("confirmOk");
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageInfo = document.getElementById("pageInfo");
         let toastTimer = null;
+        let pendingDeleteCode = null;
+        let pendingDeleteBtn = null;
 
         function showToast(msg) {
             toast.textContent = msg;
@@ -464,34 +482,56 @@
             if (t.classList.contains("del-btn")) {
                 const code = t.dataset.code;
                 if (!code) return;
-                if (!confirm(`Delete short link "${code}"? This cannot be undone.`)) return;
-                t.disabled = true;
-                t.textContent = "Deleting...";
-                try {
-                    const token = await auth.currentUser.getIdToken(true);
-                    const response = await fetch(`/api/links/${code}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
-                    if (!response.ok) {
-                        const data = await response.json().catch(() => ({}));
-                        throw new Error(data.error || `Status ${response.status}`);
-                    }
-                    allLinks = allLinks.filter((x) => x.shortCode !== code);
-                    applyFilters();
-                    statusRow.textContent = `Deleted ${code}. Showing ${allLinks.length} links.`;
-                    accountTotal = Math.max(0, accountTotal - 1);
-                    if (allLinks.length === 0 && currentPage > 1) {
-                        await loadLinks(auth.currentUser, currentPage - 1);
-                    }
-                } catch (error) {
-                    console.error(error);
-                    alert(`Delete failed: ${error.message}`);
-                    t.disabled = false;
-                    t.textContent = "Delete";
-                }
+                pendingDeleteCode = code;
+                pendingDeleteBtn = t;
+                confirmTitle.textContent = "Delete link?";
+                confirmMsg.textContent = `Delete short link "${code}"? This cannot be undone.`;
+                confirmModal.classList.add("open");
             }
         });
 
         closeModalBtn.addEventListener("click", () => qrModal.classList.remove("open"));
         qrModal.addEventListener("click", (e) => { if (e.target === qrModal) qrModal.classList.remove("open"); });
+
+        confirmCancel.addEventListener("click", () => {
+            confirmModal.classList.remove("open");
+            pendingDeleteCode = null;
+            pendingDeleteBtn = null;
+        });
+        confirmOk.addEventListener("click", async () => {
+            if (!pendingDeleteCode) return;
+            const code = pendingDeleteCode;
+            const btn = pendingDeleteBtn;
+            confirmModal.classList.remove("open");
+            btn.disabled = true;
+            btn.textContent = "Deleting...";
+            try {
+                const token = await auth.currentUser.getIdToken(true);
+                const response = await fetch(`/api/links/${code}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
+                if (!response.ok) {
+                    const data = await response.json().catch(() => ({}));
+                    throw new Error(data.error || `Status ${response.status}`);
+                }
+                allLinks = allLinks.filter((x) => x.shortCode !== code);
+                applyFilters();
+                statusRow.textContent = `Deleted ${code}. Showing ${allLinks.length} links.`;
+                accountTotal = Math.max(0, accountTotal - 1);
+                showToast(`Deleted ${code}`);
+                if (allLinks.length === 0 && currentPage > 1) {
+                    await loadLinks(auth.currentUser, currentPage - 1);
+                }
+            } catch (error) {
+                console.error(error);
+                showToast(`Delete failed: ${error.message}`);
+                btn.disabled = false;
+                btn.textContent = "Delete";
+            }
+            pendingDeleteCode = null;
+            pendingDeleteBtn = null;
+        });
+
+        confirmModal.addEventListener("click", (e) => { if (e.target === confirmModal) { confirmModal.classList.remove("open"); pendingDeleteCode = null; pendingDeleteBtn = null; } });
+
         searchInput.addEventListener("input", applyFilters);
         chips.forEach((c) => c.addEventListener("click", () => {
             chips.forEach((x) => x.classList.remove("active"));
