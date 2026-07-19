@@ -103,7 +103,7 @@
     font-weight: 800;
     font-size: 0.95rem;
 }
-.topbar-actions { display: flex; align-items: center; gap: var(--s2); }
+.topbar-actions { display: flex; align-items: center; gap: var(--s3); }
 .gsi-wrap { display: inline-flex; align-items: center; }
 .gsi-wrap > div { margin: 0 !important; }
 
@@ -218,6 +218,18 @@
 .desktop-only { display: none; }
 @media (min-width: 761px) {
     .desktop-only { display: inline-flex; }
+}
+
+/* Mobile: drop the Google Sign-In button onto its own row below the header */
+@media (max-width: 760px) {
+    .topbar { flex-wrap: wrap; }
+    .topbar-actions { flex-wrap: wrap; }
+    .gsi-wrap {
+        order: 3;
+        flex-basis: 100%;
+        justify-content: center;
+        margin-top: var(--s2);
+    }
 }
 
 /* On larger screens the sheet becomes a centered dropdown menu */

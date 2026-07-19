@@ -24,7 +24,7 @@
         }
         .wrap { width: 100%; max-width: 1200px; margin: 0 auto; padding: var(--s3) var(--s5) var(--s6); }
 
-        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); margin: var(--s4) 0; }
+        .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--s3); margin: var(--s3) 0 var(--s4); }
         .stat {
             background: var(--bg); border-radius: var(--r-lg);
             padding: var(--s4);
@@ -114,6 +114,9 @@
             .panel { padding: var(--s6); }
             .links-cards { display: none; }
             .table-wrap { display: block; }
+        }
+        @media (max-width: 759px) {
+            .wrap { padding-left: var(--s4); padding-right: var(--s4); }
         }
     </style>
 </head>
