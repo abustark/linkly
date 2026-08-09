@@ -103,9 +103,21 @@
             </div>
         </div>
         <div class="sheet-list">
+            <div id="gsi-sheet-container" class="gsi-sheet"></div>
+            <button class="sheet-item" id="sheetHome" type="button" data-close-sheet>
+                <span class="ic">⌂</span> Home
+            </button>
             <button class="sheet-item" id="sheetDashboard" type="button">
                 <span class="ic">▦</span> Dashboard
             </button>
+            <div class="sheet-divider"></div>
+            <label class="sheet-item sheet-theme" for="sheetThemeToggle">
+                <span class="ic">◐</span> Dark mode
+                <span class="theme-switch">
+                    <input id="sheetThemeToggle" type="checkbox" aria-label="Toggle dark mode">
+                    <span class="slider"></span>
+                </span>
+            </label>
             <div class="sheet-divider"></div>
             <button class="sheet-item logout" id="sheetLogout" type="button" data-close-sheet>
                 <span class="ic">⏻</span> Logout
@@ -134,6 +146,7 @@
         const recentList = document.getElementById("recentList");
 
         document.getElementById("dashboardHomeBtn").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
+        document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
         document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); window.location.href = "/dashboard.html"; });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); L.showToast("Signed out"); });
 
@@ -178,23 +191,32 @@
                 client_id: "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com",
                 callback: handleCredentialResponse
             });
-            google.accounts.id.renderButton(gsiButtonContainer, { theme: "outline", size: "large" });
+            L.renderGSI();
         };
 
         auth.onAuthStateChanged((user) => {
+            const gsiSheet = document.getElementById("gsi-sheet-container");
+            const logoutBtn = document.getElementById("sheetLogout");
+            const mobile = window.matchMedia("(max-width: 760px)").matches;
             if (user) {
                 gsiButtonContainer.style.display = "none";
                 avatarBtn.style.display = "grid";
                 L.renderAvatar(user);
-                document.getElementById("sheetAvatar").textContent = avatarBtn.textContent;
-                const sa = avatarBtn.querySelector("img");
-                if (sa) document.getElementById("sheetAvatar").appendChild(sa.cloneNode(true));
+                document.getElementById("sheetAvatar").innerHTML = avatarBtn.innerHTML;
                 document.getElementById("sheetName").textContent = user.displayName || "Account";
                 document.getElementById("sheetEmail").textContent = user.email || "";
+                if (gsiSheet) gsiSheet.style.display = "none";
+                if (logoutBtn) logoutBtn.style.display = "flex";
             } else {
                 gsiButtonContainer.style.display = "block";
                 avatarBtn.style.display = "none";
-                if (window.google && google.accounts) google.accounts.id.prompt();
+                L.renderAvatar(null);
+                document.getElementById("sheetAvatar").innerHTML = avatarBtn.innerHTML;
+                document.getElementById("sheetName").textContent = "Guest";
+                document.getElementById("sheetEmail").textContent = "";
+                if (gsiSheet) gsiSheet.style.display = mobile ? "flex" : "none";
+                if (logoutBtn) logoutBtn.style.display = "none";
+                if (!mobile && window.google && google.accounts) google.accounts.id.prompt();
             }
         });
 

@@ -215,6 +215,10 @@
 .sheet-item.logout:hover { background: var(--danger-soft); }
 .sheet-divider { height: 1px; background: var(--line); margin: var(--s2) 0; }
 
+.gsi-sheet { display: none; justify-content: center; padding: var(--s2) 0 var(--s3); }
+.gsi-sheet > div { margin: 0 auto !important; }
+.sheet-theme { justify-content: space-between; }
+
 /* ---------- Toast (shared) ---------- */
 .toast {
     position: fixed; left: 50%; bottom: calc(var(--s5) + env(safe-area-inset-bottom, 0px));
@@ -256,17 +260,15 @@
     .desktop-only { display: inline-flex; }
 }
 
-/* Mobile: Google Sign-In goes on its own full-width row below the header.
-   The brand + theme toggle + avatar stay together on the first row. */
+/* Mobile: one-line header (brand + avatar). Sign-in and theme toggle
+   move inside the avatar menu (profile sheet). */
 @media (max-width: 760px) {
-    .topbar { flex-wrap: wrap; }
+    .topbar { flex-wrap: nowrap; }
     .topbar-actions { flex-wrap: nowrap; }
-    .gsi-wrap {
-        order: 3;
-        flex-basis: 100%;
-        justify-content: center;
-        margin-top: var(--s2);
-    }
+    #gsi-button-container { display: none; }
+    .topbar .theme-switch { display: none; }
+    #avatarBtn { display: grid !important; }
+    .gsi-sheet { display: flex; }
 }
 
 /* On larger screens the sheet becomes a centered dropdown menu */
@@ -279,4 +281,5 @@
     }
     .sheet.open { transform: translateY(0); opacity: 1; visibility: visible; }
     .sheet-grab { display: none; }
+    .sheet-theme { display: none; }
 }

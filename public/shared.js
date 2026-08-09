@@ -4,10 +4,14 @@
 
     const THEME_KEY = "linkly_theme";
 
+    const THEME_TOGGLES = ["themeToggle", "sheetThemeToggle"];
+
     function setTheme(theme) {
         document.documentElement.setAttribute("data-theme", theme);
-        const t = document.getElementById("themeToggle");
-        if (t) t.checked = theme === "dark";
+        THEME_TOGGLES.forEach((id) => {
+            const t = document.getElementById(id);
+            if (t) t.checked = theme === "dark";
+        });
         try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
     }
 
@@ -15,8 +19,10 @@
         let theme = "light";
         try { theme = localStorage.getItem(THEME_KEY) || "light"; } catch (e) {}
         setTheme(theme);
-        const t = document.getElementById("themeToggle");
-        if (t) t.addEventListener("change", () => setTheme(t.checked ? "dark" : "light"));
+        THEME_TOGGLES.forEach((id) => {
+            const t = document.getElementById(id);
+            if (t) t.addEventListener("change", () => setTheme(t.checked ? "dark" : "light"));
+        });
     }
 
     let toastTimer = null;
@@ -46,6 +52,27 @@
         return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
     }
 
+    function personIcon() {
+        const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("width", "18");
+        svg.setAttribute("height", "18");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "2");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("cx", "12");
+        circle.setAttribute("cy", "8");
+        circle.setAttribute("r", "4");
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("d", "M4 20c0-3.5 3.6-6 8-6s8 2.5 8 6");
+        svg.appendChild(circle);
+        svg.appendChild(path);
+        return svg;
+    }
+
     function renderAvatar(user) {
         const av = document.getElementById("avatarBtn");
         if (!av) return;
@@ -58,8 +85,19 @@
         } else if (user) {
             av.textContent = initials(user.displayName || user.email || "U");
         } else {
-            av.textContent = "?";
+            av.appendChild(personIcon());
         }
+    }
+
+    let gsiRendered = false;
+    function renderGSI() {
+        if (gsiRendered) return;
+        if (!window.google || !google.accounts) return;
+        const mobile = window.matchMedia("(max-width: 760px)").matches;
+        const target = document.getElementById(mobile ? "gsi-sheet-container" : "gsi-button-container");
+        if (!target) return;
+        google.accounts.id.renderButton(target, { theme: "outline", size: "large" });
+        gsiRendered = true;
     }
 
     function openSheet() {
@@ -67,6 +105,7 @@
         const s = document.getElementById("profileSheet");
         if (b) b.classList.add("open");
         if (s) s.classList.add("open");
+        renderGSI();
     }
     function closeSheet() {
         const b = document.getElementById("sheetBackdrop");
@@ -91,7 +130,7 @@
     }
 
     window.Linkly = {
-        initTheme, setTheme, showToast, renderAvatar,
+        initTheme, setTheme, showToast, renderAvatar, renderGSI,
         openSheet, closeSheet, wireProfileMenu, setYear, initials, escapeHtml
     };
 

@@ -6,12 +6,10 @@
     gap: var(--s2);
 }
 .topbar-actions { flex-wrap: nowrap; }
-.gsi-wrap {
-    order: 3;
-    flex-basis: 100%;
-    justify-content: center;
-    margin-top: var(--s2);
-}
+#gsi-button-container { display: none; }
+.topbar .theme-switch { display: none; }
+#avatarBtn { display: grid !important; }
+.gsi-sheet { display: flex; }
 
 /* Home page: tightened vertical rhythm for small screens */
 main { padding: var(--s3) var(--s4) var(--s7); }
