@@ -12,6 +12,8 @@
             const t = document.getElementById(id);
             if (t) t.checked = theme === "dark";
         });
+        const label = document.getElementById("themeLabel");
+        if (label) label.textContent = theme === "dark" ? "Dark mode" : "Light mode";
         try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
     }
 
