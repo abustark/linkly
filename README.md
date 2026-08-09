@@ -1,43 +1,21 @@
-# Linkly - URL Shortener
+# Linkly — URL Shortener
 
-Linkly is a full-stack URL shortener with Firebase auth, MongoDB persistence, custom aliases, click tracking, and a modern responsive dashboard.
+Full-stack URL shortener with Google authentication, MongoDB persistence, custom aliases, click tracking, and a responsive dashboard.
 
-## Live Demo
-- Production: `https://linkly-link.vercel.app`
+[![Live Demo](https://img.shields.io/badge/Live-Demo-2563eb?style=for-the-badge&logo=vercel&logoColor=white)](https://linkly-link.vercel.app)
+![Node.js](https://img.shields.io/badge/Node.js-Express-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)
+![Firebase](https://img.shields.io/badge/Auth-Firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white)
+![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-## Portfolio Case Study
+## Overview
 
-### Problem
-The original app worked functionally but had basic UI patterns, limited feedback states, and a dashboard that did not present data in a portfolio-ready way.
-
-### Solution
-The project was revamped into a polished, resume-focused product with:
-- Redesigned home flow for URL creation with inline states and quick actions.
-- Redesigned dashboard with search, filters, stat cards, QR actions, and trend visualization.
-- Dark mode toggle with persisted preference across pages.
-- Improved runtime robustness for database and Firebase environment parsing in serverless deployment.
-
-### Outcomes
-- Faster and clearer shorten flow for first-time users.
-- Better data clarity with summary metrics and click trend sparkline.
-- Improved visual quality suitable for GitHub and LinkedIn showcase.
-
-## Before / After Screenshots
-
-Add your screenshots in `public/screenshots/` and update these paths:
-
-### Home Page
-![Home Before](public/screenshots/home-before.png)
-![Home After](public/screenshots/home-after.png)
-
-### Dashboard
-![Dashboard Before](public/screenshots/dashboard-before.png)
-![Dashboard After](public/screenshots/dashboard-after.png)
+Linkly turns long URLs into short, shareable links and tracks how they perform. Users sign in with Google, create links with optional custom aliases, and manage everything from a dashboard — search, filter, see click stats, and download QR codes.
 
 ## Features
-- Shorten long URLs
-- Optional custom alias support
-- Redirect handling with click counting
+
+- Shorten long URLs with optional custom aliases
+- 302 redirects with per-link click counting
 - Firebase Google authentication
 - User dashboard with:
   - Search by URL or code
@@ -45,23 +23,29 @@ Add your screenshots in `public/screenshots/` and update these paths:
   - Total links, total clicks, top clicks, filtered count
   - QR code preview and PNG download
   - Click trend sparkline
-- Dark mode with persisted theme
+- IP-based rate limiting on the shorten endpoint
+- Host validation for generated short URLs
+- Dark mode with persisted preference
+- Responsive layouts with dedicated mobile pages and a desktop dashboard
 
 ## Tech Stack
-- Frontend: HTML, CSS, JavaScript
-- Backend: Node.js, Express, Vercel Serverless Functions
-- Database: MongoDB Atlas (Mongoose)
-- Auth: Firebase Authentication
-- Deployment: Vercel
+
+- **Frontend:** HTML, CSS, JavaScript (vanilla, no framework)
+- **Backend:** Node.js, Express, Vercel Serverless Functions
+- **Database:** MongoDB Atlas (Mongoose)
+- **Auth:** Firebase Authentication
+- **Deployment:** Vercel
+- **Fonts:** Inter (body), Sora (display) via Google Fonts
 
 ## Local Development
+
 1. Install dependencies:
    - `npm install`
 2. Configure environment variables:
-   - `.env` (already gitignored):
+   - `.env` (gitignored):
      - `MONGODB_URI=mongodb+srv://<user>:<pass>@<cluster>.mongodb.net/linkly`
      - `PORT=5000` (optional)
-   - `api/serviceAccountKey.json` (already gitignored): download your
+   - `api/serviceAccountKey.json` (gitignored): download your
      Firebase Admin SDK service account JSON from the Firebase console
      (Project settings → Service accounts → Generate new private key) and
      place it here. Alternatively set `FIREBASE_SERVICE_ACCOUNT` (raw JSON
@@ -74,28 +58,13 @@ Add your screenshots in `public/screenshots/` and update these paths:
 > Note: Google Sign-In uses the Firebase web config embedded in the pages.
 > Admin verification (dashboard, delete) uses the service account above.
 
-## OpenCode Model Launcher
-- File: `start-ai.bat`
-- Run from project root:
-  - `start-ai.bat`
-
-What it does:
-1. Checks `OPENROUTER_API_KEY`.
-2. If missing, prompts once and saves it as a Windows User Environment Variable.
-3. Shows model selector (1-9).
-4. Generates `.opencode.json` in the current folder.
-5. Launches `opencode`.
-
-Notes:
-- You usually paste the API key only once on your machine.
-- `.opencode.json` is gitignored because it may contain your key.
-- For another project, copy `start-ai.bat` there and run it.
-
 ## API Endpoints
+
 - `POST /api/shorten` - Create short URL (optional `Authorization: Bearer <token>`)
 - `GET /api/links` - Get logged-in user's links (requires auth)
 - `DELETE /api/links/:shortCode` - Delete one of your links (requires auth)
 - `GET /:shortCode` - Redirect to original URL (302) and increment click count
 
 ## Author
-- Basith
+
+- ABu

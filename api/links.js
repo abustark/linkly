@@ -27,18 +27,40 @@ module.exports = async (req, res) => {
             const skip = (page - 1) * pageSize;
 
             const query = { userId: decodedToken.uid };
+
+            if (req.query.range === '7d') {
+                query.createdAt = { $gte: new Date(Date.now() - 7 * 86400000) };
+            } else if (req.query.range === '30d') {
+                query.createdAt = { $gte: new Date(Date.now() - 30 * 86400000) };
+            }
+
+            const search = (req.query.q || '').trim().toLowerCase();
+            if (search) {
+                query.$or = [
+                    { originalUrl: { $regex: search, $options: 'i' } },
+                    { shortCode: { $regex: search, $options: 'i' } }
+                ];
+            }
+
             const total = await Url.countDocuments(query);
             const userLinks = await Url.find(query)
                 .sort({ createdAt: -1 })
                 .skip(skip)
                 .limit(pageSize);
 
+            const [aggregate] = await Url.aggregate([
+                { $match: { userId: decodedToken.uid } },
+                { $group: { _id: null, totalClicks: { $sum: '$clickCount' }, topClicks: { $max: '$clickCount' } } }
+            ]);
+
             res.status(200).json({
                 links: userLinks,
                 page,
                 pageSize,
                 total,
-                totalPages: Math.max(1, Math.ceil(total / pageSize))
+                totalPages: Math.max(1, Math.ceil(total / pageSize)),
+                accountTotalClicks: (aggregate && aggregate.totalClicks) || 0,
+                accountTopClicks: (aggregate && aggregate.topClicks) || 0
             });
 
         } catch (error) {

@@ -1,0 +1,39 @@
+/* Linkly mobile layout — used by the /m/ pages on top of shared.css + page css */
+
+/* Compact header: brand + toggle on row 1, sign-in on row 2 */
+.topbar {
+    padding: calc(var(--s3) + env(safe-area-inset-top, 0px)) var(--s4) var(--s3);
+    gap: var(--s2);
+}
+.topbar-actions { flex-wrap: nowrap; }
+.gsi-wrap {
+    order: 3;
+    flex-basis: 100%;
+    justify-content: center;
+    margin-top: var(--s2);
+}
+
+/* Home page: tightened vertical rhythm for small screens */
+main { padding: var(--s3) var(--s4) var(--s7); }
+.hero { margin: var(--s3) 0 var(--s4); }
+.hero h1 { font-size: var(--fs-xl); }
+.hero .subtitle { font-size: var(--fs-base); }
+.panel { padding: var(--s4); }
+.recent { margin-top: var(--s6); }
+.recent-item { padding: var(--s3); }
+.recent-item .s { font-size: var(--fs-base); }
+.recent-item .o { font-size: var(--fs-sm); }
+
+/* Dashboard: always use cards, never the desktop table */
+.stats { grid-template-columns: repeat(2, 1fr); gap: var(--s2); }
+.links-cards { display: grid !important; }
+.table-wrap { display: none !important; }
+.panel { padding: var(--s4); }
+.controls { gap: var(--s2); }
+.toolbar-row { flex-wrap: wrap; }
+.status { font-size: var(--fs-sm); }
+
+footer {
+    font-size: var(--fs-sm);
+    padding: var(--s4) var(--s3) calc(var(--s6) + env(safe-area-inset-bottom, 0px));
+}

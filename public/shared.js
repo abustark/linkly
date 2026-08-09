@@ -29,6 +29,16 @@
         toastTimer = setTimeout(() => toast.classList.remove("show"), 1800);
     }
 
+    function escapeHtml(value) {
+        return String(value).replace(/[&<>"']/g, (char) => ({
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#39;"
+        })[char]);
+    }
+
     function initials(name) {
         if (!name) return "?";
         const parts = String(name).trim().split(/\s+/);
@@ -82,7 +92,7 @@
 
     window.Linkly = {
         initTheme, setTheme, showToast, renderAvatar,
-        openSheet, closeSheet, wireProfileMenu, setYear, initials
+        openSheet, closeSheet, wireProfileMenu, setYear, initials, escapeHtml
     };
 
     document.addEventListener("DOMContentLoaded", function () {

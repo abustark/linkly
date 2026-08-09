@@ -21,9 +21,8 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'Short URL not found' });
         }
 
-        // Increment the click count and save the document
-        url.clickCount += 1;
-        await url.save();
+        // Increment the click count atomically so concurrent requests are not lost.
+        await Url.updateOne({ _id: url._id }, { $inc: { clickCount: 1 } });
 
         // Perform the redirect to the original URL
         // We use a 302 status code so click counts stay accurate

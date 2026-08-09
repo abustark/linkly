@@ -19,14 +19,16 @@ function randomSuffix() {
     return (Math.floor(Math.random() * 90) + 10);
 }
 
+const MAX_CODE_LENGTH = 12;
+
 function generateShortCode() {
     const word = pickWord();
-    // ~10% of the time add a numeric suffix up front to spread collisions;
-    // the uniqueness check in shorten.js will append a suffix if still taken.
-    if (Math.random() < 0.25) {
+    // ~25% of the time add a numeric suffix up front to spread collisions;
+    // keep the total within the 12-char limit enforced by the redirect route.
+    if (Math.random() < 0.25 && word.length + 2 <= MAX_CODE_LENGTH) {
         return `${word}${randomSuffix()}`;
     }
     return word;
 }
 
-module.exports = { generateShortCode, WORDS };
+module.exports = { generateShortCode, WORDS, MAX_CODE_LENGTH };

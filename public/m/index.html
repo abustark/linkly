@@ -10,6 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/shared.css">
     <link rel="stylesheet" href="/home.css">
+    <link rel="stylesheet" href="/m/mobile.css">
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="/firebase-config.js"></script>
@@ -18,12 +19,11 @@
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <header class="topbar">
-        <a class="brand" href="/" aria-label="Linkly home">
+        <a class="brand" href="/m/" aria-label="Linkly home">
             <span class="logo">L</span>
             Linkly
         </a>
         <div class="topbar-actions">
-            <button id="dashboardHomeBtn" class="btn desktop-only" type="button">Dashboard</button>
             <label class="theme-switch" title="Toggle dark mode">
                 <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
                 <span class="slider"></span>
@@ -122,8 +122,7 @@
         const openBtn = document.getElementById("openBtn");
         const recentList = document.getElementById("recentList");
 
-        document.getElementById("dashboardHomeBtn").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
-        document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); window.location.href = "/dashboard.html"; });
+        document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); window.location.href = "/m/dashboard.html"; });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); L.showToast("Signed out"); });
 
         function getRecent() {
