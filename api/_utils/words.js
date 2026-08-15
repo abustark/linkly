@@ -1,6 +1,3 @@
-// Curated, safe, lowercase English word list for human-readable short codes.
-// ~400 common words (nature, colors, animals, technology, objects, etc.).
-// All 3-8 letters, no offensive or confusing entries.
 module.exports = [
     'river', 'maple', 'comet', 'orbit', 'pebble', 'sunset', 'lotus', 'canyon', 'breeze', 'ember',
     'forest', 'rocket', 'cactus', 'planet', 'sunrise', 'falcon', 'ocean', 'meadow', 'willow', 'cedar',

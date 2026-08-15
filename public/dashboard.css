@@ -42,7 +42,6 @@ body {
 
 .status { color: var(--muted); font-size: var(--fs-sm); margin-bottom: var(--s3); }
 
-/* Link cards (mobile-first; table on desktop) */
 .links-cards { display: grid; gap: var(--s3); }
 .link-card {
     border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s4);

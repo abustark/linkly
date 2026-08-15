@@ -66,7 +66,6 @@
 
 * { box-sizing: border-box; }
 
-/* ---------- Skip link (accessibility) ---------- */
 .skip-link {
     position: absolute;
     left: var(--s3);
@@ -84,7 +83,6 @@
 }
 .skip-link:focus { top: var(--s3); }
 
-/* ---------- Avatar ---------- */
 .avatar {
     width: 36px;
     height: 36px;
@@ -106,7 +104,6 @@
 .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .avatar:active { transform: scale(0.96); }
 
-/* ---------- Topbar (shared base) ---------- */
 .topbar {
     width: 100%;
     display: flex;
@@ -147,7 +144,6 @@
 .input:focus-visible, .search:focus-visible { outline: none; }
 .avatar:focus-visible { outline-offset: 2px; }
 
-/* ---------- Theme switch (shared) ---------- */
 .theme-switch { position: relative; width: 48px; height: 28px; display: inline-block; flex-shrink: 0; }
 .theme-switch input { opacity: 0; width: 0; height: 0; }
 .slider {
@@ -163,7 +159,6 @@
 .theme-switch input:checked + .slider::before { transform: translateX(20px); }
 .theme-switch input:checked + .slider::after { content: "\263E"; right: auto; left: 7px; color: #e8edf6; }
 
-/* ---------- Buttons (shared system) ---------- */
 .btn {
     border: 1px solid var(--line); background: var(--card); color: var(--text);
     border-radius: var(--r-sm); padding: 10px 14px; font: inherit; font-weight: 600;
@@ -179,7 +174,6 @@
 .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
 .btn.tiny { padding: 0 12px; min-height: 38px; font-size: var(--fs-sm); }
 
-/* ---------- Profile menu / bottom sheet (shared) ---------- */
 .sheet-backdrop {
     position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
     opacity: 0; visibility: hidden; transition: opacity 0.25s ease, visibility 0.25s ease;
@@ -219,7 +213,6 @@
 .gsi-sheet > div { margin: 0 auto !important; }
 .sheet-theme { justify-content: space-between; }
 
-/* ---------- Toast (shared) ---------- */
 .toast {
     position: fixed; left: 50%; bottom: calc(var(--s5) + env(safe-area-inset-bottom, 0px));
     transform: translate(-50%, 12px);
@@ -229,7 +222,6 @@
 }
 .toast.show { opacity: 1; transform: translate(-50%, 0); }
 
-/* ---------- Modal (shared base) ---------- */
 .modal { position: fixed; inset: 0; display: none; align-items: center; justify-content: center; background: rgba(0,0,0,0.45); padding: var(--s4); z-index: 85; }
 .modal.open { display: flex; }
 .modal-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s5); width: min(380px, 100%); }
@@ -238,7 +230,6 @@
 .modal-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .modal-actions .btn { flex: 1; }
 
-/* ---------- Shared utilities ---------- */
 .field-label { display: block; font-size: var(--fs-xs); color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
 .input {
     width: 100%; border: 1.5px solid var(--line); border-radius: var(--r-md);
@@ -254,14 +245,11 @@
     .logo { width: 34px; height: 34px; }
 }
 
-/* Visible only on desktop; hidden on mobile where it lives in the profile sheet */
 .desktop-only { display: none; }
 @media (min-width: 761px) {
     .desktop-only { display: inline-flex; }
 }
 
-/* Mobile: one-line header (brand + avatar). Sign-in and theme toggle
-   move inside the avatar menu (profile sheet). */
 @media (max-width: 760px) {
     .topbar { flex-wrap: nowrap; }
     .topbar-actions { flex-wrap: nowrap; }
@@ -271,7 +259,6 @@
     .gsi-sheet { display: flex; }
 }
 
-/* On larger screens the sheet becomes a centered dropdown menu */
 @media (min-width: 761px) {
     .sheet {
         left: auto; right: var(--s5); bottom: auto; top: 64px;

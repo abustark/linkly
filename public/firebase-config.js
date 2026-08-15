@@ -1,4 +1,3 @@
-/* Linkly shared Firebase web configuration. */
 (function () {
     "use strict";
 

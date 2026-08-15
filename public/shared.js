@@ -1,4 +1,3 @@
-/* Linkly shared client behavior: theme, toast, avatar, profile sheet */
 (function () {
     "use strict";
 

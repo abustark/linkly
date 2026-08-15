@@ -131,8 +131,6 @@ async function generateUniqueShortCode(Url) {
         const candidate = generateShortCode();
         const existing = await Url.findOne({ shortCode: candidate });
         if (!existing) return candidate;
-        // On collision, append a short random number to keep the word base,
-        // staying within the 12-char limit enforced by the redirect route.
         const suffix = (Math.floor(Math.random() * 90) + 10);
         const retry = `${candidate}${suffix}`;
         if (retry.length <= MAX_CODE_LENGTH) {

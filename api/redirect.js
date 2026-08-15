@@ -1,4 +1,3 @@
-// Import our new database utility and the Url model from their new locations
 const connectToDatabase = require('./_utils/database');
 const Url = require('./_models/Url');
 
@@ -10,28 +9,21 @@ module.exports = async (req, res) => {
     try {
         await connectToDatabase();
 
-        // In Vercel, dynamic path parameters are in req.query
         const { shortCode } = req.query;
 
-        // Find the URL document in the database
         const url = await Url.findOne({ shortCode: shortCode });
 
         if (!url) {
-            // If no URL is found, send a 404 Not Found error
             return res.status(404).json({ error: 'Short URL not found' });
         }
 
-        // Increment the click count atomically so concurrent requests are not lost.
         await Url.updateOne({ _id: url._id }, { $inc: { clickCount: 1 } });
 
-        // Perform the redirect to the original URL
-        // We use a 302 status code so click counts stay accurate
-        // (a 301 permanent redirect can be cached by browsers/clients).
+        // 302 (not 301) so browsers don't cache the redirect and click counts stay accurate.
         res.redirect(302, url.originalUrl);
 
     } catch (error) {
         console.error('Redirect error:', error);
-        // If any other error occurs, send a 500 Server Error
         res.status(500).json({ error: 'Error redirecting URL' });
     }
 };
