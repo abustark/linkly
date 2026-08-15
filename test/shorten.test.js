@@ -32,7 +32,8 @@ function makeReq(body) {
         method: 'POST',
         headers: {
             'x-forwarded-proto': 'https',
-            'x-forwarded-host': 'linkly-link.vercel.app'
+            'x-forwarded-host': 'linkly-link.vercel.app',
+            authorization: 'Bearer test-token'
         },
         body
     };
@@ -46,6 +47,14 @@ function makeRes() {
 
 test.beforeEach(() => {
     savedDocs = [];
+});
+
+test('rejects requests without an auth header', async () => {
+    const req = makeReq({ originalUrl: 'https://example.com' });
+    delete req.headers.authorization;
+    const res = makeRes();
+    await shorten(req, res);
+    assert.strictEqual(res.statusCode, 401);
 });
 
 test('rejects non-http(s) URL schemes', async () => {

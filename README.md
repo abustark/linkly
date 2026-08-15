@@ -14,7 +14,7 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 
 ## Features
 
-- Shorten long URLs with optional custom aliases
+- Shorten long URLs with optional custom aliases (requires Google sign-in)
 - 302 redirects with per-link click counting
 - Firebase Google authentication
 - User dashboard with:
@@ -60,7 +60,7 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 
 ## API Endpoints
 
-- `POST /api/shorten` - Create short URL (optional `Authorization: Bearer <token>`)
+- `POST /api/shorten` - Create short URL (requires a Firebase ID token in the `Authorization: Bearer <token>` header)
 - `GET /api/links` - Get logged-in user's links (requires auth)
 - `DELETE /api/links/:shortCode` - Delete one of your links (requires auth)
 - `GET /:shortCode` - Redirect to original URL (302) and increment click count

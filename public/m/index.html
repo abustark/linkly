@@ -50,7 +50,13 @@
             <p class="subtitle">Create clean, shareable links in seconds. Customize aliases and manage everything from your personal dashboard.</p>
         </section>
 
-        <section class="panel">
+        <section class="panel auth-prompt" id="authPrompt" hidden>
+            <h2 class="prompt-title">Sign in to start shortening</h2>
+            <p class="prompt-text">Create clean, shareable links and track every click from your personal dashboard.</p>
+            <div id="gsi-prompt-container" class="gsi-prompt"></div>
+        </section>
+
+        <section class="panel" id="shortenPanel" hidden>
             <form id="shortenForm">
                 <div class="field">
                     <label class="field-label" for="longUrl">Long URL</label>
@@ -79,7 +85,7 @@
             </div>
         </section>
 
-        <section class="recent">
+        <section class="recent" id="recentSection">
             <h2>Recent links (this browser)</h2>
             <div id="recentList" class="recent-list"></div>
         </section>
@@ -196,6 +202,9 @@
         auth.onAuthStateChanged((user) => {
             const gsiSheet = document.getElementById("gsi-sheet-container");
             const logoutBtn = document.getElementById("sheetLogout");
+            const authPrompt = document.getElementById("authPrompt");
+            const shortenPanel = document.getElementById("shortenPanel");
+            const recentSection = document.getElementById("recentSection");
             const mobile = window.matchMedia("(max-width: 760px)").matches;
             if (user) {
                 gsiButtonContainer.style.display = "none";
@@ -206,6 +215,9 @@
                 document.getElementById("sheetEmail").textContent = user.email || "";
                 if (gsiSheet) gsiSheet.style.display = "none";
                 if (logoutBtn) logoutBtn.style.display = "flex";
+                if (authPrompt) authPrompt.hidden = true;
+                if (shortenPanel) shortenPanel.hidden = false;
+                if (recentSection) recentSection.hidden = false;
             } else {
                 gsiButtonContainer.style.display = "block";
                 avatarBtn.style.display = "none";
@@ -215,6 +227,10 @@
                 document.getElementById("sheetEmail").textContent = "";
                 if (gsiSheet) gsiSheet.style.display = mobile ? "flex" : "none";
                 if (logoutBtn) logoutBtn.style.display = "none";
+                if (authPrompt) authPrompt.hidden = false;
+                if (shortenPanel) shortenPanel.hidden = true;
+                if (recentSection) recentSection.hidden = true;
+                L.renderGSI();
                 if (!mobile && window.google && google.accounts) google.accounts.id.prompt();
             }
         });

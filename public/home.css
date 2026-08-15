@@ -45,6 +45,11 @@ main {
     border-radius: var(--r-lg);
     padding: var(--s5);
 }
+.auth-prompt { text-align: center; }
+.auth-prompt .prompt-title { margin: 0 0 var(--s2); font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 800; letter-spacing: -0.02em; }
+.auth-prompt .prompt-text { margin: 0 auto var(--s4); color: var(--muted); max-width: 400px; line-height: var(--lh-body); }
+.gsi-prompt { display: flex; justify-content: center; }
+.gsi-prompt > div { margin: 0 auto !important; }
 .field { margin-bottom: var(--s4); }
 .field.optional .field-label { color: var(--muted); font-weight: 500; }
 .field.optional .field-label span { color: var(--muted); font-weight: 400; opacity: 0.75; }

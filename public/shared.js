@@ -91,15 +91,21 @@
         }
     }
 
-    let gsiRendered = false;
     function renderGSI() {
-        if (gsiRendered) return;
         if (!window.google || !google.accounts) return;
         const mobile = window.matchMedia("(max-width: 760px)").matches;
-        const target = document.getElementById(mobile ? "gsi-sheet-container" : "gsi-button-container");
-        if (!target) return;
-        google.accounts.id.renderButton(target, { theme: "outline", size: "large" });
-        gsiRendered = true;
+        const targets = [];
+        const header = document.getElementById("gsi-button-container");
+        const sheet = document.getElementById("gsi-sheet-container");
+        const prompt = document.getElementById("gsi-prompt-container");
+        if (!mobile && header) targets.push(header);
+        if (mobile && sheet) targets.push(sheet);
+        if (prompt && !prompt.hidden) targets.push(prompt);
+        targets.forEach((t) => {
+            if (t.getAttribute("data-gsi-rendered") === "1") return;
+            google.accounts.id.renderButton(t, { theme: "outline", size: "large" });
+            t.setAttribute("data-gsi-rendered", "1");
+        });
     }
 
     function openSheet() {

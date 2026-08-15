@@ -60,17 +60,17 @@ module.exports = async (req, res) => {
             return res.status(400).json({ error: 'originalUrl is required' });
         }
 
-        let userId = null;
         const { authorization } = req.headers;
+        if (!authorization || !authorization.startsWith('Bearer ')) {
+            return res.status(401).json({ error: 'Sign in required to shorten URLs.' });
+        }
 
-        if (authorization && authorization.startsWith('Bearer ')) {
-            const idToken = authorization.split('Bearer ')[1];
-            try {
-                const decodedToken = await admin.auth().verifyIdToken(idToken);
-                userId = decodedToken.uid;
-            } catch (error) {
-                console.log('Invalid or expired token. Proceeding as anonymous.');
-            }
+        let userId;
+        try {
+            const decodedToken = await admin.auth().verifyIdToken(authorization.split('Bearer ')[1]);
+            userId = decodedToken.uid;
+        } catch (error) {
+            return res.status(401).json({ error: 'Your session is invalid or expired. Please sign in again.' });
         }
 
         await connectToDatabase();
@@ -100,7 +100,7 @@ module.exports = async (req, res) => {
         const newUrlData = {
             originalUrl: trimmedUrl,
             shortCode: shortCode,
-            userId: userId // Add the user's ID if they are authenticated
+            userId: userId
         };
 
         const newUrl = new Url(newUrlData);
