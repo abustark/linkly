@@ -8,6 +8,8 @@ Full-stack URL shortener with Google authentication, MongoDB persistence, custom
 ![Firebase](https://img.shields.io/badge/Auth-Firebase-DD2C00?style=for-the-badge&logo=firebase&logoColor=white)
 ![Vercel](https://img.shields.io/badge/Deploy-Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
+> 📄 **[`PROJECT-INFO.md`](PROJECT-INFO.md)** — machine-readable project facts (stack + exact versions, architecture, metrics, keyword tags) designed so an AI can generate resume entries and portfolio project summaries from it alone.
+
 ## Overview
 
 Linkly turns long URLs into short, shareable links and tracks how they perform. Users sign in with Google, create links with optional custom aliases, and manage everything from a dashboard — search, filter, see click stats, and download QR codes.
@@ -66,6 +68,28 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 - `GET /api/links` - Get logged-in user's links + account aggregates + 30-day click series (requires auth; add `?format=csv` to export the filtered view as CSV)
 - `DELETE /api/links?shortCode=<code>` - Delete one of your links (requires auth)
 - `GET /:shortCode` - Redirect to original URL (302) and increment click count
+
+## Testing
+
+- `npm test` — 23 tests across 4 files using Node's built-in runner (`node --test`, ~17s): links API (aggregates, search escaping, date ranges, auth), ownership/fail-closed deletes, redirect integrity (atomic click increments, HTML-vs-JSON 404s), alias validation, and short-code ↔ rewrite-pattern invariants.
+- Browser verification harness (Playwright, stubbed Firebase v10 ESM modules) covers desktop + mobile flows; ~50 dated screenshots live in `artifacts/`.
+
+## Project Structure
+
+```
+api/                 Vercel serverless functions + shared backend code
+  _models/           Mongoose schemas (Url, RateLimit)
+  _utils/            firebase, database, rate limiting, code generation
+  links.js           list / search / aggregates / CSV export
+  redirect.js        302 redirect + atomic click tracking
+  shorten.js         create short link
+public/              static frontend (index.html, dashboard.html, CSS, sw.js, manifest…)
+server.js            local Express server (development, :5000)
+test/                node --test suite (23 tests)
+vercel.json          /m/* 301 redirects, :shortCode rewrite, security headers
+PROJECT-INFO.md      project facts sheet for AI-generated resume/portfolio summaries
+AUDIT-REPORT.md      full security/quality audit + remediation log
+```
 
 ## Author
 
