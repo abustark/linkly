@@ -291,7 +291,19 @@
 
 /* Footer: brand serif font (Playfair Display) + portfolio CTA — font, link and
    welcome line taken from the project BMW footer (ecom-seven-sand.vercel.app). */
-footer { font-family: var(--font-body); }
+footer {
+    font-family: var(--font-body);
+    margin-top: var(--s6); /* extra drop below the content so it reads as a footer, not a caption */
+}
+/* Inset hairline above the footer text: centered, with breathing room on both
+   sides instead of a full edge-to-edge rule. */
+footer::before {
+    content: "";
+    display: block;
+    width: min(460px, calc(100% - 64px));
+    margin: 0 auto var(--s5);
+    border-top: 1px solid var(--line);
+}
 .foot-cta {
     display: flex; /* block-level: portfolio CTA sits on its own lines (3 & 4) */
     flex-direction: column;
