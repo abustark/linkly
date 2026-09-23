@@ -14,6 +14,7 @@
     main { padding: var(--s3) var(--s4) var(--s7); }
     .hero { margin: var(--s3) 0 var(--s4); }
     .hero h1 { font-size: var(--fs-xl); }
+    .hero h1 .grad { display: block; } /* "instantly" back on its own centered line — mobile only */
     .hero .subtitle { font-size: var(--fs-base); }
     .panel { padding: var(--s4); }
     .recent { margin-top: var(--s6); }
