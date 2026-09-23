@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f7fb">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Linkly — Short, clean links</title>
     <meta name="description" content="Create clean, shareable links in seconds. Customize aliases and manage everything from your personal dashboard.">
@@ -16,15 +17,18 @@
     <meta name="twitter:title" content="Linkly — Short, clean links">
     <meta name="twitter:description" content="Create clean, shareable links in seconds. Customize aliases and manage everything from your personal dashboard.">
     <meta name="twitter:image" content="https://linkly-link.vercel.app/og-image.png">
+    <link rel="canonical" href="https://linkly-link.vercel.app/">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/shared.css">
     <link rel="stylesheet" href="/home.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="/firebase-config.js"></script>
+    <link rel="stylesheet" href="/mobile.css">
+    <script type="module" src="/firebase-config.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"Linkly","url":"https://linkly-link.vercel.app/","logo":"https://linkly-link.vercel.app/favicon.svg","description":"Create clean, shareable links in seconds. Customize aliases and manage everything from your personal dashboard.","applicationCategory":"UtilitiesApplication","operatingSystem":"Web","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
@@ -60,12 +64,12 @@
             <form id="shortenForm">
                 <div class="field">
                     <label class="field-label" for="longUrl">Long URL</label>
-                    <input class="input" id="longUrl" type="url" inputmode="url" placeholder="https://example.com/very/long/path" required>
+                    <input class="input" id="longUrl" type="url" inputmode="url" name="url" autocomplete="url" placeholder="https://example.com/very/long/path" required>
                 </div>
 
                 <div class="field optional">
                     <label class="field-label" for="customAlias">Custom alias <span>(optional)</span></label>
-                    <input class="input" id="customAlias" type="text" placeholder="my-campaign">
+                    <input class="input" id="customAlias" type="text" name="alias" autocomplete="off" spellcheck="false" placeholder="my-campaign">
                 </div>
 
                 <div class="form-actions">
@@ -92,7 +96,7 @@
     </main>
 
     <footer>
-        © <span id="year">2025</span> ABu. All rights reserved.<br>
+        © <span id="year">2026</span> ABu. All rights reserved.<br>
         Linkly — short, clean links.
     </footer>
 
@@ -132,9 +136,8 @@
     </div>
 
     <script src="/shared.js"></script>
-    <script>
-        window.LinklyFirebase.init();
-        const auth = firebase.auth();
+    <script type="module">
+        const auth = window.LinklyFirebase.auth;
         const L = window.Linkly;
 
         const RECENT_KEY = "linkly_recent_links";
@@ -181,7 +184,7 @@
 
         async function handleCredentialResponse(response) {
             try {
-                const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+                const credential = window.LinklyFirebase.GoogleAuthProvider.credential(response.credential);
                 await auth.signInWithCredential(credential);
                 L.showToast("Signed in");
             } catch (error) {
@@ -192,12 +195,10 @@
             }
         }
 
+        const GSI_CLIENT_ID = "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com";
+
         window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com",
-                callback: handleCredentialResponse
-            });
-            L.renderGSI();
+            L.initGSI(GSI_CLIENT_ID, handleCredentialResponse);
         };
 
         auth.onAuthStateChanged((user) => {
@@ -231,15 +232,15 @@
                 if (authPrompt) authPrompt.hidden = false;
                 if (shortenPanel) shortenPanel.hidden = true;
                 if (recentSection) recentSection.hidden = true;
-                L.renderGSI();
-                if (!mobile && window.google && google.accounts) google.accounts.id.prompt();
+                const gsiReady = L.initGSI(GSI_CLIENT_ID, handleCredentialResponse);
+                if (!mobile && gsiReady) google.accounts.id.prompt();
             }
         });
 
         shortenForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             statusEl.style.color = "var(--muted)";
-            statusEl.textContent = "Creating short URL...";
+            statusEl.textContent = "Creating short URL\u2026";
             submitBtn.disabled = true;
             result.style.display = "none";
 

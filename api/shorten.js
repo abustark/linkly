@@ -2,31 +2,20 @@ const connectToDatabase = require('./_utils/database');
 const { generateShortCode, MAX_CODE_LENGTH } = require('./_utils/generateCode');
 const Url = require('./_models/Url');
 const admin = require('./_utils/firebase');
+const { checkRateLimit } = require('./_utils/rateLimit');
 
 const MAX_GENERATION_ATTEMPTS = 8;
 
-// Simple in-memory rate limiter (per serverless instance). Set
-// RATE_LIMIT_MAX=0 to disable.
-const RATE_LIMIT_MAX = parseInt(process.env.RATE_LIMIT_MAX, 10) || 30;
-const RATE_LIMIT_WINDOW_MS = parseInt(process.env.RATE_LIMIT_WINDOW_MS, 10) || 60000;
-const rateBuckets = new Map();
+// Persistent rate limiting lives in ./_utils/rateLimit (Mongo-backed so the
+// limit holds across serverless instances, with an in-memory fallback).
 
 function clientIp(req) {
+    // x-real-ip is set by the platform (Vercel) and cannot be spoofed by the client.
+    const realIp = req.headers['x-real-ip'];
+    if (realIp) return String(realIp).trim();
     const forwarded = req.headers['x-forwarded-for'];
     if (forwarded) return String(forwarded).split(',')[0].trim();
     return (req.socket && req.socket.remoteAddress) || 'unknown';
-}
-
-function isRateLimited(ip) {
-    if (RATE_LIMIT_MAX <= 0) return false;
-    const now = Date.now();
-    const bucket = rateBuckets.get(ip);
-    if (!bucket || now - bucket.start >= RATE_LIMIT_WINDOW_MS) {
-        rateBuckets.set(ip, { start: now, count: 1 });
-        return false;
-    }
-    bucket.count += 1;
-    return bucket.count > RATE_LIMIT_MAX;
 }
 
 // Only trust the Host header when it matches an allowlist (set via
@@ -45,13 +34,17 @@ function safeHost(req) {
 }
 
 module.exports = async (req, res) => {
-    const { originalUrl, customAlias } = req.body;
-
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    if (isRateLimited(clientIp(req))) {
+    const { originalUrl, customAlias } = req.body || {};
+
+    const rate = await checkRateLimit(clientIp(req), 'shorten');
+    if (rate.limited) {
+        if (rate.retryAfterSec && typeof res.setHeader === 'function') {
+            res.setHeader('Retry-After', String(rate.retryAfterSec));
+        }
         return res.status(429).json({ error: 'Too many requests. Please try again later.' });
     }
 

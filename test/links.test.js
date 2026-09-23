@@ -13,19 +13,22 @@ stub('../api/_utils/firebase', {
 });
 
 let capturedQuery = null;
+let deleteTarget = null;
 function Url() {}
 Url.find = (query) => {
     capturedQuery = query;
     return { sort: () => ({ skip: () => ({ limit: async () => [] }) }) };
 };
 Url.countDocuments = async (query) => { capturedQuery = query; return 0; };
-Url.aggregate = async () => [{ totalClicks: 42, topClicks: 7 }];
+Url.aggregate = async () => [{ totals: [{ totalClicks: 42, topClicks: 7 }], series: [] }];
+Url.findOne = async () => deleteTarget;
+Url.deleteOne = async () => ({ deletedCount: 1 });
 stub('../api/_models/Url', Url);
 
 const links = require('../api/links');
 
-function makeReq(query) {
-    return { method: 'GET', headers: { authorization: 'Bearer token' }, query };
+function makeReq(query, method = 'GET') {
+    return { method, headers: { authorization: 'Bearer token' }, query };
 }
 
 function makeRes() {
@@ -61,4 +64,40 @@ test('rejects requests without an auth header', async () => {
     const res = makeRes();
     await links({ method: 'GET', headers: {}, query: {} }, res);
     assert.strictEqual(res.statusCode, 401);
+});
+
+test('search with regex metacharacters is escaped', async () => {
+    const res = makeRes();
+    await links(makeReq({ q: 'a(b|c)123' }), res);
+    assert.strictEqual(res.statusCode, 200);
+    assert.strictEqual(capturedQuery.$or[0].originalUrl.$regex, 'a\\(b\\|c\\)123');
+});
+
+test('DELETE removes a link owned by the caller', async () => {
+    deleteTarget = { _id: 'id1', shortCode: 'mine', userId: 'user1' };
+    const res = makeRes();
+    await links(makeReq({ shortCode: 'mine' }, 'DELETE'), res);
+    assert.strictEqual(res.statusCode, 200);
+    assert.deepStrictEqual(res.body, { success: true, shortCode: 'mine' });
+});
+
+test('DELETE rejects a link owned by another user', async () => {
+    deleteTarget = { _id: 'id2', shortCode: 'theirs', userId: 'user2' };
+    const res = makeRes();
+    await links(makeReq({ shortCode: 'theirs' }, 'DELETE'), res);
+    assert.strictEqual(res.statusCode, 403);
+});
+
+test('DELETE rejects an ownerless legacy link (fail closed)', async () => {
+    deleteTarget = { _id: 'id3', shortCode: 'orphan' };
+    const res = makeRes();
+    await links(makeReq({ shortCode: 'orphan' }, 'DELETE'), res);
+    assert.strictEqual(res.statusCode, 403);
+});
+
+test('DELETE returns 404 for an unknown short code', async () => {
+    deleteTarget = null;
+    const res = makeRes();
+    await links(makeReq({ shortCode: 'ghost' }, 'DELETE'), res);
+    assert.strictEqual(res.statusCode, 404);
 });

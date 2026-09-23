@@ -15,25 +15,27 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 ## Features
 
 - Shorten long URLs with optional custom aliases (requires Google sign-in)
-- 302 redirects with per-link click counting
-- Firebase Google authentication
+- 302 redirects with per-link click counting, bucketed by day for time-series charts
+- Firebase Google authentication (JS SDK v10, modular ESM)
 - User dashboard with:
   - Search by URL or code
   - Date filters (`All`, `7d`, `30d`)
   - Total links, total clicks, top clicks, filtered count
   - QR code preview and PNG download
-  - Click trend sparkline
-- IP-based rate limiting on the shorten endpoint
+  - 30-day daily-click time series chart
+  - CSV export of the current filtered view
+- Persistent (Mongo-backed) IP rate limiting on the shorten endpoint with in-memory fallback
 - Host validation for generated short URLs
 - Dark mode with persisted preference
-- Responsive layouts with dedicated mobile pages and a desktop dashboard
+- Single responsive pages (mobile ≤760px); legacy `/m/*` URLs 301-redirect
+- PWA (manifest, icons, service-worker offline shell) and SEO (canonical, JSON-LD, robots, sitemap, branded 404)
 
 ## Tech Stack
 
 - **Frontend:** HTML, CSS, JavaScript (vanilla, no framework)
 - **Backend:** Node.js, Express, Vercel Serverless Functions
 - **Database:** MongoDB Atlas (Mongoose)
-- **Auth:** Firebase Authentication
+- **Auth:** Firebase Authentication (v10 modular)
 - **Deployment:** Vercel
 - **Fonts:** Inter (body), Sora (display) via Google Fonts
 
@@ -61,8 +63,8 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 ## API Endpoints
 
 - `POST /api/shorten` - Create short URL (requires a Firebase ID token in the `Authorization: Bearer <token>` header)
-- `GET /api/links` - Get logged-in user's links (requires auth)
-- `DELETE /api/links/:shortCode` - Delete one of your links (requires auth)
+- `GET /api/links` - Get logged-in user's links + account aggregates + 30-day click series (requires auth; add `?format=csv` to export the filtered view as CSV)
+- `DELETE /api/links?shortCode=<code>` - Delete one of your links (requires auth)
 - `GET /:shortCode` - Redirect to original URL (302) and increment click count
 
 ## Author

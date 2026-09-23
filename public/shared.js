@@ -13,12 +13,18 @@
         });
         const label = document.getElementById("themeLabel");
         if (label) label.textContent = theme === "dark" ? "Dark mode" : "Light mode";
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) meta.setAttribute("content", theme === "dark" ? "#0a0f1c" : "#f4f7fb");
         try { localStorage.setItem(THEME_KEY, theme); } catch (e) {}
     }
 
     function initTheme() {
-        let theme = "light";
-        try { theme = localStorage.getItem(THEME_KEY) || "light"; } catch (e) {}
+        let theme = null;
+        try { theme = localStorage.getItem(THEME_KEY); } catch (e) {}
+        if (!theme) {
+            theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
+                ? "dark" : "light";
+        }
         setTheme(theme);
         THEME_TOGGLES.forEach((id) => {
             const t = document.getElementById(id);
@@ -90,8 +96,27 @@
         }
     }
 
+    // Google Sign-In initialization is idempotent: pages (and the auth state
+    // callback) can call initGSI any number of times, in any order, without
+    // racing or re-initializing. Buttons render only after initialization.
+    let gsiInitialized = false;
+
+    function initGSI(clientId, callback) {
+        if (!window.google || !google.accounts || !google.accounts.id) return false;
+        if (!gsiInitialized) {
+            try {
+                google.accounts.id.initialize({ client_id: clientId, callback: callback });
+                gsiInitialized = true;
+            } catch (e) {
+                return false;
+            }
+        }
+        renderGSI();
+        return gsiInitialized;
+    }
+
     function renderGSI() {
-        if (!window.google || !google.accounts) return;
+        if (!gsiInitialized || !window.google || !google.accounts || !google.accounts.id) return;
         const mobile = window.matchMedia("(max-width: 760px)").matches;
         const targets = [];
         const header = document.getElementById("gsi-button-container");
@@ -102,33 +127,76 @@
         if (prompt && !prompt.hidden) targets.push(prompt);
         targets.forEach((t) => {
             if (t.getAttribute("data-gsi-rendered") === "1") return;
-            google.accounts.id.renderButton(t, { theme: "outline", size: "large" });
-            t.setAttribute("data-gsi-rendered", "1");
+            try {
+                google.accounts.id.renderButton(t, { theme: "outline", size: "large" });
+                t.setAttribute("data-gsi-rendered", "1");
+            } catch (e) { /* render failed; a later call can retry */ }
         });
     }
 
     function openSheet() {
+        const av = document.getElementById("avatarBtn");
         const b = document.getElementById("sheetBackdrop");
         const s = document.getElementById("profileSheet");
+        if (av) av.setAttribute("aria-expanded", "true");
+        if (s) {
+            s.setAttribute("aria-modal", window.matchMedia("(max-width: 760px)").matches ? "true" : "false");
+        }
         if (b) b.classList.add("open");
         if (s) s.classList.add("open");
         renderGSI();
+        const firstItem = s && s.querySelector(".sheet-item");
+        if (firstItem) firstItem.focus({ preventScroll: true });
     }
+
     function closeSheet() {
+        const av = document.getElementById("avatarBtn");
         const b = document.getElementById("sheetBackdrop");
         const s = document.getElementById("profileSheet");
+        const wasOpen = !!(s && s.classList.contains("open"));
+        if (av) av.setAttribute("aria-expanded", "false");
         if (b) b.classList.remove("open");
         if (s) s.classList.remove("open");
+        if (wasOpen && s && s.contains(document.activeElement) && av) {
+            av.focus({ preventScroll: true });
+        }
     }
 
     function wireProfileMenu() {
         const av = document.getElementById("avatarBtn");
         const b = document.getElementById("sheetBackdrop");
-        if (av) av.addEventListener("click", openSheet);
+        if (av) {
+            av.setAttribute("aria-haspopup", "true");
+            av.setAttribute("aria-expanded", "false");
+            av.addEventListener("click", openSheet);
+        }
         if (b) b.addEventListener("click", closeSheet);
         const closeBtns = document.querySelectorAll("[data-close-sheet]");
         closeBtns.forEach((el) => el.addEventListener("click", closeSheet));
-        document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeSheet(); });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") { closeSheet(); return; }
+            if (e.key !== "Tab") return;
+            const s = document.getElementById("profileSheet");
+            if (!s || !s.classList.contains("open")) return;
+            // Only the mobile bottom sheet is modal; the desktop dropdown is not.
+            if (!window.matchMedia("(max-width: 760px)").matches) return;
+            const focusables = Array.from(
+                s.querySelectorAll("button, [href], input, select, textarea, [tabindex]:not([tabindex='-1'])")
+            ).filter((el) => el.offsetParent !== null);
+            if (!focusables.length) return;
+            const first = focusables[0];
+            const last = focusables[focusables.length - 1];
+            if (e.shiftKey && document.activeElement === first) {
+                e.preventDefault();
+                last.focus();
+            } else if (!e.shiftKey && document.activeElement === last) {
+                e.preventDefault();
+                first.focus();
+            } else if (!s.contains(document.activeElement)) {
+                e.preventDefault();
+                first.focus();
+            }
+        });
     }
 
     function setYear() {
@@ -137,7 +205,7 @@
     }
 
     window.Linkly = {
-        initTheme, setTheme, showToast, renderAvatar, renderGSI,
+        initTheme, setTheme, showToast, renderAvatar, renderGSI, initGSI,
         openSheet, closeSheet, wireProfileMenu, setYear, initials, escapeHtml
     };
 
@@ -145,5 +213,9 @@
         initTheme();
         wireProfileMenu();
         setYear();
+        // App-shell/offline support; a no-op where service workers aren't available.
+        if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {
+            navigator.serviceWorker.register("/sw.js").catch(function () { /* ignore */ });
+        }
     });
 })();

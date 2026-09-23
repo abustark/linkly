@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f7fb">
     <link rel="icon" type="image/svg+xml" href="/favicon.svg">
     <title>Linkly Dashboard</title>
     <meta name="description" content="Manage your links, track clicks, and download QR codes from the Linkly dashboard.">
@@ -16,19 +17,23 @@
     <meta name="twitter:title" content="Linkly Dashboard">
     <meta name="twitter:description" content="Manage your links, track clicks, and download QR codes from the Linkly dashboard.">
     <meta name="twitter:image" content="https://linkly-link.vercel.app/og-image.png">
+    <link rel="canonical" href="https://linkly-link.vercel.app/dashboard.html">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/shared.css">
     <link rel="stylesheet" href="/dashboard.css">
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
-    <script src="/firebase-config.js"></script>
+    <link rel="stylesheet" href="/mobile.css">
+    <script type="module" src="/firebase-config.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="wrap" id="main" tabindex="-1">
+        <h1 class="sr-only">Linkly Dashboard</h1>
         <div class="topbar">
             <a class="brand" href="/" aria-label="Linkly home"><span class="logo">L</span> Linkly</a>
             <div class="topbar-actions">
@@ -58,9 +63,10 @@
                         <button class="chip" data-filter="30d" type="button">30d</button>
                     </div>
                     <button id="refreshBtn" class="btn" type="button">Refresh</button>
+                    <button id="exportBtn" class="btn" type="button">Export CSV</button>
                 </div>
             </div>
-            <div id="statusRow" class="status" role="status" aria-live="polite">Loading links...</div>
+            <div id="statusRow" class="status" role="status" aria-live="polite">Loading links…</div>
 
             <div class="links-cards" id="linksCards"></div>
 
@@ -86,13 +92,13 @@
             </div>
 
             <div class="spark">
-                <div class="spark-top"><span>Clicks Trend (Latest 12 Links)</span><span id="sparkSummary">No data</span></div>
+                <div class="spark-top"><span>Clicks Trend (Last 30 Days)</span><span id="sparkSummary">No data</span></div>
                 <svg id="sparkline" viewBox="0 0 360 84" preserveAspectRatio="none" aria-hidden="true"></svg>
             </div>
         </section>
 
         <footer>
-            © <span id="year">2025</span> ABu. All rights reserved.<br>
+            © <span id="year">2026</span> ABu. All rights reserved.<br>
             Linkly — short, clean links.
         </footer>
     </div>
@@ -104,6 +110,9 @@
                 <button id="closeModalBtn" class="btn tiny" type="button">Close</button>
             </div>
             <div id="qrcode-container"></div>
+            <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
+                <button id="qrDownload" class="btn tiny btn-primary" type="button">Download PNG</button>
+            </div>
         </div>
     </div>
 
@@ -153,9 +162,8 @@
     </div>
 
     <script src="/shared.js"></script>
-    <script>
-        window.LinklyFirebase.init();
-        const auth = firebase.auth();
+    <script type="module">
+        const auth = window.LinklyFirebase.auth;
 
         const L = window.Linkly;
         const themeToggle = document.getElementById("themeToggle");
@@ -212,6 +220,29 @@
         let accountTopClicks = 0;
         let searchTimer = null;
 
+        function readStateFromUrl() {
+            const params = new URLSearchParams(window.location.search);
+            searchInput.value = params.get("q") || "";
+            const range = params.get("range");
+            currentFilter = (range === "7d" || range === "30d") ? range : "all";
+            chips.forEach((c) => c.classList.toggle("active", c.dataset.filter === currentFilter));
+            const page = parseInt(params.get("page"), 10);
+            return page > 0 ? page : 1;
+        }
+
+        function syncUrl(mode, pageOverride) {
+            const params = new URLSearchParams();
+            const q = searchInput.value.trim();
+            if (q) params.set("q", q);
+            if (currentFilter !== "all") params.set("range", currentFilter);
+            const page = pageOverride || currentPage;
+            if (page > 1) params.set("page", String(page));
+            const qs = params.toString();
+            const url = window.location.pathname + (qs ? `?${qs}` : "");
+            if (mode === "push") history.pushState({}, "", url);
+            else history.replaceState({}, "", url);
+        }
+
         function formatDate(date) {
             const d = new Date(date);
             return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
@@ -233,23 +264,26 @@
             return u;
         }
 
-        function renderSpark(links) {
-            const values = links.slice(0, 12).map((x) => Number(x.clickCount) || 0).reverse();
+        // 30-day daily-click series, zero-filled server-side ({ d: 'YYYY-MM-DD', c: n }).
+        let accountClicksByDay = [];
+
+        function renderSpark() {
+            const values = accountClicksByDay.map((x) => Number(x.c) || 0);
             if (!values.length) {
                 sparkline.innerHTML = "";
                 sparkSummary.textContent = "No data";
                 return;
             }
             const w = 360, h = 84, p = 10;
-            const max = Math.max(...values, 1);
+            const max = Math.max(...values, 0);
             const step = values.length > 1 ? (w - p * 2) / (values.length - 1) : 0;
-            const points = values.map((v, i) => `${p + i * step},${h - p - (v / max) * (h - p * 2)}`).join(" ");
+            const points = values.map((v, i) => `${p + i * step},${h - p - (max ? (v / max) * (h - p * 2) : 0)}`).join(" ");
             const area = `${p},${h - p} ${points} ${w - p},${h - p}`;
             sparkline.innerHTML = `
-                <polyline points="${area}" fill="rgba(37,99,235,0.18)" stroke="none"></polyline>
-                <polyline points="${points}" fill="none" stroke="#4f46e5" stroke-width="3" stroke-linecap="round"></polyline>
+                <polyline points="${area}" style="fill: var(--spark)" stroke="none"></polyline>
+                <polyline points="${points}" fill="none" style="stroke: var(--brand-2)" stroke-width="3" stroke-linecap="round"></polyline>
             `;
-            sparkSummary.textContent = `Max ${max}`;
+            sparkSummary.textContent = max > 0 ? `Max ${max}/day` : "No clicks in 30 days";
         }
 
         function renderStats(count) {
@@ -257,7 +291,7 @@
             totalClicks.textContent = String(accountTotalClicks);
             topClicks.textContent = String(accountTopClicks);
             filteredLinks.textContent = String(count);
-            renderSpark(allLinks);
+            renderSpark();
         }
 
         function shortUrlOf(l) { return `${window.location.origin}/${l.shortCode}`; }
@@ -277,7 +311,7 @@
                 const tr = document.createElement("tr");
                 tr.innerHTML = `
                     <td><a class="s" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
-                    <td><span class="o" title="Click to copy\u000d\u000a${orig}" data-copy="${orig}">${origPretty}</span></td>
+                    <td><span class="o" role="button" tabindex="0" title="Click to copy\u000d\u000a${orig}" data-copy="${orig}">${origPretty}</span></td>
                     <td><span class="clicks-pill">${l.clickCount || 0}</span></td>
                     <td class="date" title="${formatDate(l.createdAt)}">${relDate(l.createdAt)}</td>
                     <td class="actions-col">
@@ -310,7 +344,7 @@
                 card.innerHTML = `
                     <div class="lc-top">
                         <a class="lc-short" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a>
-                        <span class="lc-orig" title="Click to copy\u000d\u000a${orig}" data-copy="${orig}">${origPretty}</span>
+                        <span class="lc-orig" role="button" tabindex="0" title="Click to copy\u000d\u000a${orig}" data-copy="${orig}">${origPretty}</span>
                     </div>
                     <div class="lc-meta">
                         <span class="clicks-pill">${l.clickCount || 0} clicks</span>
@@ -333,7 +367,7 @@
         }
 
         async function loadLinks(user, page = 1) {
-            statusRow.textContent = "Loading links...";
+            statusRow.textContent = "Loading links…";
             linksTbody.innerHTML = '<tr><td colspan="5" class="empty">Loading\u2026</td></tr>';
             linksCards.innerHTML = '<div class="empty">Loading\u2026</div>';
             try {
@@ -351,11 +385,13 @@
                 accountTotal = data.total || 0;
                 accountTotalClicks = data.accountTotalClicks || 0;
                 accountTopClicks = data.accountTopClicks || 0;
+                accountClicksByDay = data.clicksByDay || [];
                 renderAll(allLinks);
                 statusRow.textContent = `Showing ${allLinks.length} of ${accountTotal} links`;
                 pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
                 prevPage.disabled = currentPage <= 1;
                 nextPage.disabled = currentPage >= totalPages;
+                syncUrl("replace");
             } catch (error) {
                 console.error(error);
                 statusRow.textContent = "Failed to load links.";
@@ -367,7 +403,7 @@
 
         document.body.addEventListener("click", async (e) => {
             const t = e.target;
-            if (t.classList && t.classList.contains("o") && t.dataset.copy) {
+            if (t.classList && t.dataset.copy) {
                 try { await navigator.clipboard.writeText(t.dataset.copy); showToast("Original URL copied"); } catch {}
                 return;
             }
@@ -376,8 +412,9 @@
                 showToast("Copied");
             }
             if (t.classList.contains("qr-btn")) {
+                currentQrUrl = t.dataset.url || "";
                 qrcodeContainer.innerHTML = "";
-                new QRCode(qrcodeContainer, { text: t.dataset.url || "", width: 220, height: 220 });
+                new QRCode(qrcodeContainer, { text: currentQrUrl, width: 220, height: 220 });
                 openModal(qrModal);
             }
             if (t.classList.contains("del-btn")) {
@@ -389,6 +426,36 @@
                 confirmMsg.textContent = `Delete short link "${code}"? This cannot be undone.`;
                 openModal(confirmModal);
             }
+        });
+
+        let currentQrUrl = "";
+
+        document.body.addEventListener("keydown", async (e) => {
+            if (e.key !== "Enter" && e.key !== " ") return;
+            const t = e.target;
+            if (t.classList && t.dataset.copy) {
+                e.preventDefault();
+                try { await navigator.clipboard.writeText(t.dataset.copy); showToast("Original URL copied"); } catch {}
+            }
+        });
+
+        document.getElementById("qrDownload").addEventListener("click", () => {
+            const canvas = qrcodeContainer.querySelector("canvas");
+            const img = qrcodeContainer.querySelector("img");
+            const dataUrl = (canvas && canvas.toDataURL) ? canvas.toDataURL("image/png") : (img ? img.src : null);
+            if (!dataUrl) { showToast("QR download unavailable"); return; }
+            let fileName = "linkly-qr";
+            try {
+                const code = new URL(currentQrUrl).pathname.replace(/^\//, "");
+                if (code) fileName = `linkly-${code}`;
+            } catch (e) { /* keep default name */ }
+            const a = document.createElement("a");
+            a.href = dataUrl;
+            a.download = `${fileName}.png`;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            showToast("QR downloaded");
         });
 
         closeModalBtn.addEventListener("click", () => closeModal(qrModal));
@@ -405,7 +472,7 @@
             const btn = pendingDeleteBtn;
             closeModal(confirmModal);
             btn.disabled = true;
-            btn.textContent = "Deleting...";
+            btn.textContent = "Deleting…";
             try {
                 const token = await auth.currentUser.getIdToken(true);
                 const response = await fetch(`/api/links?shortCode=${code}`, { method: "DELETE", headers: { Authorization: `Bearer ${token}` } });
@@ -439,6 +506,7 @@
             chips.forEach((x) => x.classList.remove("active"));
             c.classList.add("active");
             currentFilter = c.dataset.filter;
+            syncUrl("push", 1);
             if (auth.currentUser) loadLinks(auth.currentUser, 1);
         }));
         document.addEventListener("keydown", (e) => {
@@ -467,8 +535,47 @@
             }
         });
         refreshBtn.addEventListener("click", async () => { if (auth.currentUser) await loadLinks(auth.currentUser, currentPage); });
-        prevPage.addEventListener("click", async () => { if (auth.currentUser && currentPage > 1) await loadLinks(auth.currentUser, currentPage - 1); });
-        nextPage.addEventListener("click", async () => { if (auth.currentUser && currentPage < totalPages) await loadLinks(auth.currentUser, currentPage + 1); });
+        document.getElementById("exportBtn").addEventListener("click", async () => {
+            if (!auth.currentUser) { showToast("Sign in to export"); return; }
+            try {
+                const token = await auth.currentUser.getIdToken(true);
+                const params = new URLSearchParams();
+                const q = searchInput.value.trim();
+                if (q) params.set("q", q);
+                if (currentFilter !== "all") params.set("range", currentFilter);
+                params.set("format", "csv");
+                const response = await fetch(`/api/links?${params.toString()}`, { headers: { Authorization: `Bearer ${token}` } });
+                if (!response.ok) throw new Error(`Status ${response.status}`);
+                const blob = await response.blob();
+                const a = document.createElement("a");
+                a.href = URL.createObjectURL(blob);
+                a.download = `linkly-links-${new Date().toISOString().slice(0, 10)}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+                showToast("CSV exported");
+            } catch (error) {
+                console.error(error);
+                showToast("Export failed");
+            }
+        });
+        prevPage.addEventListener("click", async () => {
+            if (auth.currentUser && currentPage > 1) {
+                syncUrl("push", currentPage - 1);
+                await loadLinks(auth.currentUser, currentPage - 1);
+            }
+        });
+        nextPage.addEventListener("click", async () => {
+            if (auth.currentUser && currentPage < totalPages) {
+                syncUrl("push", currentPage + 1);
+                await loadLinks(auth.currentUser, currentPage + 1);
+            }
+        });
+        window.addEventListener("popstate", () => {
+            if (!auth.currentUser) return;
+            loadLinks(auth.currentUser, readStateFromUrl());
+        });
         document.getElementById("dashboardHomeBtn").addEventListener("click", () => { window.location.href = "/"; });
         document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
         document.getElementById("sheetDashboard").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
@@ -483,7 +590,7 @@
             if (sa) sheetAvatar.appendChild(sa.cloneNode(true));
             document.getElementById("sheetName").textContent = user.displayName || "Account";
             document.getElementById("sheetEmail").textContent = user.email || "";
-            await loadLinks(user, 1);
+            await loadLinks(user, readStateFromUrl());
         });
 
         const yearEl = document.getElementById("year");
