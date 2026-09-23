@@ -245,6 +245,7 @@
             e.preventDefault();
             statusEl.style.color = "var(--muted)";
             statusEl.textContent = "Creating short URL\u2026";
+            statusEl.classList.add("creating");
             submitBtn.disabled = true;
             result.style.display = "none";
 
@@ -252,7 +253,7 @@
             const user = auth.currentUser;
             if (user) {
                 try { headers.Authorization = `Bearer ${await user.getIdToken(true)}`; }
-                catch { statusEl.textContent = "Auth token failed"; submitBtn.disabled = false; return; }
+                catch { statusEl.textContent = "Auth token failed"; statusEl.classList.remove("creating"); submitBtn.disabled = false; return; }
             }
 
             try {
@@ -279,6 +280,7 @@
                 statusEl.textContent = error.message;
                 L.showToast(error.message);
             } finally {
+                statusEl.classList.remove("creating");
                 submitBtn.disabled = false;
             }
         });
