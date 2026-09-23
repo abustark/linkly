@@ -15,3 +15,7 @@ api/serviceAccountKey.json
 # Local server logs
 server.log
 server.err.log
+
+# QA screenshots — kept local-only (regenerable via the browser harness;
+# share via GitHub issue/PR attachments instead of committing binaries)
+artifacts/*.png
