@@ -27,6 +27,10 @@
     .table-wrap { display: none !important; }
     .controls { gap: var(--s2); }
     .toolbar-row { flex-wrap: wrap; }
+    /* Filter chips stretch the full card in equal thirds (aligned with the
+       duo row below) instead of hugging the left edge. */
+    .chips { flex: 1 1 100%; max-width: 440px; margin-left: auto; margin-right: auto; }
+    .toolbar-row .chips .chip { flex: 1; }
     /* Equal-width duo row: Refresh + Export get their own full-width line,
        evenly split and centered — never an orphaned or floaty second line. */
     .toolbar-actions { flex: 1 1 100%; max-width: 440px; margin-left: auto; margin-right: auto; }
