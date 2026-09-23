@@ -23,7 +23,7 @@
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/shared.css">
     <link rel="stylesheet" href="/dashboard.css">
     <link rel="stylesheet" href="/mobile.css">
@@ -31,6 +31,9 @@
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
+    <div id="authGate" aria-hidden="true">
+        <div class="auth-gate-msg">Sign in to see your dashboard</div>
+    </div>
     <a class="skip-link" href="#main">Skip to content</a>
     <div class="wrap" id="main" tabindex="-1">
         <h1 class="sr-only">Linkly Dashboard</h1>
@@ -100,6 +103,10 @@
         <footer>
             © <span id="year">2026</span> ABu. All rights reserved.<br>
             Linkly — short, clean links.
+            <a class="foot-cta" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">
+                <span class="foot-cta-kicker">Like this build? There's more of my work</span>
+                <span class="foot-cta-link">Open my portfolio ↗</span>
+            </a>
         </footer>
     </div>
 
@@ -219,6 +226,7 @@
         let accountTotalClicks = 0;
         let accountTopClicks = 0;
         let searchTimer = null;
+        const authGate = document.getElementById("authGate");
 
         function readStateFromUrl() {
             const params = new URLSearchParams(window.location.search);
@@ -581,8 +589,18 @@
         document.getElementById("sheetDashboard").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
 
+        function denyDashboard() {
+            authGate.classList.add("show-msg");
+            setTimeout(() => {
+                authGate.classList.add("hide");
+                setTimeout(() => { window.location.href = "/"; }, 380);
+            }, 1300);
+        }
+
         auth.onAuthStateChanged(async (user) => {
-            if (!user) { window.location.href = "/"; return; }
+            if (!user) { denyDashboard(); return; }
+            authGate.classList.add("hide");
+            setTimeout(() => { if (authGate.parentNode) authGate.parentNode.removeChild(authGate); }, 400);
             L.renderAvatar(user);
             const sheetAvatar = document.getElementById("sheetAvatar");
             sheetAvatar.textContent = document.getElementById("avatarBtn").textContent;
@@ -592,6 +610,11 @@
             document.getElementById("sheetEmail").textContent = user.email || "";
             await loadLinks(user, readStateFromUrl());
         });
+
+        // Failsafe: never leave visitors stuck behind the gate if auth never resolves.
+        setTimeout(() => {
+            if (authGate && !authGate.classList.contains("hide") && !authGate.classList.contains("show-msg")) denyDashboard();
+        }, 8000);
 
         const yearEl = document.getElementById("year");
         if (yearEl) yearEl.textContent = new Date().getFullYear();

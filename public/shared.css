@@ -288,3 +288,35 @@
     .sheet-grab { display: none; }
     .sheet-theme { display: none; }
 }
+
+/* Footer: brand serif font (Playfair Display) + portfolio CTA — font, link and
+   welcome line taken from the project BMW footer (ecom-seven-sand.vercel.app). */
+footer { font-family: "Playfair Display", Georgia, serif; }
+.foot-cta {
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: var(--s3);
+    text-decoration: none;
+}
+.foot-cta-kicker {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+.foot-cta-link {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+    color: var(--text);
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, var(--brand) 40%, transparent);
+    text-underline-offset: 4px;
+    transition: color 0.15s ease, text-decoration-color 0.15s ease;
+}
+.foot-cta:hover .foot-cta-link,
+.foot-cta:focus-visible .foot-cta-link {
+    color: var(--brand);
+    text-decoration-color: var(--brand);
+}

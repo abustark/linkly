@@ -112,3 +112,30 @@ footer { text-align: center; color: var(--muted); font-size: var(--fs-sm); paddi
 @media (max-width: 760px) {
     .wrap { padding-left: var(--s4); padding-right: var(--s4); }
 }
+
+/* Auth gate: covers the dashboard until the session resolves, so signed-out
+   visitors never glimpse the layout — they get a fading "sign in" note instead. */
+#authGate {
+    position: fixed;
+    inset: 0;
+    z-index: 960;
+    display: grid;
+    place-items: center;
+    background: var(--bg);
+    transition: opacity 0.35s ease;
+}
+#authGate.hide { opacity: 0; pointer-events: none; }
+.auth-gate-msg {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    padding: var(--s3) var(--s5);
+    font-weight: 600;
+    font-size: var(--fs-base);
+    color: var(--text);
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+#authGate.show-msg .auth-gate-msg { opacity: 1; transform: none; }
