@@ -291,14 +291,15 @@
 
 /* Footer: brand serif font (Playfair Display) + portfolio CTA — font, link and
    welcome line taken from the project BMW footer (ecom-seven-sand.vercel.app). */
-footer { font-family: "Playfair Display", Georgia, serif; }
+footer { font-family: var(--font-body); }
 .foot-cta {
-    display: inline-flex;
+    display: flex; /* block-level: portfolio CTA sits on its own lines (3 & 4) */
     flex-direction: column;
     align-items: center;
     gap: 4px;
     margin-top: var(--s3);
     text-decoration: none;
+    font-family: "Playfair Display", Georgia, serif; /* portfolio lines keep the BMW font */
 }
 .foot-cta-kicker {
     font-size: 10px;
