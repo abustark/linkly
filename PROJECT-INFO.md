@@ -85,19 +85,19 @@
 ## 5. Quality & testing
 
 - **`npm test` — 23 tests, 4 files, ~17s, Node built-in runner:** links API (aggregates, search escaping, date ranges, auth rejection), delete ownership (incl. fail-closed for ownerless legacy links + 404s), redirect integrity (atomic increment, HTML-vs-JSON 404 split), create/alias validation (409/400 paths), and a code-generation ↔ routing-pattern invariant.
-- **Browser QA harness (Playwright):** Firebase v10 ESM faked at the network layer; verifies desktop + mobile flows, legacy redirects, CSV auth, PWA statics, and 404 behavior; ~50 dated screenshots committed in `artifacts/`.
+- **Browser QA harness (Playwright):** Firebase v10 ESM faked at the network layer; verifies desktop + mobile flows, legacy redirects, CSV auth, PWA statics, and 404 behavior; 21 dated QA screenshots kept in `artifacts/` (PNGs local-only per `.gitignore` — not committed).
 - **Docs in-repo:** `README.md`, `AUDIT-REPORT.md` (full remediation log), `AGENTS.md`/`CLAUDE.md` (AI-agent working rules), this sheet.
 
 ---
 
 ## 6. Scale metrics (quantifiables)
 
-- **99** git-tracked files; **3,411 lines** across **26** JS/HTML/CSS files (small, hand-rolled codebase).
+- **51** git-tracked files; **~3,448 lines** across **26** JS/HTML/CSS files (small, hand-rolled codebase).
 - **4 API endpoints** + **10 backend modules** (4 API handlers, 2 Mongoose models, 4 utilities).
 - **23 automated tests / 4 test files** — full `npm test` in ~17s.
 - **0** frontend frameworks, **0** build steps — plain static assets.
 - **30-day** pre-aggregated analytics window; single-query aggregation for dashboard loads.
-- **~50** QA screenshots as living visual-regression evidence.
+- **21** QA screenshots on disk in `artifacts/` (local-only, regenerable — not committed).
 
 ---
 
