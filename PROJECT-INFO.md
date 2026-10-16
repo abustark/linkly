@@ -135,4 +135,4 @@ url shortener, link analytics, click tracking, Node.js, Express, REST API, Mongo
 
 **Portfolio card (title + ~30 words + stack):** Linkly — a polished URL shortener that shortens links, tracks clicks day-by-day, and shows them in a 30-day chart with QR codes, search, filters and CSV export. One-tap Google sign-in, installable PWA, dark mode. `Node.js · Express · MongoDB · Firebase · Vercel · Vanilla JS`
 
-**Tone/length guide for the AI:** resume = 3–5 dense bullets or one 3-line paragraph, lead with verbs and numbers, keywords from §8; portfolio = friendly paragraph + feature list + stack chips, mention the fast sign-in, the chart, and the PWA; never claim features not listed here.
+**Tone/length guide for the AI:** Frame impact as user capability + the hardest engineering problem solved (no business KPIs). Resume = 3–5 dense bullets or one 3-line paragraph, lead with verbs and numbers, keywords from §8; portfolio = friendly paragraph + feature list + stack chips, mention the fast sign-in, the chart, and the PWA; never claim features not listed here.
