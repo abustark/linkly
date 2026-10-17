@@ -9,6 +9,13 @@
 - When tests ARE requested, the repo gate is `npm test` (node --test). Browser harness (only on request): `node verify-fixes.js` / `node verify-mobile-dash.js` from the `linkly-audit/` temp dir (needs the dev server on :5000).
 - No unsolicited extra verification passes, no waiting-for-approval loops — ship the code.
 
+## Commit Naming & Versioning (strict)
+
+- Every commit follows this versioning structure: `2.0.1`, `2.0.2`, ..., `2.0.9`, `2.0.10` ➔ rolls over to `2.1.0`; then `2.1.1`, ..., `2.1.10` ➔ rolls over to `2.2.0`, etc. The third number NEVER exceeds `.10`.
+- Format: `<version> - <short description>` (e.g., `2.0.1 - fix dashboard spacing`). Keep it short and clear.
+- **One version number per agent response / request batch** — not per issue, not per commit. A single owner request (even if it fixes many issues) consumes exactly ONE version number. Multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number). Only a genuinely new owner request (a new response turn) advances the number.
+- Git history before this rule is unversioned; numbering starts at `2.0.0`. Every commit must also be logged in `COMMIT-HISTORY.md` (repo root) with its version and what it did, and the `📌 Next version` line at its top kept current.
+
 ## Stack
 - Node/Express local server (`server.js`, port 5000), Vercel deployment (`vercel.json`, serverless functions in `api/*.js`).
 - MongoDB via mongoose (`api/_models/`), Firebase Admin on the server, Firebase **v10 modular ESM** on the client (`public/firebase-config.js` exposes a v8-style facade as `window.LinklyFirebase`).
