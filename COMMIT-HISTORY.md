@@ -7,11 +7,19 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.2`** (current head is `2.0.1` — see below)
+> - **`main` → `2.0.3`** (current head is `2.0.2` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.2 - solid brand blue logo/avatar + more breathing room in sign-in card
+
+- **Date**: 2026-10-19
+- **Why**: owner — the brand gradient on the logo/avatar reads "AI-styled"; match the flat blue of the "instantly" heading instead. The sign-in-to-shorten card also cramped the GSI button against the description.
+- **Changes**:
+  - `public/shared.css`: `.logo` and `.avatar` background → solid `var(--brand)` (same blue as `.hero h1 .grad`).
+  - `public/home.css`: `.auth-prompt` card extended (32px vertical padding) and gap above the GSI button increased (`prompt-text` margin `--s4` → `--s5`).
 
 ### 2.0.1 - dashboard click shows sign-in popup instead of bouncing home
 
