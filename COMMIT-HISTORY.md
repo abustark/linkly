@@ -7,11 +7,22 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.1`** (current head is `2.0.0` — see below)
+> - **`main` → `2.0.2`** (current head is `2.0.1` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.1 - dashboard click shows sign-in popup instead of bouncing home
+
+- **Date**: 2026-10-19
+- **Why**: clicking "Dashboard" while signed out navigated to `dashboard.html`, which auto-redirected back to home after a delay — the page never stayed put and there was no sign-in prompt in the flow.
+- **Changes**:
+  - `public/index.html`: Dashboard buttons (header + profile sheet) now check auth at click time — signed in → navigate; signed out → open a sign-in popup (Google GSI button) without leaving the page; after successful sign-in from the popup, proceed to the dashboard.
+  - `public/dashboard.html`: added the GIS client script + same sign-in popup; `denyDashboard()` opens the popup instead of the timed bounce to home (Cancel/backdrop/Escape → home); popup closes and the dashboard loads on sign-in; failsafe updated.
+  - `public/shared.js`: `renderGSI()` also renders into the popup's GSI container while the popup is open.
+  - `public/shared.css`: `.modal-auth` (z-index 970, above the dashboard auth gate) + `.gsi-signin` centering.
+  - Both pages: GSI-init retry loop so the popup's Google button still appears if the GIS script loads late.
 
 ### 2.0.0 - adopt versioned commits + universal COMMIT-HISTORY.md log
 

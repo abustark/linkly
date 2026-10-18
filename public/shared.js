@@ -122,9 +122,12 @@
         const header = document.getElementById("gsi-button-container");
         const sheet = document.getElementById("gsi-sheet-container");
         const prompt = document.getElementById("gsi-prompt-container");
+        const signin = document.getElementById("gsi-signin-container");
+        const signinModal = document.getElementById("signinModal");
         if (!mobile && header) targets.push(header);
         if (mobile && sheet) targets.push(sheet);
         if (prompt && !prompt.hidden) targets.push(prompt);
+        if (signin && signinModal && signinModal.classList.contains("open")) targets.push(signin);
         targets.forEach((t) => {
             if (t.getAttribute("data-gsi-rendered") === "1") return;
             try {

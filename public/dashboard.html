@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="/dashboard.css">
     <link rel="stylesheet" href="/mobile.css">
     <script type="module" src="/firebase-config.js"></script>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
 </head>
 <body>
@@ -137,6 +138,17 @@
     </div>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <div id="signinModal" class="modal modal-auth" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+        <div class="modal-box">
+            <div class="modal-title" id="signinTitle">Sign in to see your dashboard</div>
+            <p class="modal-text">Sign in with Google to manage your links.</p>
+            <div id="gsi-signin-container" class="gsi-signin"></div>
+            <div class="modal-actions" style="margin-top: var(--s4);">
+                <button id="signinCancel" class="btn tiny" type="button">Go home</button>
+            </div>
+        </div>
+    </div>
 
     <div id="sheetBackdrop" class="sheet-backdrop"></div>
     <div id="profileSheet" class="sheet" role="dialog" aria-label="Account">
@@ -521,6 +533,7 @@
         }));
         document.addEventListener("keydown", (e) => {
             if (e.key === "Escape") {
+                if (signinModal.classList.contains("open")) { closeSigninModal(); window.location.href = "/"; return; }
                 closeModal(qrModal);
                 closeModal(confirmModal);
                 pendingDeleteCode = null;
@@ -529,7 +542,8 @@
             }
             if (e.key === "Tab") {
                 const open = qrModal.classList.contains("open") ? qrModal
-                    : confirmModal.classList.contains("open") ? confirmModal : null;
+                    : confirmModal.classList.contains("open") ? confirmModal
+                    : signinModal.classList.contains("open") ? signinModal : null;
                 if (!open) return;
                 const focusables = getFocusables(open);
                 if (!focusables.length) return;
@@ -591,16 +605,47 @@
         document.getElementById("sheetDashboard").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
 
-        function denyDashboard() {
-            authGate.classList.add("show-msg");
-            setTimeout(() => {
-                authGate.classList.add("hide");
-                setTimeout(() => { window.location.href = "/"; }, 380);
-            }, 1300);
+        const signinModal = document.getElementById("signinModal");
+        const signinCancel = document.getElementById("signinCancel");
+        const GSI_CLIENT_ID = "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com";
+
+        function closeSigninModal() {
+            signinModal.classList.remove("open");
+            clearInterval(gsiRetry);
         }
+        let gsiRetry = null;
+        let gsiTries = 0;
+        function openSigninModal() {
+            signinModal.classList.add("open");
+            if (!L.initGSI(GSI_CLIENT_ID, handleCredentialResponse)) {
+                clearInterval(gsiRetry);
+                gsiTries = 0;
+                gsiRetry = setInterval(() => {
+                    gsiTries += 1;
+                    if (L.initGSI(GSI_CLIENT_ID, handleCredentialResponse) || gsiTries >= 30) clearInterval(gsiRetry);
+                }, 400);
+            }
+            signinCancel.focus();
+        }
+        async function handleCredentialResponse(response) {
+            try {
+                const credential = window.LinklyFirebase.GoogleAuthProvider.credential(response.credential);
+                await auth.signInWithCredential(credential);
+                L.showToast("Signed in");
+            } catch (error) {
+                console.error(error);
+                L.showToast("Sign in failed");
+            }
+        }
+        function denyDashboard() {
+            openSigninModal();
+        }
+        signinCancel.addEventListener("click", () => { closeSigninModal(); window.location.href = "/"; });
+        signinModal.addEventListener("click", (e) => { if (e.target === signinModal) { closeSigninModal(); window.location.href = "/"; } });
 
         auth.onAuthStateChanged(async (user) => {
             if (!user) { denyDashboard(); return; }
+            closeSigninModal();
             authGate.classList.add("hide");
             setTimeout(() => { if (authGate.parentNode) authGate.parentNode.removeChild(authGate); }, 400);
             L.renderAvatar(user);
@@ -615,7 +660,7 @@
 
         // Failsafe: never leave visitors stuck behind the gate if auth never resolves.
         setTimeout(() => {
-            if (authGate && !authGate.classList.contains("hide") && !authGate.classList.contains("show-msg")) denyDashboard();
+            if (authGate && !authGate.classList.contains("hide") && !signinModal.classList.contains("open")) denyDashboard();
         }, 8000);
 
         const yearEl = document.getElementById("year");

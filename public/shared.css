@@ -247,6 +247,10 @@
 .modal-text { margin: var(--s3) 0 var(--s5); color: var(--muted); font-size: var(--fs-base); line-height: var(--lh-body); }
 .modal-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .modal-actions .btn { flex: 1; }
+/* Sign-in popup sits above the dashboard auth gate (z-index 960). */
+.modal-auth { z-index: 970; }
+.gsi-signin { display: flex; justify-content: center; padding: var(--s2) 0; }
+.gsi-signin > div { margin: 0 auto !important; }
 
 .field-label { display: block; font-size: var(--fs-xs); color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
 .input {

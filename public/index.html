@@ -106,6 +106,17 @@
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 
+    <div id="signinModal" class="modal modal-auth" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
+        <div class="modal-box">
+            <div class="modal-title" id="signinTitle">Sign in to continue</div>
+            <p class="modal-text">Sign in with Google to open your dashboard.</p>
+            <div id="gsi-signin-container" class="gsi-signin"></div>
+            <div class="modal-actions" style="margin-top: var(--s4);">
+                <button id="signinCancel" class="btn tiny" type="button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div id="sheetBackdrop" class="sheet-backdrop"></div>
     <div id="profileSheet" class="sheet" role="dialog" aria-label="Account">
         <div class="sheet-grab"></div>
@@ -157,11 +168,46 @@
         const copyBtn = document.getElementById("copyBtn");
         const openBtn = document.getElementById("openBtn");
         const recentList = document.getElementById("recentList");
+        const signinModal = document.getElementById("signinModal");
+        const signinCancel = document.getElementById("signinCancel");
+        let pendingDashboardNav = false;
 
-        document.getElementById("dashboardHomeBtn").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
+        const GSI_CLIENT_ID = "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com";
+
+        function closeSigninModal() {
+            signinModal.classList.remove("open");
+            pendingDashboardNav = false;
+            clearInterval(gsiRetry);
+        }
+        let gsiRetry = null;
+        let gsiTries = 0;
+        function openSigninModal() {
+            signinModal.classList.add("open");
+            if (!L.initGSI(GSI_CLIENT_ID, handleCredentialResponse)) {
+                clearInterval(gsiRetry);
+                gsiTries = 0;
+                gsiRetry = setInterval(() => {
+                    gsiTries += 1;
+                    if (L.initGSI(GSI_CLIENT_ID, handleCredentialResponse) || gsiTries >= 30) clearInterval(gsiRetry);
+                }, 400);
+            }
+            signinCancel.focus({ preventScroll: true });
+        }
+        function goDashboard() {
+            if (auth.currentUser) { window.location.href = "/dashboard.html"; return; }
+            pendingDashboardNav = true;
+            openSigninModal();
+        }
+
+        document.getElementById("dashboardHomeBtn").addEventListener("click", goDashboard);
         document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
-        document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); window.location.href = "/dashboard.html"; });
+        document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); goDashboard(); });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); L.showToast("Signed out"); });
+        signinCancel.addEventListener("click", closeSigninModal);
+        signinModal.addEventListener("click", (e) => { if (e.target === signinModal) closeSigninModal(); });
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && signinModal.classList.contains("open")) closeSigninModal();
+        });
 
         function getRecent() {
             try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
@@ -191,6 +237,9 @@
                 const credential = window.LinklyFirebase.GoogleAuthProvider.credential(response.credential);
                 await auth.signInWithCredential(credential);
                 L.showToast("Signed in");
+                const nav = pendingDashboardNav;
+                closeSigninModal();
+                if (nav) window.location.href = "/dashboard.html";
             } catch (error) {
                 console.error(error);
                 statusEl.style.color = "var(--danger)";
@@ -198,8 +247,6 @@
                 L.showToast("Sign in failed");
             }
         }
-
-        const GSI_CLIENT_ID = "289406240228-dv8ugcgfhds71gclc5akg9jclpe4is8o.apps.googleusercontent.com";
 
         window.onload = function () {
             L.initGSI(GSI_CLIENT_ID, handleCredentialResponse);
@@ -224,6 +271,11 @@
                 if (authPrompt) authPrompt.hidden = true;
                 if (shortenPanel) shortenPanel.hidden = false;
                 if (recentSection) recentSection.hidden = false;
+                if (signinModal.classList.contains("open")) {
+                    const nav = pendingDashboardNav;
+                    closeSigninModal();
+                    if (nav) window.location.href = "/dashboard.html";
+                }
             } else {
                 gsiButtonContainer.style.display = "block";
                 avatarBtn.style.display = "none";
