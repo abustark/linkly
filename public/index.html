@@ -200,7 +200,12 @@
         }
 
         document.getElementById("dashboardHomeBtn").addEventListener("click", goDashboard);
-        document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
+        document.getElementById("sheetHome").addEventListener("click", () => {
+            L.closeSheet();
+            const onHome = window.location.pathname === "/" || window.location.pathname === "/index.html";
+            if (onHome) window.scrollTo({ top: 0, behavior: "smooth" });
+            else window.location.href = "/";
+        });
         document.getElementById("sheetDashboard").addEventListener("click", () => { L.closeSheet(); goDashboard(); });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); L.showToast("Signed out"); });
         signinCancel.addEventListener("click", closeSigninModal);
