@@ -207,14 +207,38 @@
         if (y) y.textContent = new Date().getFullYear();
     }
 
+    // Light haptic tick on interactive elements. navigator.vibrate is
+    // Android/Chromium-only (iOS Safari ignores it) — silent no-op elsewhere.
+    function haptic(pattern) {
+        if (!navigator.vibrate) return;
+        try { navigator.vibrate(pattern); } catch (e) {}
+    }
+
+    function wireHaptics() {
+        document.addEventListener("click", (e) => {
+            const el = e.target.closest(
+                "button, a[href], [role='button'], label, select, input[type='checkbox'], input[type='radio']"
+            );
+            if (!el) return;
+            if (el.matches("input")) { haptic(6); return; }
+            if (el.classList.contains("btn-danger") || el.classList.contains("del") || el.classList.contains("logout")) {
+                haptic([10, 25, 10]);
+                return;
+            }
+            if (el.classList.contains("btn-primary") || el.matches("button[type='submit']")) { haptic(16); return; }
+            haptic(8);
+        });
+    }
+
     window.Linkly = {
         initTheme, setTheme, showToast, renderAvatar, renderGSI, initGSI,
-        openSheet, closeSheet, wireProfileMenu, setYear, initials, escapeHtml
+        openSheet, closeSheet, wireProfileMenu, setYear, initials, escapeHtml, haptic
     };
 
     document.addEventListener("DOMContentLoaded", function () {
         initTheme();
         wireProfileMenu();
+        wireHaptics();
         setYear();
         // App-shell/offline support; a no-op where service workers aren't available.
         if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0) {

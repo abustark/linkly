@@ -7,11 +7,18 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.4`** (current head is `2.0.3` — see below)
+> - **`main` → `2.0.5`** (current head is `2.0.4` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.4 - haptic feedback on all clickable elements
+
+- **Date**: 2026-10-19
+- **Why**: owner — tactile feedback for every clickable control.
+- **Changes**:
+  - `public/shared.js`: delegated click listener (`wireHaptics`) covering buttons, links, `[role="button"]`, labels, selects and checkbox/radio inputs on both pages; tiers — light 8ms tick default, 16ms for primary/submit, double-pulse for danger/delete/logout, 6ms for switches. `navigator.vibrate` no-ops on iOS Safari (API unsupported there). Exposed as `L.haptic` for programmatic use.
 
 ### 2.0.3 - home sheet "Home" no longer reloads when already on home
 
