@@ -7,11 +7,18 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.5`** (current head is `2.0.4` — see below)
+> - **`main` → `2.0.6`** (current head is `2.0.5` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.5 - header Linkly logo no longer reloads when already on home
+
+- **Date**: 2026-10-19
+- **Why**: clicking the brand "L" logo on the home page triggered a full page reload of the page already open.
+- **Changes**:
+  - `public/index.html`: brand link click handler — when already on `/` (or `/index.html`) it prevents default and smooth-scrolls to top; from other pages it navigates normally.
 
 ### 2.0.4 - haptic feedback on all clickable elements
 

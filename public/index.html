@@ -200,6 +200,12 @@
         }
 
         document.getElementById("dashboardHomeBtn").addEventListener("click", goDashboard);
+        document.querySelector(".brand").addEventListener("click", (e) => {
+            const onHome = window.location.pathname === "/" || window.location.pathname === "/index.html";
+            if (!onHome) return;
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+        });
         document.getElementById("sheetHome").addEventListener("click", () => {
             L.closeSheet();
             const onHome = window.location.pathname === "/" || window.location.pathname === "/index.html";
