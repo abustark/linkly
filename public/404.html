@@ -85,6 +85,8 @@
         a.btn:focus-visible { box-shadow: 0 0 0 3px var(--ring); }
         a.btn:hover { filter: brightness(1.06); }
         footer { margin-top: 26px; font-size: 12px; color: var(--muted); }
+        footer a { color: var(--muted); text-decoration: underline; text-underline-offset: 2px; }
+        footer a:hover { color: var(--brand); }
     </style>
 </head>
 <body>
@@ -94,7 +96,7 @@
         <div class="sub">This page doesn't exist</div>
         <p>But great links never expire. Head back home and shorten something worth sharing.</p>
         <a class="btn" href="/">Back to Linkly</a>
-        <footer>© <span id="year">2026</span> ABu — Linkly, short and clean.</footer>
+        <footer>© <span id="year">2026</span> ABu — Linkly, short and clean. · <a href="/privacy.html">Privacy</a> · <a href="/terms.html">Terms</a></footer>
     </main>
     <script>
         (function () {

@@ -5,6 +5,8 @@ const admin = require('./_utils/firebase');
 const { checkRateLimit } = require('./_utils/rateLimit');
 
 const MAX_GENERATION_ATTEMPTS = 8;
+const parsedDailyQuota = parseInt(process.env.DAILY_LINK_QUOTA, 10);
+const DAILY_LINK_QUOTA = Number.isFinite(parsedDailyQuota) ? parsedDailyQuota : 50;
 
 // Optional lifetime for a short link. Empty/absent means "never expires".
 const EXPIRY_MS = {
@@ -103,6 +105,17 @@ module.exports = async (req, res) => {
                 return res.status(400).json({ error: 'expiresIn must be one of: 1d, 7d, 30d.' });
             }
             expiresAt = new Date(Date.now() + EXPIRY_MS[expiresIn]);
+        }
+
+        const quota = await checkRateLimit(userId, 'shorten-daily', {
+            max: DAILY_LINK_QUOTA,
+            windowMs: 86400000
+        });
+        if (quota.limited) {
+            if (quota.retryAfterSec && typeof res.setHeader === 'function') {
+                res.setHeader('Retry-After', String(quota.retryAfterSec));
+            }
+            return res.status(429).json({ error: 'Daily link limit reached. Please try again tomorrow.' });
         }
 
         const newUrlData = {

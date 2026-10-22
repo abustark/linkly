@@ -36,7 +36,25 @@ const urlSchema = new mongoose.Schema({
     clicksByDay: {
         type: mongoose.Schema.Types.Mixed,
         required: false
+    },
+    // Set by moderators; disabled links stop resolving and stop counting clicks.
+    disabled: {
+        type: Boolean,
+        default: false
+    },
+    disabledAt: {
+        type: Date,
+        default: null
+    },
+    disabledBy: {
+        type: String,
+        default: null
     }
 });
+
+// Dashboard queries filter by owner and sort newest first; the expiry index
+// keeps the scheduled cleanup pass cheap.
+urlSchema.index({ userId: 1, createdAt: -1 });
+urlSchema.index({ expiresAt: 1 });
 
 module.exports = mongoose.model('Url', urlSchema);

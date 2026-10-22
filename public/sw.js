@@ -1,15 +1,18 @@
 /* Linkly service worker — app-shell caching.
    Bump CACHE to force a fresh cache after deploys. */
-const CACHE = 'linkly-v4';
+const CACHE = 'linkly-v5';
 const PRECACHE = [
     '/',
     '/shared.css',
     '/shared.js',
     '/home.css',
     '/dashboard.css',
+    '/legal.css',
     '/mobile.css',
     '/favicon.svg',
-    '/manifest.json'
+    '/manifest.json',
+    '/privacy.html',
+    '/terms.html'
 ];
 
 self.addEventListener('install', (event) => {

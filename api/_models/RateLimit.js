@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
-// Fixed-window request counter. _id = "<prefix>:<ip>:<windowStart>" so each
-// window is its own document; expiresAt (TTL index) cleans old windows up.
+// Fixed-window request counter. _id = "<prefix>:<identifier>:<windowStart>" so
+// each window is its own document; expiresAt (TTL index) cleans old windows up.
 const rateLimitSchema = new mongoose.Schema(
     {
         _id: String,

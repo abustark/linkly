@@ -29,7 +29,7 @@
     <link rel="stylesheet" href="/mobile.css">
     <script type="module" src="/firebase-config.js"></script>
     <script src="https://accounts.google.com/gsi/client" async defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script src="/vendor/qrcode.min.js"></script>
 </head>
 <body>
     <div id="authGate" aria-hidden="true">
@@ -124,6 +124,11 @@
         <footer>
             © <span id="year">2026</span> ABu. All rights reserved.<br>
             Linkly — short, clean links.
+            <div class="foot-links">
+                <a href="/privacy.html">Privacy</a>
+                <span aria-hidden="true">·</span>
+                <a href="/terms.html">Terms</a>
+            </div>
             <a class="foot-cta" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">
                 <span class="foot-cta-kicker">Like this build? There's more of my work</span>
                 <span class="foot-cta-link">Open my portfolio ↗</span>
@@ -160,6 +165,20 @@
             <div class="modal-actions" style="margin-top: var(--s4);">
                 <button id="editCancel" class="btn tiny" type="button">Cancel</button>
                 <button id="editSave" class="btn tiny btn-primary" type="button">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="accountModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="accountTitle">
+        <div class="modal-box">
+            <div class="modal-title" id="accountTitle">Delete account</div>
+            <p class="modal-text">This permanently deletes your Linkly account, all your links, and their click analytics. This cannot be undone.</p>
+            <label class="field-label" for="accountConfirmInput">Type DELETE to confirm</label>
+            <input id="accountConfirmInput" class="input" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false">
+            <p class="modal-error" id="accountError" role="alert" hidden></p>
+            <div class="modal-actions" style="margin-top: var(--s4);">
+                <button id="accountCancel" class="btn tiny" type="button">Cancel</button>
+                <button id="accountDelete" class="btn tiny btn-danger" type="button" disabled>Delete account</button>
             </div>
         </div>
     </div>
@@ -206,6 +225,9 @@
             <button class="sheet-item logout" id="sheetLogout" type="button" data-close-sheet>
                 <span class="ic">⏻</span> Logout
             </button>
+            <button class="sheet-item logout" id="sheetDeleteAccount" type="button">
+                <span class="ic">×</span> Delete account
+            </button>
         </div>
     </div>
 
@@ -240,6 +262,11 @@
         const editUrl = document.getElementById("editUrl");
         const editCancel = document.getElementById("editCancel");
         const editSave = document.getElementById("editSave");
+        const accountModal = document.getElementById("accountModal");
+        const accountConfirmInput = document.getElementById("accountConfirmInput");
+        const accountError = document.getElementById("accountError");
+        const accountCancel = document.getElementById("accountCancel");
+        const accountDelete = document.getElementById("accountDelete");
         let pendingEditCode = null;
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
@@ -306,6 +333,7 @@
             return !!l.expiresAt && new Date(l.expiresAt).getTime() <= Date.now();
         }
         function expiryNote(l) {
+            if (l.disabled) return ' <span class="exp-badge" title="Disabled by moderation">disabled</span>';
             if (!l.expiresAt) return "";
             const when = formatDate(l.expiresAt);
             if (isExpired(l)) return ` <span class="exp-badge" title="Expired ${when}">expired</span>`;
@@ -654,6 +682,7 @@
                 closeModal(qrModal);
                 closeModal(confirmModal);
                 closeModal(editModal);
+                closeModal(accountModal);
                 pendingDeleteCode = null;
                 pendingDeleteBtn = null;
                 pendingEditCode = null;
@@ -663,6 +692,7 @@
                 const open = qrModal.classList.contains("open") ? qrModal
                     : confirmModal.classList.contains("open") ? confirmModal
                     : editModal.classList.contains("open") ? editModal
+                    : accountModal.classList.contains("open") ? accountModal
                     : signinModal.classList.contains("open") ? signinModal : null;
                 if (!open) return;
                 const focusables = getFocusables(open);
@@ -724,6 +754,53 @@
         document.getElementById("sheetHome").addEventListener("click", () => { window.location.href = "/"; });
         document.getElementById("sheetDashboard").addEventListener("click", () => { window.location.href = "/dashboard.html"; });
         document.getElementById("sheetLogout").addEventListener("click", async () => { await auth.signOut(); window.location.href = "/"; });
+
+        function openAccountModal() {
+            L.closeSheet();
+            accountConfirmInput.value = "";
+            accountError.hidden = true;
+            accountError.textContent = "";
+            accountDelete.disabled = true;
+            accountDelete.textContent = "Delete account";
+            openModal(accountModal);
+            lastFocused = document.getElementById("avatarBtn");
+        }
+        document.getElementById("sheetDeleteAccount").addEventListener("click", openAccountModal);
+        accountConfirmInput.addEventListener("input", () => {
+            accountDelete.disabled = accountConfirmInput.value.trim() !== "DELETE";
+        });
+        accountConfirmInput.addEventListener("keydown", (e) => {
+            if (e.key === "Enter" && !accountDelete.disabled) accountDelete.click();
+        });
+        accountCancel.addEventListener("click", () => closeModal(accountModal));
+        accountModal.addEventListener("click", (e) => { if (e.target === accountModal) closeModal(accountModal); });
+        accountDelete.addEventListener("click", async () => {
+            if (!auth.currentUser || accountDelete.disabled) return;
+            accountDelete.disabled = true;
+            accountDelete.textContent = "Deleting...";
+            accountError.hidden = true;
+            try {
+                const token = await auth.currentUser.getIdToken(true);
+                const response = await fetch("/api/account", {
+                    method: "DELETE",
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) {
+                    if (data.code === "reauth_required") throw new Error("Please sign out and sign in again, then retry.");
+                    throw new Error(data.error || `Status ${response.status}`);
+                }
+                localStorage.removeItem("linkly_recent_links");
+                closeModal(accountModal);
+                try { await auth.signOut(); } catch (e) {}
+                window.location.href = "/?account=deleted";
+            } catch (error) {
+                accountError.textContent = error.message || "Could not delete your account.";
+                accountError.hidden = false;
+                accountDelete.disabled = false;
+                accountDelete.textContent = "Delete account";
+            }
+        });
 
         const signinModal = document.getElementById("signinModal");
         const signinCancel = document.getElementById("signinCancel");

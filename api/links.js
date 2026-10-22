@@ -233,6 +233,11 @@ module.exports = async (req, res) => {
             }
 
             await Url.deleteOne({ _id: url._id });
+            try {
+                await Click.deleteMany({ shortCode: url.shortCode });
+            } catch (clickError) {
+                console.error('Click cleanup error:', clickError);
+            }
 
             res.status(200).json({ success: true, shortCode: url.shortCode });
         } catch (error) {

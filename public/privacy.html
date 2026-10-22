@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#f4f7fb">
+    <title>Privacy Policy — Linkly</title>
+    <meta name="description" content="How Linkly collects, uses, stores and deletes account and link analytics data.">
+    <link rel="canonical" href="https://linkly-link.vercel.app/privacy.html">
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/shared.css">
+    <link rel="stylesheet" href="/legal.css">
+</head>
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <header class="topbar">
+        <a class="brand" href="/" aria-label="Linkly home">
+            <span class="logo">L</span>
+            Linkly
+        </a>
+        <div class="topbar-actions">
+            <a class="btn tiny" href="/">Back home</a>
+            <label class="theme-switch" title="Toggle dark mode">
+                <input id="themeToggle" type="checkbox" aria-label="Toggle dark mode">
+                <span class="slider"></span>
+            </label>
+        </div>
+    </header>
+
+    <main id="main" class="legal" tabindex="-1">
+        <div class="legal-head">
+            <span class="legal-kicker">Legal</span>
+            <h1>Privacy Policy</h1>
+            <p class="legal-meta">Last updated: October 22, 2026</p>
+        </div>
+
+        <p>Linkly is a URL shortener. This page explains what data the service handles, why, how long it is kept, and how to remove it. It describes the current version of the service and applies to the hosted Linkly site.</p>
+
+        <h2>1. Information we collect</h2>
+        <p><strong>Account information.</strong> When you sign in with Google, Firebase Authentication provides your Google account identifier, display name, email address and profile photo URL. We use your Firebase user ID to associate links with your account.</p>
+        <p><strong>Links you create.</strong> We store the destination URL, short code, creation time, optional expiration time, click totals and per-day click buckets.</p>
+        <p><strong>Click analytics.</strong> When someone follows a Linkly short link, we record the short code, referring host, a coarse device type (Desktop, Mobile or Tablet) and a two-letter country code when the hosting platform supplies one. Click records do not store the visitor's IP address or full user-agent string.</p>
+        <p><strong>Rate-limit data.</strong> Short-lived records may contain the requesting IP address so the service can limit abuse. These records expire automatically and are not used for analytics.</p>
+        <p><strong>Local browser storage.</strong> Your theme preference and a list of recent links you created are stored in your browser's local storage. They stay on your device and can be cleared from the Linkly interface or your browser settings.</p>
+
+        <h2>2. How we use information</h2>
+        <ul>
+            <li>To authenticate you and show your dashboard.</li>
+            <li>To create, redirect and manage short links, including expiration.</li>
+            <li>To calculate click totals, daily trends and traffic breakdowns for link owners.</li>
+            <li>To prevent abuse, enforce rate limits and keep the service available.</li>
+            <li>To respond to reports, support requests and legal obligations.</li>
+        </ul>
+        <p>We do not sell personal information and we do not use click data for advertising.</p>
+
+        <h2>3. Service providers</h2>
+        <p>Linkly relies on Google Firebase for sign-in and account administration, MongoDB Atlas for database hosting, and Vercel for application hosting and edge delivery. These providers process data on our behalf under their own terms and privacy policies. Google may also set authentication-related cookies when you sign in.</p>
+
+        <h2>4. Retention</h2>
+        <ul>
+            <li>Click-event records are automatically removed after 90 days.</li>
+            <li>Expired links and their click events are removed by a scheduled cleanup job.</li>
+            <li>Links remain until you delete them, your account is deleted, or they expire and are cleaned up.</li>
+            <li>Account records remain until you delete your account.</li>
+            <li>Operational logs may be retained for a limited period by the hosting providers.</li>
+        </ul>
+
+        <h2>5. Deleting your data</h2>
+        <p>You can delete individual links from the dashboard. To delete your entire account, open the account menu and choose <strong>Delete account</strong>. This removes your links and click records and deletes your Firebase authentication account. Deletion cannot be undone.</p>
+        <p>You can clear the recent-links list stored on your device with the <strong>Clear</strong> button on the home page.</p>
+
+        <h2>6. Security</h2>
+        <p>We use HTTPS, short-lived authentication tokens, owner checks on link management endpoints, rate limiting and access controls on the database. No online service can guarantee absolute security, so please use a strong, unique Google account and report suspected abuse.</p>
+
+        <h2>7. Children</h2>
+        <p>Linkly is not directed to children under 13, and we do not knowingly collect personal information from them. If you believe a child has created an account, contact us so we can remove it.</p>
+
+        <h2>8. Your choices and rights</h2>
+        <p>Depending on where you live, you may have rights to access, correct, export or delete your personal information, or to object to certain processing. The dashboard provides deletion controls; for other requests, contact us through the project's issue tracker.</p>
+
+        <h2>9. Changes</h2>
+        <p>We may update this policy as the service changes. The date at the top of this page shows the latest revision. Material changes will be communicated on the site where practical.</p>
+
+        <h2>10. Contact</h2>
+        <p>Questions or privacy requests: <a href="https://github.com/abustark/linkly/issues" target="_blank" rel="noopener noreferrer">open an issue in the Linkly repository</a>.</p>
+
+        <div class="legal-note">This policy describes Linkly's current data practices. It is a project-level policy, not legal advice.</div>
+    </main>
+
+    <footer class="legal-footer">
+        <div class="foot-links">
+            <a href="/privacy.html" aria-current="page">Privacy</a>
+            <span aria-hidden="true">·</span>
+            <a href="/terms.html">Terms</a>
+        </div>
+        <div>© <span id="year">2026</span> ABu. Linkly — short, clean links.</div>
+    </footer>
+
+    <script src="/shared.js"></script>
+</body>
+</html>

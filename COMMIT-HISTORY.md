@@ -7,11 +7,29 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.9`** (current head is `2.0.8` — see below)
+> - **`main` → `2.0.10`** (current head is `2.0.9` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.9 - production hardening pass
+
+- **Date**: 2026-10-22
+- **Why**: owner — close the production-readiness gaps surfaced in the audit/roadmap: abuse controls, account lifecycle, scheduled maintenance, security headers, legal pages and deployment docs.
+- **Changes**:
+  - `api/shorten.js`, `api/_utils/rateLimit.js`: configurable Mongo-backed daily per-user link quota (`DAILY_LINK_QUOTA`, default 50); fixed `RATE_LIMIT_MAX=0` disabling; custom window/budget support for reuse.
+  - `api/redirect.js`: 410 response for disabled links; bot/preview user-agent filtering so crawlers redirect without polluting click analytics; legal footer links on status pages.
+  - `api/account.js` + dashboard account modal: irreversible account deletion with recent-auth check, Mongo link/click cleanup, Firebase user removal, typed `DELETE` confirmation, recent-links clear and signed-out confirmation toast.
+  - `api/admin.js`: `ADMIN_UIDS`-gated disable/enable endpoint; `Url` moderation fields plus owner/dashboard and expiry indexes.
+  - `api/cleanup.js` + `vercel.json` cron: `CRON_SECRET`-gated daily expiry cleanup (links + click events); excludes non-expiring links.
+  - `api/health.js`: MongoDB ping health probe for uptime monitors.
+  - `api/links.js`: deleting a link also removes its click events (cleanup failure is logged but does not fail the delete).
+  - `server.js`, `vercel.json`: HSTS and CSP tightened; API routes wired; jsDelivr removed by self-hosting QRCode.js in `public/vendor/`.
+  - `public/privacy.html`, `public/terms.html`, `public/legal.css`: project-level privacy/terms pages, linked from home, dashboard, 404 and redirect status pages; added to sitemap and service-worker precache (`linkly-v5`).
+  - `.env.example`, `README.md`: production env/deployment, health, cron, moderation, account-deletion and API documentation.
+  - `.github/workflows/ci.yml`, `.github/dependabot.yml`: manual-only CI (no push trigger) and weekly dependency updates.
+- **Verification**: not run — owner explicitly requested no test/build/gate passes during this batch. Existing suite untouched apart from a `Click.deleteMany` stub needed for the link-delete change; no new tests added.
 
 ### 2.0.8 - centered QR modal on mobile
 

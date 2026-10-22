@@ -48,6 +48,8 @@ function statusPage({ title, heading, message, shortCode }) {
   }
   .btn:hover { filter: brightness(1.08); }
   footer { margin-top: 26px; font-size: 0.8rem; color: #94a3b8; }
+  footer a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+  footer a:hover { color: #2563eb; }
   @media (prefers-color-scheme: dark) {
     :root { color-scheme: dark; }
     body { background: #0a0f1c; color: #e8edf6; }
@@ -64,7 +66,7 @@ function statusPage({ title, heading, message, shortCode }) {
     <h1>${heading}</h1>
     <p>${message.replace('{code}', `<code>/${code}</code>`)}</p>
     <a class="btn" href="/">Create a new link &rarr;</a>
-    <footer>Linkly — short, clean links.</footer>
+    <footer>Linkly — short, clean links. &middot; <a href="/privacy.html">Privacy</a> &middot; <a href="/terms.html">Terms</a></footer>
   </main>
 </body>
 </html>`;
@@ -84,6 +86,15 @@ function expiredPage(shortCode) {
         title: 'Link expired — Linkly',
         heading: 'This link has expired',
         message: 'The short link {code} has reached its expiration date.',
+        shortCode
+    });
+}
+
+function disabledPage(shortCode) {
+    return statusPage({
+        title: 'Link unavailable — Linkly',
+        heading: 'This link is unavailable',
+        message: 'The short link {code} has been disabled.',
         shortCode
     });
 }
@@ -116,6 +127,15 @@ function countryOf(req) {
     return /^[A-Z]{2}$/.test(raw) ? raw : 'Unknown';
 }
 
+// Crawlers, social previews and uptime checkers should follow the redirect
+// but must not pollute the owner's click analytics.
+const BOT_UA = /(?:bot\/|bot;|\bbot\b|bot$|crawler|spider|slurp|facebookexternalhit|embedly|quora link preview|pinterest|vkshare|w3c_validator|whatsapp|telegrambot|discordbot|linkedinbot|twitterbot|slackbot|skypeuripreview|google-inspectiontool|bingpreview|headlesschrome|lighthouse|pagespeed|pingdom|uptime|curl\/|wget\/|python-requests|go-http-client|axios\/)/i;
+
+function isBot(req) {
+    const ua = String((req.headers && req.headers['user-agent']) || '');
+    return BOT_UA.test(ua);
+}
+
 module.exports = async (req, res) => {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method Not Allowed' });
@@ -137,6 +157,15 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'Short URL not found' });
         }
 
+        if (url.disabled) {
+            if (wantsHtml(req)) {
+                res.statusCode = 410;
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                return res.send(disabledPage(shortCode));
+            }
+            return res.status(410).json({ error: 'Short URL has been disabled' });
+        }
+
         if (url.expiresAt && new Date(url.expiresAt).getTime() <= Date.now()) {
             if (wantsHtml(req)) {
                 res.statusCode = 410;
@@ -146,21 +175,24 @@ module.exports = async (req, res) => {
             return res.status(410).json({ error: 'Short URL has expired' });
         }
 
-        // Bucket the click by UTC day for the dashboard's 30-day time series.
-        const clickDay = new Date().toISOString().slice(0, 10);
-        await Url.updateOne({ _id: url._id }, { $inc: { clickCount: 1, [`clicksByDay.${clickDay}`]: 1 } });
+        // Bots still follow the link, but only humans contribute analytics.
+        if (!isBot(req)) {
+            // Bucket the click by UTC day for the dashboard's 30-day time series.
+            const clickDay = new Date().toISOString().slice(0, 10);
+            await Url.updateOne({ _id: url._id }, { $inc: { clickCount: 1, [`clicksByDay.${clickDay}`]: 1 } });
 
-        // Click event for the traffic breakdown. Analytics must never break a redirect.
-        try {
-            await Click.create({
-                shortCode: url.shortCode,
-                userId: url.userId || null,
-                referrer: referrerOf(req),
-                device: deviceOf(req),
-                country: countryOf(req)
-            });
-        } catch (clickError) {
-            console.error('Click tracking error:', clickError);
+            // Click event for the traffic breakdown. Analytics must never break a redirect.
+            try {
+                await Click.create({
+                    shortCode: url.shortCode,
+                    userId: url.userId || null,
+                    referrer: referrerOf(req),
+                    device: deviceOf(req),
+                    country: countryOf(req)
+                });
+            } catch (clickError) {
+                console.error('Click tracking error:', clickError);
+            }
         }
 
         // 302 (not 301) so browsers don't cache the redirect and click counts stay accurate.

@@ -114,6 +114,11 @@
     <footer>
         © <span id="year">2026</span> ABu. All rights reserved.<br>
         Linkly — short, clean links.
+        <div class="foot-links">
+            <a href="/privacy.html">Privacy</a>
+            <span aria-hidden="true">·</span>
+            <a href="/terms.html">Terms</a>
+        </div>
         <a class="foot-cta" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">
             <span class="foot-cta-kicker">Like this build? There's more of my work</span>
             <span class="foot-cta-link">Open my portfolio ↗</span>
@@ -439,6 +444,11 @@
         });
 
         renderRecent();
+
+        if (new URLSearchParams(window.location.search).get("account") === "deleted") {
+            L.showToast("Your account and links were deleted");
+            history.replaceState({}, "", window.location.pathname);
+        }
     </script>
 </body>
 </html>

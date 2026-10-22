@@ -247,6 +247,8 @@
 .modal-text { margin: var(--s3) 0 var(--s5); color: var(--muted); font-size: var(--fs-base); line-height: var(--lh-body); }
 .modal-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .modal-actions .btn { flex: 1; }
+.modal-error { margin: var(--s2) 0 0; color: var(--danger); font-size: var(--fs-sm); line-height: 1.45; }
+.modal-box .input + .modal-actions { margin-top: var(--s4); }
 /* Sign-in popup sits above the dashboard auth gate (z-index 960). */
 .modal-auth { z-index: 970; }
 .gsi-signin { display: flex; justify-content: center; padding: var(--s2) 0; }
@@ -323,6 +325,17 @@ footer::before {
     text-transform: uppercase;
     color: var(--muted);
 }
+.foot-links {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    margin-top: var(--s3);
+    font-size: var(--fs-xs);
+}
+.foot-links a { color: var(--muted); text-decoration: none; }
+.foot-links a:hover, .foot-links a:focus-visible { color: var(--brand); text-decoration: underline; }
+.foot-links span { color: var(--line); }
 .foot-cta-link {
     font-size: var(--fs-sm);
     font-weight: 600;

@@ -33,6 +33,7 @@ Click.aggregate = async () => [{
     devices: [{ k: 'Mobile', c: 2 }],
     countries: [{ k: 'US', c: 5 }]
 }];
+Click.deleteMany = async () => ({ deletedCount: 1 });
 stub('../api/_models/Click', Click);
 
 const links = require('../api/links');
