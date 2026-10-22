@@ -121,7 +121,26 @@ td .o:hover { color: var(--brand); }
 td .exp-note { display: block; margin-top: 2px; }
 td .exp-badge { display: block; width: fit-content; margin: 4px 0 0; }
 
-#qrcode-container { display: inline-block; background: #fff; padding: var(--s3); border-radius: var(--r-sm); border: 1px solid var(--line); }
+.qr-box { position: relative; padding: var(--s5); text-align: center; }
+.qr-title {
+    margin: 0 0 var(--s4); font-family: var(--font-display); font-size: var(--fs-md);
+    font-weight: 700; letter-spacing: -0.01em;
+}
+.qr-close {
+    position: absolute; top: var(--s2); right: var(--s2);
+    width: 34px; height: 34px; display: grid; place-items: center;
+    border: 0; border-radius: var(--r-sm); background: transparent; color: var(--muted);
+    font: 400 22px/1 var(--font-body); cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+.qr-close:hover { background: var(--bg); color: var(--text); }
+.qr-close:active { transform: scale(0.95); }
+#qrcode-container {
+    display: block; width: fit-content; max-width: 100%; margin: 0 auto var(--s4);
+    background: #fff; padding: var(--s3); border-radius: var(--r-sm); border: 1px solid var(--line);
+}
+#qrcode-container canvas, #qrcode-container img { display: block; max-width: 100%; height: auto; }
+.qr-download { width: 100%; min-height: 46px; }
 
 footer { text-align: center; color: var(--muted); font-size: var(--fs-sm); padding: var(--s5) var(--s4) calc(var(--s6) + env(safe-area-inset-bottom, 0px)); line-height: var(--lh-body); }
 

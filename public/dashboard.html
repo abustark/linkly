@@ -131,16 +131,12 @@
         </footer>
     </div>
 
-    <div id="qrModal" class="modal" role="dialog" aria-modal="true" aria-label="QR Code">
-        <div class="modal-box">
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                <strong>QR Code</strong>
-                <button id="closeModalBtn" class="btn tiny" type="button">Close</button>
-            </div>
+    <div id="qrModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+        <div class="modal-box qr-box">
+            <button id="closeModalBtn" class="qr-close" type="button" aria-label="Close QR code">&times;</button>
+            <div class="qr-title" id="qrTitle">QR Code</div>
             <div id="qrcode-container"></div>
-            <div style="margin-top: 14px; display: flex; justify-content: flex-end;">
-                <button id="qrDownload" class="btn tiny btn-primary" type="button">Download PNG</button>
-            </div>
+            <button id="qrDownload" class="btn btn-primary qr-download" type="button">Download PNG</button>
         </div>
     </div>
 

@@ -24,6 +24,12 @@
     .recent-copy { min-height: 34px; min-width: 64px; padding: 0 9px; }
     .recent-clear { min-height: 32px; padding: 0 9px; }
 
+    .qr-box { padding: var(--s5) var(--s4) var(--s4); }
+    .qr-title { margin-bottom: var(--s3); }
+    .qr-close { top: var(--s2); right: var(--s2); width: 40px; height: 40px; font-size: 24px; }
+    #qrcode-container { margin-bottom: var(--s3); }
+    .qr-download { min-height: 48px; }
+
     .stats { grid-template-columns: repeat(2, 1fr); gap: var(--s2); }
     .links-cards { display: grid !important; }
     .table-wrap { display: none !important; }

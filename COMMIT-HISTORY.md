@@ -7,11 +7,22 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.8`** (current head is `2.0.7` — see below)
+> - **`main` → `2.0.9`** (current head is `2.0.8` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.8 - centered QR modal on mobile
+
+- **Date**: 2026-10-22
+- **Why**: owner — the mobile QR card had a left-aligned title, QR and footer with the close control out of place; requested centered heading, QR, bottom download and a top-right close.
+- **Changes**:
+  - `public/dashboard.html`: rebuilt QR dialog — centered "QR Code" title, centered QR, full-width Download PNG at the bottom, and an `×` close button in the top-right corner with `aria-label="Close QR code"`; dialog now labelled via the title.
+  - `public/dashboard.css`: new QR card/title/close/container/download styles; desktop layout centered too.
+  - `public/mobile.css`: 16px card padding, 40px close target, tighter vertical rhythm and 48px download button at ≤760px.
+  - `public/sw.js`: cache bumped to `linkly-v4`.
+  - Verified headless Chrome at 1440px and 390px: title/QR centered, download anchored at the bottom, close works; captures in `artifacts/2026-10-22-qr-modal/` (local-only).
 
 ### 2.0.7 - redesigned recent links shelf on home
 
