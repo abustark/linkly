@@ -17,10 +17,12 @@
     .hero h1 .grad { display: block; } /* "instantly" back on its own centered line — mobile only */
     .hero .subtitle { font-size: var(--fs-base); }
     .panel { padding: var(--s4); }
-    .recent { margin-top: var(--s6); }
-    .recent-item { padding: var(--s3); }
-    .recent-item .s { font-size: var(--fs-base); }
-    .recent-item .o { font-size: var(--fs-sm); }
+    .recent { margin-top: var(--s5); padding: var(--s3); }
+    .recent-head { padding: var(--s1) var(--s1) var(--s3); }
+    .recent-item { grid-template-columns: 34px minmax(0, 1fr) auto; gap: var(--s2); padding: var(--s3); }
+    .recent-favicon { width: 34px; height: 34px; }
+    .recent-copy { min-height: 34px; min-width: 64px; padding: 0 9px; }
+    .recent-clear { min-height: 32px; padding: 0 9px; }
 
     .stats { grid-template-columns: repeat(2, 1fr); gap: var(--s2); }
     .links-cards { display: grid !important; }

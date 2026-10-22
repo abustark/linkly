@@ -7,11 +7,22 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.7`** (current head is `2.0.6` — see below)
+> - **`main` → `2.0.8`** (current head is `2.0.7` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.7 - redesigned recent links shelf on home
+
+- **Date**: 2026-10-22
+- **Why**: owner — the recent links below the shorten card were an unstyled two-line text list; give them a proper product layout.
+- **Changes**:
+  - `public/index.html`: recent-links card with title, "Saved on this device" note and Clear action; inset rows with a host-initial tile, short path, original URL, relative timestamp and per-row Copy with "Copied" feedback; dashed empty state; stores `createdAt` for new entries; hardened localStorage parsing.
+  - `public/home.css`: section card, row/tile/copy/clear/empty-state styling with hover, press and focus states.
+  - `public/mobile.css`: compact 34px tiles/buttons and tighter card spacing at ≤760px.
+  - `public/sw.js`: cache bumped to `linkly-v3`.
+  - Verified in headless Chrome at 1440px (light/dark) and 390px: clipboard copy and Clear both work, empty state renders; captures in `artifacts/2026-10-22-recent-links/` (local-only).
 
 ### 2.0.6 - destination editing, traffic breakdown, link expiration + README screenshots
 

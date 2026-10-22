@@ -99,8 +99,14 @@
             </div>
         </section>
 
-        <section class="recent" id="recentSection">
-            <h2>Recent links (this browser)</h2>
+        <section class="recent" id="recentSection" aria-labelledby="recentTitle">
+            <div class="recent-head">
+                <div>
+                    <h2 class="recent-title" id="recentTitle">Recent links</h2>
+                    <p class="recent-sub">Saved on this device</p>
+                </div>
+                <button id="recentClear" class="recent-clear" type="button" aria-label="Clear recent links" hidden>Clear</button>
+            </div>
             <div id="recentList" class="recent-list"></div>
         </section>
     </main>
@@ -179,6 +185,7 @@
         const copyBtn = document.getElementById("copyBtn");
         const openBtn = document.getElementById("openBtn");
         const recentList = document.getElementById("recentList");
+        const recentClear = document.getElementById("recentClear");
         const signinModal = document.getElementById("signinModal");
         const signinCancel = document.getElementById("signinCancel");
         let pendingDashboardNav = false;
@@ -232,25 +239,70 @@
         });
 
         function getRecent() {
-            try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch { return []; }
+            try {
+                const items = JSON.parse(localStorage.getItem(RECENT_KEY) || "[]");
+                return Array.isArray(items) ? items : [];
+            } catch { return []; }
         }
         function saveRecent(items) {
             localStorage.setItem(RECENT_KEY, JSON.stringify(items.slice(0, 6)));
         }
+        function shortPathOf(url) {
+            try {
+                const { pathname } = new URL(url);
+                return pathname && pathname !== "/" ? pathname : String(url).replace(/^https?:\/\//i, "");
+            } catch {
+                return String(url || "").replace(/^https?:\/\//i, "");
+            }
+        }
+        function hostOf(url) {
+            try { return new URL(url).hostname.replace(/^www\./i, ""); }
+            catch { return ""; }
+        }
+        function relTime(ts) {
+            const then = Number(ts);
+            if (!Number.isFinite(then)) return "";
+            const secs = Math.max(0, Math.floor((Date.now() - then) / 1000));
+            if (secs < 60) return "just now";
+            const mins = Math.floor(secs / 60);
+            if (mins < 60) return `${mins}m ago`;
+            const hours = Math.floor(mins / 60);
+            if (hours < 24) return `${hours}h ago`;
+            const days = Math.floor(hours / 24);
+            if (days < 7) return `${days}d ago`;
+            return new Date(then).toLocaleDateString(undefined, { month: "short", day: "numeric" });
+        }
         function renderRecent() {
-            const items = getRecent();
+            const items = getRecent().filter((it) => it && it.shortUrl);
             recentList.innerHTML = "";
+            recentClear.hidden = !items.length;
             if (!items.length) {
-                recentList.innerHTML = '<div class="recent-item"><span class="o">No links yet. Create one above.</span></div>';
+                recentList.innerHTML = `<div class="recent-empty">
+                    <span class="recent-empty-title">Nothing here yet</span>
+                    <span class="recent-empty-text">Shorten a link above and it will show up here.</span>
+                </div>`;
                 return;
             }
             items.forEach((it) => {
-                const div = document.createElement("div");
-                div.className = "recent-item";
                 const sUrl = L.escapeHtml(it.shortUrl);
-                const oUrl = L.escapeHtml(it.originalUrl);
-                div.innerHTML = `<a class="s" href="${sUrl}" target="_blank" rel="noopener noreferrer">${sUrl}</a><span class="o" title="${oUrl}">${oUrl}</span>`;
-                recentList.appendChild(div);
+                const oUrl = L.escapeHtml(it.originalUrl || it.shortUrl);
+                const shortLabel = L.escapeHtml(shortPathOf(it.shortUrl));
+                const origLabel = L.escapeHtml(String(it.originalUrl || "").replace(/^https?:\/\/(www\.)?/i, ""));
+                const initial = L.escapeHtml((hostOf(it.originalUrl || it.shortUrl).match(/[a-z0-9]/i) || ["?"])[0].toUpperCase());
+                const when = relTime(it.createdAt);
+                const row = document.createElement("div");
+                row.className = "recent-item";
+                row.innerHTML = `
+                    <span class="recent-favicon" aria-hidden="true">${initial}</span>
+                    <div class="recent-body">
+                        <a class="recent-short" href="${sUrl}" target="_blank" rel="noopener noreferrer" title="${sUrl}">${shortLabel}</a>
+                        <span class="recent-original" title="${oUrl}">${origLabel}</span>
+                    </div>
+                    <div class="recent-side">
+                        <button class="recent-copy" data-url="${sUrl}" type="button" aria-label="Copy short link ${shortLabel}">Copy</button>
+                        ${when ? `<span class="recent-time">${L.escapeHtml(when)}</span>` : ""}
+                    </div>`;
+                recentList.appendChild(row);
             });
         }
 
@@ -345,7 +397,7 @@
                 statusEl.textContent = "Done";
 
                 const rec = getRecent().filter((x) => x.shortUrl !== data.shortUrl);
-                rec.unshift({ originalUrl: data.originalUrl, shortUrl: data.shortUrl });
+                rec.unshift({ originalUrl: data.originalUrl, shortUrl: data.shortUrl, createdAt: Date.now() });
                 saveRecent(rec);
                 renderRecent();
                 L.showToast("Short URL ready");
@@ -366,6 +418,24 @@
         });
         openBtn.addEventListener("click", () => {
             if (shortUrl.href) window.open(shortUrl.href, "_blank", "noopener");
+        });
+
+        recentList.addEventListener("click", async (e) => {
+            const btn = e.target.closest(".recent-copy");
+            if (!btn) return;
+            try {
+                await navigator.clipboard.writeText(btn.dataset.url);
+                btn.textContent = "Copied";
+                setTimeout(() => { btn.textContent = "Copy"; }, 1200);
+                L.showToast("Copied");
+            } catch {
+                L.showToast("Copy failed");
+            }
+        });
+        recentClear.addEventListener("click", () => {
+            localStorage.removeItem(RECENT_KEY);
+            renderRecent();
+            L.showToast("Recent links cleared");
         });
 
         renderRecent();
