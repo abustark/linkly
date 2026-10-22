@@ -1,5 +1,6 @@
 const connectToDatabase = require('./_utils/database');
 const Url = require('./_models/Url');
+const Click = require('./_models/Click');
 const admin = require('./_utils/firebase');
 
 const CSV_MAX_ROWS = 10000;
@@ -13,23 +14,57 @@ function csvCell(value) {
     return s;
 }
 
+async function verify(req, res) {
+    const { authorization } = req.headers || {};
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+        res.status(401).json({ error: 'Unauthorized: Missing or invalid token.' });
+        return null;
+    }
+    try {
+        return await admin.auth().verifyIdToken(authorization.split('Bearer ')[1]);
+    } catch (error) {
+        res.status(401).json({ error: 'Unauthorized: Invalid or expired token.' });
+        return null;
+    }
+}
+
+function trafficFacet(field) {
+    return [
+        { $group: { _id: field, c: { $sum: 1 } } },
+        { $sort: { c: -1 } },
+        { $limit: 6 },
+        { $project: { _id: 0, k: { $ifNull: ['$_id', 'Unknown'] }, c: 1 } }
+    ];
+}
+
+async function trafficBreakdown(userId) {
+    try {
+        const [result] = await Click.aggregate([
+            { $match: { userId } },
+            {
+                $facet: {
+                    referrers: trafficFacet('$referrer'),
+                    devices: trafficFacet('$device'),
+                    countries: trafficFacet('$country')
+                }
+            }
+        ]);
+        return {
+            referrers: (result && result.referrers) || [],
+            devices: (result && result.devices) || [],
+            countries: (result && result.countries) || []
+        };
+    } catch (error) {
+        console.error('Traffic breakdown error:', error);
+        return { referrers: [], devices: [], countries: [] };
+    }
+}
+
 module.exports = async (req, res) => {
     if (req.method === 'GET') {
         try {
-            const { authorization } = req.headers;
-
-            if (!authorization || !authorization.startsWith('Bearer ')) {
-                return res.status(401).json({ error: 'Unauthorized: Missing or invalid token.' });
-            }
-
-            const idToken = authorization.split('Bearer ')[1];
-            let decodedToken;
-            
-            try {
-                decodedToken = await admin.auth().verifyIdToken(idToken);
-            } catch (error) {
-                return res.status(401).json({ error: 'Unauthorized: Invalid or expired token.' });
-            }
+            const decodedToken = await verify(req, res);
+            if (!decodedToken) return;
 
             await connectToDatabase();
 
@@ -63,14 +98,15 @@ module.exports = async (req, res) => {
                     .limit(CSV_MAX_ROWS);
                 const proto = req.headers['x-forwarded-proto'] || 'http';
                 const host = req.headers['x-forwarded-host'] || req.headers.host || '';
-                const lines = ['shortCode,shortUrl,originalUrl,clickCount,createdAt'];
+                const lines = ['shortCode,shortUrl,originalUrl,clickCount,createdAt,expiresAt'];
                 rows.forEach((row) => {
                     lines.push([
                         row.shortCode,
                         `${proto}://${host}/${row.shortCode}`,
                         row.originalUrl,
                         row.clickCount || 0,
-                        new Date(row.createdAt).toISOString()
+                        new Date(row.createdAt).toISOString(),
+                        row.expiresAt ? new Date(row.expiresAt).toISOString() : ''
                     ].map(csvCell).join(','));
                 });
                 res.status(200);
@@ -113,6 +149,8 @@ module.exports = async (req, res) => {
                 clicksByDay.push({ d: day, c: byDay.get(day) || 0 });
             }
 
+            const traffic = await trafficBreakdown(decodedToken.uid);
+
             res.status(200).json({
                 links: userLinks,
                 page,
@@ -121,28 +159,62 @@ module.exports = async (req, res) => {
                 totalPages: Math.max(1, Math.ceil(total / pageSize)),
                 accountTotalClicks: totals.totalClicks || 0,
                 accountTopClicks: totals.topClicks || 0,
-                clicksByDay
+                clicksByDay,
+                traffic
             });
 
         } catch (error) {
             console.error('Get links error:', error);
             res.status(500).json({ error: 'An error occurred while fetching your links.' });
         }
+    } else if (req.method === 'PATCH') {
+        try {
+            const decodedToken = await verify(req, res);
+            if (!decodedToken) return;
+
+            const { shortCode } = req.query;
+            if (!shortCode) {
+                return res.status(400).json({ error: 'shortCode is required' });
+            }
+
+            const { originalUrl } = req.body || {};
+            if (!originalUrl || typeof originalUrl !== 'string') {
+                return res.status(400).json({ error: 'originalUrl is required' });
+            }
+
+            const trimmedUrl = originalUrl.trim();
+            let parsedUrl;
+            try {
+                parsedUrl = new URL(trimmedUrl);
+            } catch (error) {
+                return res.status(400).json({ error: 'Invalid URL format' });
+            }
+            if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
+                return res.status(400).json({ error: 'Only http and https URLs are allowed.' });
+            }
+
+            await connectToDatabase();
+
+            const url = await Url.findOne({ shortCode });
+            if (!url) {
+                return res.status(404).json({ error: 'Short URL not found' });
+            }
+
+            if (url.userId !== decodedToken.uid) {
+                return res.status(403).json({ error: 'You do not have permission to edit this link.' });
+            }
+
+            await Url.updateOne({ _id: url._id }, { $set: { originalUrl: trimmedUrl } });
+
+            res.status(200).json({ success: true, shortCode: url.shortCode, originalUrl: trimmedUrl });
+        } catch (error) {
+            console.error('Update link error:', error);
+            res.status(500).json({ error: 'An error occurred while updating the link.' });
+        }
     } else if (req.method === 'DELETE') {
         try {
-            const { authorization } = req.headers;
-
-            if (!authorization || !authorization.startsWith('Bearer ')) {
-                return res.status(401).json({ error: 'Unauthorized: Missing or invalid token.' });
-            }
-
-            const idToken = authorization.split('Bearer ')[1];
-            let decodedToken;
-            try {
-                decodedToken = await admin.auth().verifyIdToken(idToken);
-            } catch (error) {
-                return res.status(401).json({ error: 'Unauthorized: Invalid or expired token.' });
-            }
+            const decodedToken = await verify(req, res);
+            if (!decodedToken) return;
 
             const { shortCode } = req.query;
             if (!shortCode) {
@@ -168,7 +240,7 @@ module.exports = async (req, res) => {
             res.status(500).json({ error: 'An error occurred while deleting the link.' });
         }
     } else {
-        res.setHeader('Allow', ['GET', 'DELETE']);
+        res.setHeader('Allow', ['GET', 'PATCH', 'DELETE']);
         res.status(405).json({ error: 'Method Not Allowed' });
     }
 };

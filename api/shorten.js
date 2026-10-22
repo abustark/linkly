@@ -6,6 +6,13 @@ const { checkRateLimit } = require('./_utils/rateLimit');
 
 const MAX_GENERATION_ATTEMPTS = 8;
 
+// Optional lifetime for a short link. Empty/absent means "never expires".
+const EXPIRY_MS = {
+    '1d': 86400000,
+    '7d': 7 * 86400000,
+    '30d': 30 * 86400000
+};
+
 // Persistent rate limiting lives in ./_utils/rateLimit (Mongo-backed so the
 // limit holds across serverless instances, with an in-memory fallback).
 
@@ -38,7 +45,7 @@ module.exports = async (req, res) => {
         return res.status(405).json({ error: 'Method Not Allowed' });
     }
 
-    const { originalUrl, customAlias } = req.body || {};
+    const { originalUrl, customAlias, expiresIn } = req.body || {};
 
     const rate = await checkRateLimit(clientIp(req), 'shorten');
     if (rate.limited) {
@@ -89,11 +96,20 @@ module.exports = async (req, res) => {
         } else {
             shortCode = await generateUniqueShortCode(Url);
         }
-        
+
+        let expiresAt = null;
+        if (expiresIn) {
+            if (!Object.prototype.hasOwnProperty.call(EXPIRY_MS, expiresIn)) {
+                return res.status(400).json({ error: 'expiresIn must be one of: 1d, 7d, 30d.' });
+            }
+            expiresAt = new Date(Date.now() + EXPIRY_MS[expiresIn]);
+        }
+
         const newUrlData = {
             originalUrl: trimmedUrl,
             shortCode: shortCode,
-            userId: userId
+            userId: userId,
+            expiresAt: expiresAt
         };
 
         const newUrl = new Url(newUrlData);
@@ -107,6 +123,7 @@ module.exports = async (req, res) => {
         res.status(201).json({
             originalUrl: newUrl.originalUrl,
             shortUrl: shortUrl,
+            expiresAt: newUrl.expiresAt,
             ownedByUser: !!newUrl.userId
         });
 

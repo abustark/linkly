@@ -72,6 +72,16 @@
                     <input class="input" id="customAlias" type="text" name="alias" autocomplete="off" spellcheck="false" placeholder="my-campaign">
                 </div>
 
+                <div class="field optional">
+                    <label class="field-label" for="expirySelect">Expires <span>(optional)</span></label>
+                    <select class="input select" id="expirySelect" name="expiresIn">
+                        <option value="">Never</option>
+                        <option value="1d">24 hours</option>
+                        <option value="7d">7 days</option>
+                        <option value="30d">30 days</option>
+                    </select>
+                </div>
+
                 <div class="form-actions">
                     <button id="submitBtn" class="btn btn-primary submit-btn" type="submit">Shorten</button>
                 </div>
@@ -161,6 +171,7 @@
         const shortenForm = document.getElementById("shortenForm");
         const longUrl = document.getElementById("longUrl");
         const customAlias = document.getElementById("customAlias");
+        const expirySelect = document.getElementById("expirySelect");
         const submitBtn = document.getElementById("submitBtn");
         const statusEl = document.getElementById("status");
         const result = document.getElementById("result");
@@ -323,7 +334,7 @@
                 const response = await fetch("/api/shorten", {
                     method: "POST",
                     headers,
-                    body: JSON.stringify({ originalUrl: longUrl.value.trim(), customAlias: customAlias.value.trim() })
+                    body: JSON.stringify({ originalUrl: longUrl.value.trim(), customAlias: customAlias.value.trim(), expiresIn: expirySelect.value || null })
                 });
                 const data = await response.json();
                 if (!response.ok) throw new Error(data.error || "Could not shorten URL");

@@ -12,19 +12,29 @@ Full-stack URL shortener with Google authentication, MongoDB persistence, custom
 
 ## Overview
 
-Linkly turns long URLs into short, shareable links and tracks how they perform. Users sign in with Google, create links with optional custom aliases, and manage everything from a dashboard — search, filter, see click stats, and download QR codes.
+Linkly turns long URLs into short, shareable links and tracks how they perform. Users sign in with Google, create links with optional custom aliases and expiration dates, and manage everything from a dashboard — search, filter, edit destinations, see click stats, and download QR codes.
+
+## Screenshots
+
+| Home | Dashboard |
+| --- | --- |
+| ![Linkly home — light](docs/screenshots/home-light.png) | ![Linkly dashboard — light](docs/screenshots/dashboard-light.png) |
+| ![Linkly home — dark](docs/screenshots/home-dark.png) | ![Linkly dashboard — dark](docs/screenshots/dashboard-dark.png) |
 
 ## Features
 
 - Shorten long URLs with optional custom aliases (requires Google sign-in)
+- Optional link expiration — 24 hours, 7 days or 30 days, with a branded 410 page once expired
 - 302 redirects with per-link click counting, bucketed by day for time-series charts
 - Firebase Google authentication (JS SDK v10, modular ESM)
 - User dashboard with:
   - Search by URL or code
   - Date filters (`All`, `7d`, `30d`)
   - Total links, total clicks, top clicks, filtered count
+  - Edit a link's destination without changing its short code
   - QR code preview and PNG download
   - 30-day daily-click time series chart
+  - Traffic breakdown — top referrers, device types and countries from click events (90-day retention)
   - CSV export of the current filtered view
 - Persistent (Mongo-backed) IP rate limiting on the shorten endpoint with in-memory fallback
 - Host validation for generated short URLs
@@ -64,29 +74,31 @@ Linkly turns long URLs into short, shareable links and tracks how they perform. 
 
 ## API Endpoints
 
-- `POST /api/shorten` - Create short URL (requires a Firebase ID token in the `Authorization: Bearer <token>` header)
-- `GET /api/links` - Get logged-in user's links + account aggregates + 30-day click series (requires auth; add `?format=csv` to export the filtered view as CSV)
+- `POST /api/shorten` - Create short URL (requires a Firebase ID token in the `Authorization: Bearer <token>` header; optional `expiresIn`: `1d`, `7d` or `30d`)
+- `GET /api/links` - Get logged-in user's links + account aggregates + 30-day click series + traffic breakdown (requires auth; add `?format=csv` to export the filtered view as CSV)
+- `PATCH /api/links?shortCode=<code>` - Update a link's destination URL (requires auth + ownership)
 - `DELETE /api/links?shortCode=<code>` - Delete one of your links (requires auth)
-- `GET /:shortCode` - Redirect to original URL (302) and increment click count
+- `GET /:shortCode` - Redirect to original URL (302) and increment click count; 410 once expired
 
 ## Testing
 
-- `npm test` — 23 tests across 4 files using Node's built-in runner (`node --test`, ~17s): links API (aggregates, search escaping, date ranges, auth), ownership/fail-closed deletes, redirect integrity (atomic click increments, HTML-vs-JSON 404s), alias validation, and short-code ↔ rewrite-pattern invariants.
+- `npm test` — 36 tests across 4 files using Node's built-in runner (`node --test`, ~30s): links API (aggregates, search escaping, date ranges, auth, destination edits), ownership/fail-closed edits & deletes, redirect integrity (atomic click increments, click-event capture, expiry 410s, HTML-vs-JSON errors), alias validation, expiration validation, and short-code ↔ rewrite-pattern invariants.
 - Browser verification harness (Playwright, stubbed Firebase v10 ESM modules) covers desktop + mobile flows; ~50 dated screenshots live in `artifacts/`.
 
 ## Project Structure
 
 ```
 api/                 Vercel serverless functions + shared backend code
-  _models/           Mongoose schemas (Url, RateLimit)
+  _models/           Mongoose schemas (Url, Click, RateLimit)
   _utils/            firebase, database, rate limiting, code generation
-  links.js           list / search / aggregates / CSV export
-  redirect.js        302 redirect + atomic click tracking
-  shorten.js         create short link
+  links.js           list / search / aggregates / CSV export / destination edits
+  redirect.js        302 redirect + atomic click tracking + click events (410 on expiry)
+  shorten.js         create short link (optional expiration)
 public/              static frontend (index.html, dashboard.html, CSS, sw.js, manifest…)
 server.js            local Express server (development, :5000)
-test/                node --test suite (23 tests)
+test/                node --test suite (36 tests)
 vercel.json          /m/* 301 redirects, :shortCode rewrite, security headers
+docs/screenshots/    README screenshots (light + dark)
 PROJECT-INFO.md      project facts sheet for AI-generated resume/portfolio summaries
 AUDIT-REPORT.md      full security/quality audit + remediation log
 ```

@@ -95,3 +95,28 @@ test('auto-generates a code when no alias is provided', async () => {
     assert.strictEqual(res.statusCode, 201);
     assert.match(res.body.shortUrl, /^https:\/\/linkly-link\.vercel\.app\/[a-zA-Z0-9_-]{3,12}$/);
 });
+
+test('sets expiresAt when a valid expiresIn is provided', async () => {
+    const res = makeRes();
+    await shorten(makeReq({ originalUrl: 'https://example.com', expiresIn: '7d' }), res);
+    assert.strictEqual(res.statusCode, 201);
+    assert.strictEqual(savedDocs.length, 1);
+    const delta = new Date(savedDocs[0].expiresAt).getTime() - Date.now();
+    assert.ok(delta > 6.9 * 86400000 && delta <= 7 * 86400000, 'expiry should be ~7 days out');
+    assert.ok(res.body.expiresAt instanceof Date);
+});
+
+test('defaults to no expiry', async () => {
+    const res = makeRes();
+    await shorten(makeReq({ originalUrl: 'https://example.com' }), res);
+    assert.strictEqual(res.statusCode, 201);
+    assert.strictEqual(savedDocs[0].expiresAt, null);
+});
+
+test('rejects an invalid expiresIn', async () => {
+    for (const expiresIn of ['2h', '1y', 'soon', 'constructor', '__proto__']) {
+        const res = makeRes();
+        await shorten(makeReq({ originalUrl: 'https://example.com', expiresIn }), res);
+        assert.strictEqual(res.statusCode, 400, `expiresIn "${expiresIn}" should be rejected`);
+    }
+});

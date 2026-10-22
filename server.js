@@ -45,6 +45,7 @@ const redirectRoute = require('./api/redirect');
 app.post('/api/shorten', (req, res) => shortenRoute(req, res));
 app.get('/api/shorten', (req, res) => shortenRoute(req, res));
 app.get('/api/links', (req, res) => linksRoute(req, res));
+app.patch('/api/links', (req, res) => linksRoute(req, res));
 app.delete('/api/links', (req, res) => linksRoute(req, res));
 app.get('/:shortCode', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.includes('.')) return next();

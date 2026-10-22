@@ -1,5 +1,6 @@
 const connectToDatabase = require('./_utils/database');
 const Url = require('./_models/Url');
+const Click = require('./_models/Click');
 
 function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -7,9 +8,9 @@ function escapeHtml(value) {
     })[char]);
 }
 
-// Self-contained branded 404 for browsers hitting a dead short link.
+// Self-contained branded status page for browsers hitting a dead short link.
 // No scripts and no external assets, so it works under the strict CSP.
-function notFoundPage(shortCode) {
+function statusPage({ title, heading, message, shortCode }) {
     const code = escapeHtml(shortCode || '');
     return `<!DOCTYPE html>
 <html lang="en">
@@ -17,7 +18,7 @@ function notFoundPage(shortCode) {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#f4f7fb">
-<title>Link not found — Linkly</title>
+<title>${title}</title>
 <style>
   :root { color-scheme: light; }
   * { box-sizing: border-box; }
@@ -35,7 +36,7 @@ function notFoundPage(shortCode) {
   }
   .logo {
     width: 44px; height: 44px; margin: 0 auto 18px; border-radius: 10px;
-    background: linear-gradient(135deg, #2563eb, #4f46e5);
+    background: #2563eb;
     display: grid; place-items: center; color: #fff; font-weight: 800; font-size: 20px;
   }
   h1 { margin: 0 0 8px; font-family: "Sora", system-ui, sans-serif; font-size: 1.6rem; letter-spacing: -0.02em; }
@@ -60,13 +61,59 @@ function notFoundPage(shortCode) {
 <body>
   <main class="card">
     <div class="logo" aria-hidden="true">L</div>
-    <h1>Link not found</h1>
-    <p>The short link <code>/${code}</code> doesn't exist or has been removed.</p>
+    <h1>${heading}</h1>
+    <p>${message.replace('{code}', `<code>/${code}</code>`)}</p>
     <a class="btn" href="/">Create a new link &rarr;</a>
     <footer>Linkly — short, clean links.</footer>
   </main>
 </body>
 </html>`;
+}
+
+function notFoundPage(shortCode) {
+    return statusPage({
+        title: 'Link not found — Linkly',
+        heading: 'Link not found',
+        message: "The short link {code} doesn't exist or has been removed.",
+        shortCode
+    });
+}
+
+function expiredPage(shortCode) {
+    return statusPage({
+        title: 'Link expired — Linkly',
+        heading: 'This link has expired',
+        message: 'The short link {code} has reached its expiration date.',
+        shortCode
+    });
+}
+
+function wantsHtml(req) {
+    return String((req.headers && req.headers.accept) || '').includes('text/html');
+}
+
+function referrerOf(req) {
+    const raw = req.headers && (req.headers.referer || req.headers.referrer);
+    if (!raw) return 'Direct';
+    try {
+        const host = new URL(String(raw)).hostname.replace(/^www\./i, '');
+        return (host || 'Direct').slice(0, 80);
+    } catch (e) {
+        return 'Direct';
+    }
+}
+
+function deviceOf(req) {
+    const ua = String((req.headers && req.headers['user-agent']) || '');
+    if (/iPad|Tablet/i.test(ua)) return 'Tablet';
+    if (/Mobi|Android|iPhone|iPod/i.test(ua)) return 'Mobile';
+    return 'Desktop';
+}
+
+function countryOf(req) {
+    const headers = req.headers || {};
+    const raw = String(headers['x-vercel-ip-country'] || headers['cf-ipcountry'] || '').trim().toUpperCase();
+    return /^[A-Z]{2}$/.test(raw) ? raw : 'Unknown';
 }
 
 module.exports = async (req, res) => {
@@ -82,8 +129,7 @@ module.exports = async (req, res) => {
         const url = await Url.findOne({ shortCode: shortCode });
 
         if (!url) {
-            const accept = String((req.headers && req.headers.accept) || '');
-            if (accept.includes('text/html')) {
+            if (wantsHtml(req)) {
                 res.statusCode = 404;
                 res.setHeader('Content-Type', 'text/html; charset=utf-8');
                 return res.send(notFoundPage(shortCode));
@@ -91,9 +137,31 @@ module.exports = async (req, res) => {
             return res.status(404).json({ error: 'Short URL not found' });
         }
 
+        if (url.expiresAt && new Date(url.expiresAt).getTime() <= Date.now()) {
+            if (wantsHtml(req)) {
+                res.statusCode = 410;
+                res.setHeader('Content-Type', 'text/html; charset=utf-8');
+                return res.send(expiredPage(shortCode));
+            }
+            return res.status(410).json({ error: 'Short URL has expired' });
+        }
+
         // Bucket the click by UTC day for the dashboard's 30-day time series.
         const clickDay = new Date().toISOString().slice(0, 10);
         await Url.updateOne({ _id: url._id }, { $inc: { clickCount: 1, [`clicksByDay.${clickDay}`]: 1 } });
+
+        // Click event for the traffic breakdown. Analytics must never break a redirect.
+        try {
+            await Click.create({
+                shortCode: url.shortCode,
+                userId: url.userId || null,
+                referrer: referrerOf(req),
+                device: deviceOf(req),
+                country: countryOf(req)
+            });
+        } catch (clickError) {
+            console.error('Click tracking error:', clickError);
+        }
 
         // 302 (not 301) so browsers don't cache the redirect and click counts stay accurate.
         res.redirect(302, url.originalUrl);

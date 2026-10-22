@@ -101,6 +101,24 @@
                 <div class="spark-top"><span>Clicks Trend (Last 30 Days)</span><span id="sparkSummary">No data</span></div>
                 <svg id="sparkline" viewBox="0 0 360 84" preserveAspectRatio="none" aria-hidden="true"></svg>
             </div>
+
+            <div class="traffic">
+                <div class="traffic-top"><span>Traffic breakdown</span><span class="traffic-sub">Last 90 days</span></div>
+                <div class="traffic-grid">
+                    <div>
+                        <div class="traffic-label">Top referrers</div>
+                        <div id="trafficReferrers" class="traffic-list"></div>
+                    </div>
+                    <div>
+                        <div class="traffic-label">Devices</div>
+                        <div id="trafficDevices" class="traffic-list"></div>
+                    </div>
+                    <div>
+                        <div class="traffic-label">Countries</div>
+                        <div id="trafficCountries" class="traffic-list"></div>
+                    </div>
+                </div>
+            </div>
         </section>
 
         <footer>
@@ -133,6 +151,19 @@
             <div class="modal-actions">
                 <button id="confirmCancel" class="btn tiny" type="button">Cancel</button>
                 <button id="confirmOk" class="btn tiny btn-danger" type="button">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+        <div class="modal-box">
+            <div class="modal-title" id="editTitle">Edit destination</div>
+            <p class="modal-text" id="editShort"></p>
+            <label class="field-label" for="editUrl">Destination URL</label>
+            <input id="editUrl" class="input" type="url" inputmode="url" autocomplete="url" spellcheck="false">
+            <div class="modal-actions" style="margin-top: var(--s4);">
+                <button id="editCancel" class="btn tiny" type="button">Cancel</button>
+                <button id="editSave" class="btn tiny btn-primary" type="button">Save</button>
             </div>
         </div>
     </div>
@@ -208,6 +239,12 @@
         const confirmMsg = document.getElementById("confirmMsg");
         const confirmCancel = document.getElementById("confirmCancel");
         const confirmOk = document.getElementById("confirmOk");
+        const editModal = document.getElementById("editModal");
+        const editShort = document.getElementById("editShort");
+        const editUrl = document.getElementById("editUrl");
+        const editCancel = document.getElementById("editCancel");
+        const editSave = document.getElementById("editSave");
+        let pendingEditCode = null;
         const prevPage = document.getElementById("prevPage");
         const nextPage = document.getElementById("nextPage");
         const pageInfo = document.getElementById("pageInfo");
@@ -269,6 +306,15 @@
             const d = new Date(date);
             return Number.isNaN(d.getTime()) ? "-" : d.toLocaleDateString();
         }
+        function isExpired(l) {
+            return !!l.expiresAt && new Date(l.expiresAt).getTime() <= Date.now();
+        }
+        function expiryNote(l) {
+            if (!l.expiresAt) return "";
+            const when = formatDate(l.expiresAt);
+            if (isExpired(l)) return ` <span class="exp-badge" title="Expired ${when}">expired</span>`;
+            return ` <span class="exp-note" title="Expires ${when}">&middot; expires ${when}</span>`;
+        }
         function relDate(date) {
             const d = new Date(date);
             if (Number.isNaN(d.getTime())) return "-";
@@ -316,6 +362,35 @@
             renderSpark();
         }
 
+        function renderTraffic(traffic) {
+            const esc = L.escapeHtml;
+            const groups = [
+                ["trafficReferrers", traffic && traffic.referrers],
+                ["trafficDevices", traffic && traffic.devices],
+                ["trafficCountries", traffic && traffic.countries]
+            ];
+            groups.forEach(([id, rows]) => {
+                const el = document.getElementById(id);
+                el.innerHTML = "";
+                if (!rows || !rows.length) {
+                    el.innerHTML = '<div class="traffic-empty">No click data yet.</div>';
+                    return;
+                }
+                const max = Math.max(...rows.map((r) => Number(r.c) || 0), 1);
+                rows.forEach((r) => {
+                    const count = Number(r.c) || 0;
+                    const row = document.createElement("div");
+                    row.className = "traffic-row";
+                    row.innerHTML = `
+                        <span class="tl" title="${esc(r.k)}">${esc(r.k)}</span>
+                        <span class="tc">${count}</span>
+                        <span class="traffic-bar"><i style="width:${Math.round((count / max) * 100)}%"></i></span>
+                    `;
+                    el.appendChild(row);
+                });
+            });
+        }
+
         function shortUrlOf(l) { return `${window.location.origin}/${l.shortCode}`; }
 
         function renderRows(links) {
@@ -335,11 +410,12 @@
                     <td><a class="s" href="${short}" target="_blank" rel="noopener noreferrer">${short}</a></td>
                     <td><span class="o" role="button" tabindex="0" title="Click to copy\u000d\u000a${orig}" data-copy="${orig}">${origPretty}</span></td>
                     <td><span class="clicks-pill">${l.clickCount || 0}</span></td>
-                    <td class="date" title="${formatDate(l.createdAt)}">${relDate(l.createdAt)}</td>
+                    <td class="date" title="${formatDate(l.createdAt)}">${relDate(l.createdAt)}${expiryNote(l)}</td>
                     <td class="actions-col">
                         <div class="row-actions">
                             <button class="btn tiny copy-btn" data-url="${short}" type="button">Copy</button>
                             <button class="btn tiny qr-btn" data-url="${short}" type="button">QR</button>
+                            <button class="btn tiny edit-btn" data-code="${code}" data-url="${orig}" type="button">Edit</button>
                             <a class="btn tiny" href="${short}" target="_blank" rel="noopener noreferrer">Open</a>
                             <button class="btn tiny btn-danger del-btn" data-code="${code}" type="button">Delete</button>
                         </div>
@@ -370,11 +446,12 @@
                     </div>
                     <div class="lc-meta">
                         <span class="clicks-pill">${l.clickCount || 0} clicks</span>
-                        <span class="date">${relDate(l.createdAt)}</span>
+                        <span class="date">${relDate(l.createdAt)}${expiryNote(l)}</span>
                     </div>
                     <div class="lc-actions">
                         <button class="btn copy-btn" data-url="${short}" type="button">Copy</button>
                         <button class="btn qr-btn" data-url="${short}" type="button">QR</button>
+                        <button class="btn edit-btn" data-code="${code}" data-url="${orig}" type="button">Edit</button>
                         <button class="btn del btn-danger del-btn" data-code="${code}" type="button">Delete</button>
                     </div>
                 `;
@@ -409,6 +486,7 @@
                 accountTopClicks = data.accountTopClicks || 0;
                 accountClicksByDay = data.clicksByDay || [];
                 renderAll(allLinks);
+                renderTraffic(data.traffic);
                 statusRow.textContent = `Showing ${allLinks.length} of ${accountTotal} links`;
                 pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
                 prevPage.disabled = currentPage <= 1;
@@ -438,6 +516,15 @@
                 qrcodeContainer.innerHTML = "";
                 new QRCode(qrcodeContainer, { text: currentQrUrl, width: 220, height: 220 });
                 openModal(qrModal);
+            }
+            if (t.classList.contains("edit-btn")) {
+                const code = t.dataset.code;
+                if (!code) return;
+                pendingEditCode = code;
+                editShort.innerHTML = `Editing the destination for <strong>/${L.escapeHtml(code)}</strong>`;
+                editUrl.value = t.dataset.url || "";
+                openModal(editModal);
+                editUrl.select();
             }
             if (t.classList.contains("del-btn")) {
                 const code = t.dataset.code;
@@ -520,6 +607,40 @@
 
         confirmModal.addEventListener("click", (e) => { if (e.target === confirmModal) { closeModal(confirmModal); pendingDeleteCode = null; pendingDeleteBtn = null; } });
 
+        editCancel.addEventListener("click", () => { pendingEditCode = null; closeModal(editModal); });
+        editModal.addEventListener("click", (e) => { if (e.target === editModal) { pendingEditCode = null; closeModal(editModal); } });
+        editUrl.addEventListener("keydown", (e) => {
+            if (e.key === "Enter") { e.preventDefault(); editSave.click(); }
+        });
+        editSave.addEventListener("click", async () => {
+            if (!pendingEditCode) return;
+            const code = pendingEditCode;
+            const newUrl = editUrl.value.trim();
+            editSave.disabled = true;
+            editSave.textContent = "Saving…";
+            try {
+                const token = await auth.currentUser.getIdToken(true);
+                const response = await fetch(`/api/links?shortCode=${encodeURIComponent(code)}`, {
+                    method: "PATCH",
+                    headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+                    body: JSON.stringify({ originalUrl: newUrl })
+                });
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.error || `Status ${response.status}`);
+                const item = allLinks.find((x) => x.shortCode === code);
+                if (item) item.originalUrl = data.originalUrl || newUrl;
+                pendingEditCode = null;
+                closeModal(editModal);
+                renderAll(allLinks);
+                showToast("Destination updated");
+            } catch (error) {
+                showToast(error.message === "Failed to fetch" ? "Update failed" : (error.message || "Update failed"));
+            } finally {
+                editSave.disabled = false;
+                editSave.textContent = "Save";
+            }
+        });
+
         searchInput.addEventListener("input", () => {
             clearTimeout(searchTimer);
             searchTimer = setTimeout(() => { if (auth.currentUser) loadLinks(auth.currentUser, 1); }, 300);
@@ -536,13 +657,16 @@
                 if (signinModal.classList.contains("open")) { closeSigninModal(); window.location.href = "/"; return; }
                 closeModal(qrModal);
                 closeModal(confirmModal);
+                closeModal(editModal);
                 pendingDeleteCode = null;
                 pendingDeleteBtn = null;
+                pendingEditCode = null;
                 return;
             }
             if (e.key === "Tab") {
                 const open = qrModal.classList.contains("open") ? qrModal
                     : confirmModal.classList.contains("open") ? confirmModal
+                    : editModal.classList.contains("open") ? editModal
                     : signinModal.classList.contains("open") ? signinModal : null;
                 if (!open) return;
                 const focusables = getFocusables(open);

@@ -27,6 +27,11 @@ const urlSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
+    // Optional expiry; null/absent means the link never expires.
+    expiresAt: {
+        type: Date,
+        default: null
+    },
     // Per-day click buckets (UTC day keys, e.g. "2026-09-23") for the time-series chart.
     clicksByDay: {
         type: mongoose.Schema.Types.Mixed,

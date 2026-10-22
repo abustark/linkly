@@ -7,11 +7,28 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.6`** (current head is `2.0.5` — see below)
+> - **`main` → `2.0.7`** (current head is `2.0.6` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.6 - destination editing, traffic breakdown, link expiration + README screenshots
+
+- **Date**: 2026-10-22
+- **Why**: approved portfolio feature batch — (1) edit destinations, (2) traffic analytics, (4) README screenshots, (5) link expiration. GitHub Actions CI (#3) intentionally skipped.
+- **Changes**:
+  - `api/links.js`: shared `verify` auth helper; `PATCH /api/links?shortCode=…` updates a link's destination (http/https only, requiring ownership, ownerless links fail closed); per-account traffic `$facet` aggregation (top 6 referrers/devices/countries); `expiresAt` column in CSV export; Allow header adds PATCH.
+  - `api/redirect.js`: branded `statusPage` shared by 404/410 pages; expired links return 410 before counting; each successful redirect records a click event (referrer host, device class, country header); analytics failures never block the redirect.
+  - `api/_models/Click.js`: new click-event schema with 90-day TTL; `api/_models/Url.js`: optional `expiresAt`.
+  - `api/shorten.js`: accepts optional `expiresIn` (`1d` / `7d` / `30d`), stores and returns `expiresAt`.
+  - `server.js`: local Express PATCH route.
+  - `public/dashboard.html` / `dashboard.css`: edit-destination modal + action buttons, traffic breakdown panel, expiry badge/date notes.
+  - `public/index.html` / `home.css`: expiration selector on the shorten form.
+  - `public/sw.js`: cache bumped to `linkly-v2` for the changed assets.
+  - `test/*`: PATCH authorization/validation coverage, traffic assertions, click-event + expiry redirect tests, expiration validation tests (36 total).
+  - `README.md`: screenshots (light/dark home + dashboard), new features, PATCH API docs, updated test count/structure.
+  - `docs/screenshots/`: four README captures added.
 
 ### 2.0.5 - header Linkly logo no longer reloads when already on home
 
