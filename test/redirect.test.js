@@ -10,7 +10,7 @@ stub('../api/_utils/database', async () => ({}));
 
 const updateCalls = [];
 const clickCalls = [];
-let foundUrl = { _id: 'abc', originalUrl: 'https://example.com', userId: 'u1', expiresAt: null };
+let foundUrl = { _id: 'abc', shortCode: 'river', originalUrl: 'https://example.com', userId: 'u1', expiresAt: null };
 function Url() {}
 Url.findOne = async () => foundUrl;
 Url.updateOne = async (filter, update) => { updateCalls.push({ filter, update }); return {}; };
@@ -34,7 +34,7 @@ function makeRes() {
 test.beforeEach(() => {
     updateCalls.length = 0;
     clickCalls.length = 0;
-    foundUrl = { _id: 'abc', originalUrl: 'https://example.com', userId: 'u1', expiresAt: null };
+    foundUrl = { _id: 'abc', shortCode: 'river', originalUrl: 'https://example.com', userId: 'u1', expiresAt: null };
 });
 
 test('redirects with 302 and increments click count atomically', async () => {

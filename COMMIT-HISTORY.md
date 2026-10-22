@@ -26,7 +26,7 @@ This document tracks every commit following the `2.0.x` versioning schema:
   - `public/dashboard.html` / `dashboard.css`: edit-destination modal + action buttons, traffic breakdown panel, expiry badge/date notes.
   - `public/index.html` / `home.css`: expiration selector on the shorten form.
   - `public/sw.js`: cache bumped to `linkly-v2` for the changed assets.
-  - `test/*`: PATCH authorization/validation coverage, traffic assertions, click-event + expiry redirect tests, expiration validation tests (36 total).
+  - `test/*`: PATCH authorization/validation coverage, traffic assertions, click-event + expiry redirect tests, expiration validation tests (36 total); redirect fixture fixed to include `shortCode` after the first full run — `npm test` now passes 36/36.
   - `README.md`: screenshots (light/dark home + dashboard), new features, PATCH API docs, updated test count/structure.
   - `docs/screenshots/`: four README captures added.
 
