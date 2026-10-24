@@ -45,18 +45,41 @@ async function trafficBreakdown(userId) {
                 $facet: {
                     referrers: trafficFacet('$referrer'),
                     devices: trafficFacet('$device'),
-                    countries: trafficFacet('$country')
+                    countries: trafficFacet('$country'),
+                    browsers: trafficFacet('$browser'),
+                    oses: trafficFacet('$os'),
+                    utmSources: trafficFacet('$utmSource'),
+                    utmCampaigns: trafficFacet('$utmCampaign'),
+                    uniqueVisitors: [
+                        { $match: { visitorHash: { $ne: null } } },
+                        { $group: { _id: '$visitorHash' } },
+                        { $count: 'c' }
+                    ]
                 }
             }
         ]);
         return {
             referrers: (result && result.referrers) || [],
             devices: (result && result.devices) || [],
-            countries: (result && result.countries) || []
+            countries: (result && result.countries) || [],
+            browsers: (result && result.browsers) || [],
+            oses: (result && result.oses) || [],
+            utmSources: (result && result.utmSources) || [],
+            utmCampaigns: (result && result.utmCampaigns) || [],
+            uniqueVisitors: (result && result.uniqueVisitors && result.uniqueVisitors[0] && result.uniqueVisitors[0].c) || 0
         };
     } catch (error) {
         console.error('Traffic breakdown error:', error);
-        return { referrers: [], devices: [], countries: [] };
+        return {
+            referrers: [],
+            devices: [],
+            countries: [],
+            browsers: [],
+            oses: [],
+            utmSources: [],
+            utmCampaigns: [],
+            uniqueVisitors: 0
+        };
     }
 }
 

@@ -1,6 +1,7 @@
 const connectToDatabase = require('./_utils/database');
 const Url = require('./_models/Url');
 const Click = require('./_models/Click');
+const crypto = require('crypto');
 
 function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, (char) => ({
@@ -127,6 +128,60 @@ function countryOf(req) {
     return /^[A-Z]{2}$/.test(raw) ? raw : 'Unknown';
 }
 
+// Coarse browser/OS buckets parsed from the UA on the server. The full
+// user-agent string is intentionally never stored.
+function browserOf(req) {
+    const ua = String((req.headers && req.headers['user-agent']) || '');
+    if (/Edg\//i.test(ua)) return 'Edge';
+    if (/OPR\/|Opera/i.test(ua)) return 'Opera';
+    if (/SamsungBrowser/i.test(ua)) return 'Samsung Internet';
+    if (/Chrome\/|CriOS/i.test(ua)) return 'Chrome';
+    if (/Firefox\/|FxiOS/i.test(ua)) return 'Firefox';
+    if (/Safari\//i.test(ua)) return 'Safari';
+    return 'Other';
+}
+
+function osOf(req) {
+    const ua = String((req.headers && req.headers['user-agent']) || '');
+    if (/iPhone|iPad|iPod/i.test(ua)) return 'iOS';
+    if (/Android/i.test(ua)) return 'Android';
+    if (/Windows/i.test(ua)) return 'Windows';
+    if (/Macintosh|Mac OS X/i.test(ua)) return 'macOS';
+    if (/Linux/i.test(ua)) return 'Linux';
+    return 'Other';
+}
+
+function clientIp(req) {
+    const realIp = req.headers['x-real-ip'];
+    if (realIp) return String(realIp).trim();
+    const forwarded = req.headers['x-forwarded-for'];
+    if (forwarded) return String(forwarded).split(',')[0].trim();
+    return (req.socket && req.socket.remoteAddress) || 'unknown';
+}
+
+// Daily-rotating HMAC: the stored value cannot be reversed to an IP or device
+// and changes every UTC day, so it only supports coarse unique-visitor counts.
+function visitorHashOf(req) {
+    const secret = process.env.VISITOR_HASH_SECRET;
+    if (!secret) return null;
+    const ua = String((req.headers && req.headers['user-agent']) || '');
+    const day = new Date().toISOString().slice(0, 10);
+    return crypto
+        .createHmac('sha256', secret)
+        .update(`${clientIp(req)}|${ua}|${day}`)
+        .digest('hex')
+        .slice(0, 32);
+}
+
+function utmOf(req, key) {
+    const raw = req.query && req.query[key];
+    const value = String(Array.isArray(raw) ? raw[0] : (raw || ''))
+        .replace(/[\u0000-\u001f]/g, '')
+        .trim()
+        .slice(0, 80);
+    return value || 'None';
+}
+
 // Crawlers, social previews and uptime checkers should follow the redirect
 // but must not pollute the owner's click analytics.
 const BOT_UA = /(?:bot\/|bot;|\bbot\b|bot$|crawler|spider|slurp|facebookexternalhit|embedly|quora link preview|pinterest|vkshare|w3c_validator|whatsapp|telegrambot|discordbot|linkedinbot|twitterbot|slackbot|skypeuripreview|google-inspectiontool|bingpreview|headlesschrome|lighthouse|pagespeed|pingdom|uptime|curl\/|wget\/|python-requests|go-http-client|axios\/)/i;
@@ -188,7 +243,13 @@ module.exports = async (req, res) => {
                     userId: url.userId || null,
                     referrer: referrerOf(req),
                     device: deviceOf(req),
-                    country: countryOf(req)
+                    country: countryOf(req),
+                    browser: browserOf(req),
+                    os: osOf(req),
+                    visitorHash: visitorHashOf(req),
+                    utmSource: utmOf(req, 'utm_source'),
+                    utmMedium: utmOf(req, 'utm_medium'),
+                    utmCampaign: utmOf(req, 'utm_campaign')
                 });
             } catch (clickError) {
                 console.error('Click tracking error:', clickError);

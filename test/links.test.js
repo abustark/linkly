@@ -31,7 +31,12 @@ function Click() {}
 Click.aggregate = async () => [{
     referrers: [{ k: 'google.com', c: 3 }],
     devices: [{ k: 'Mobile', c: 2 }],
-    countries: [{ k: 'US', c: 5 }]
+    countries: [{ k: 'US', c: 5 }],
+    browsers: [{ k: 'Chrome', c: 4 }],
+    oses: [{ k: 'iOS', c: 2 }],
+    utmSources: [{ k: 'newsletter', c: 1 }],
+    utmCampaigns: [{ k: 'launch', c: 1 }],
+    uniqueVisitors: [{ c: 4 }]
 }];
 Click.deleteMany = async () => ({ deletedCount: 1 });
 stub('../api/_models/Click', Click);
@@ -63,7 +68,12 @@ test('GET /api/links returns account-wide aggregates', async () => {
     assert.deepStrictEqual(res.body.traffic, {
         referrers: [{ k: 'google.com', c: 3 }],
         devices: [{ k: 'Mobile', c: 2 }],
-        countries: [{ k: 'US', c: 5 }]
+        countries: [{ k: 'US', c: 5 }],
+        browsers: [{ k: 'Chrome', c: 4 }],
+        oses: [{ k: 'iOS', c: 2 }],
+        utmSources: [{ k: 'newsletter', c: 1 }],
+        utmCampaigns: [{ k: 'launch', c: 1 }],
+        uniqueVisitors: 4
     });
 });
 

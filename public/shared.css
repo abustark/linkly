@@ -48,6 +48,9 @@
     --lh-body: 1.6;
 }
 
+/* The hidden attribute must win over component display rules (flex/grid). */
+[hidden] { display: none !important; }
+
 [data-theme="dark"] {
     color-scheme: dark;
     --bg: #0a0f1c;
