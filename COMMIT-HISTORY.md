@@ -7,11 +7,26 @@ This document tracks every commit following the `2.0.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.0.10`** (current head is `2.0.9` — see below)
+> - **`main` → `2.1.0`** (current head is `2.0.10` — see below)
 
 ---
 
 ## Commit History
+
+### 2.0.10 - public API, live demo, deeper analytics + repositioning
+
+- **Date**: 2026-10-24
+- **Why**: owner — finish the portfolio push: (A) a no-sign-in guest demo, (B) a public REST API with keys and docs, (D) deeper analytics, plus fixes for the "tutorial URL shortener" label and the manual-only CI / vanilla-JS weaknesses.
+- **Changes**:
+  - **Guest demo:** `public/demo-data.js` seeds a 12-link workspace, 30-day click series and 7 traffic groups; `public/dashboard.html` gains `?demo=1` mode (banner, 5 stat cards, read-only edit/delete guards, client-side CSV export, demo link toast); `/demo` rewrites/redirects to the dashboard in `vercel.json` and `server.js`. No database access or shared demo account.
+  - **Public API v1:** `api/v1/links.js` (list/create with pagination, search, date filters, daily-quota sharing) and `api/v1/links/[code].js` (get/patch/delete, owner checks); `api/_models/ApiKey.js` + `api/_utils/apiKeys.js` (SHA-256 at rest, `lk_live_` prefix, 10 active keys max, throttled `lastUsedAt`); `api/keys.js` dashboard CRUD/revoke; 120 req/min per key with `X-RateLimit-*` headers.
+  - **Shared link helpers:** new `api/_utils/linkUtils.js` (URL/alias/expiry/host/short-URL/quota helpers); `api/shorten.js` refactored onto it.
+  - **Analytics depth:** `Click` model adds browser, OS, daily-rotating `visitorHash`, and UTM source/medium/campaign; `api/redirect.js` parses UA/UTM and hashes IP+UA per UTC day when `VISITOR_HASH_SECRET` is set; `api/links.js` facet adds browsers, OSes, UTM sources/campaigns and `uniqueVisitors`; dashboard adds a Unique Visitors stat and four new traffic groups.
+  - **API docs:** `public/api.html` + `public/api.css` (auth, quick start, endpoints, examples, limits, error table) and `public/openapi.json` (OpenAPI 3.1); `/docs` route; footer links on home, dashboard and legal pages; sitemap entry.
+  - **Repositioning:** home title/meta/hero/CTAs, `README.md`, `PROJECT-INFO.md`, `public/manifest.json` and `package.json` now describe a link management & analytics platform; privacy/terms updated for the new analytics fields, API keys and dates; dashboard/home/404 footer copy and `public/og-image.png` (regenerated at 1200×630) updated to match.
+  - **Hardening/ops:** `api/_utils/rateLimit.js` now returns `limit`/`remaining`/`resetAt`; `.env.example` documents `VISITOR_HASH_SECRET`; `server.js` wires `/api/keys`, `/api/v1/links`, `/api/v1/links/:code`, `/demo`, `/docs`; `public/sw.js` cache bumped to `linkly-v6` and precaches API/demo/OpenAPI assets; `vercel.json` adds `/demo` + `/docs` rewrites.
+  - **CI:** `.github/workflows/ci.yml` now runs on push to `main` and on pull requests (plus manual dispatch) with concurrency cancellation, replacing manual-only triggers.
+- **Verification**: not run — owner explicitly requested no test/build/gate passes during this batch. The suite remains 36 tests; the new API, demo and analytics code is unverified.
 
 ### 2.0.9 - production hardening pass
 

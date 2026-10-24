@@ -1,12 +1,19 @@
 name: Tests
 
-# Manual-only by default so no test run is triggered without an explicit
-# decision. Add `push:` / `pull_request:` here when you want automatic CI.
+# Runs automatically on every push to main and on pull requests, so the
+# repository always shows a green (or red) test signal.
 on:
+  push:
+    branches: [main]
+  pull_request:
   workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   test:
