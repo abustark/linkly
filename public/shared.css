@@ -333,7 +333,7 @@ main[tabindex="-1"]:focus-visible { outline: none; }
     margin-top: var(--s5);
     font-size: var(--fs-xs);
 }
-.site-footer .foot-links a { color: var(--muted); text-decoration: none; }
+.site-footer .foot-links a { color: var(--muted); font-weight: 700; text-decoration: none; }
 .site-footer .foot-links a:hover,
 .site-footer .foot-links a:focus-visible { color: var(--brand); text-decoration: underline; }
 .site-footer .foot-links span { color: var(--line); }

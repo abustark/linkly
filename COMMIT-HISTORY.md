@@ -7,11 +7,20 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.4`** (current head is `2.1.3` — see below)
+> - **`main` → `2.1.5`** (current head is `2.1.4` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.4 - bold the footer links
+
+- **Date**: 2026-10-25
+- **Why**: owner — the `Privacy · Terms · API` row should read as bold.
+- **Changes**:
+  - Footer links are now bold (700) on every page; the 404 footer matches.
+  - Service-worker cache bumped to `linkly-v11`.
+- **Verification**: visual only — footer checked on the home page; no test/build run (owner rule).
 
 ### 2.1.3 - restore the sign-in card and move the demo links out of the hero
 
