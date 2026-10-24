@@ -302,15 +302,14 @@
     .sheet-theme { display: none; }
 }
 
-/* One site footer for every page: same order, type and centered alignment.
-   Links → copyright → a single portfolio line. */
+/* One site footer for every page: the original text style (body copy +
+   Playfair Display portfolio block), centered and in the same order everywhere. */
 .site-footer {
-    margin-top: var(--s5);
-    padding: var(--s4) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom, 0px));
+    margin-top: var(--s6);
+    padding: 0 var(--s4) calc(var(--s5) + env(safe-area-inset-bottom, 0px));
     text-align: center;
-    color: var(--muted);
     font-family: var(--font-body);
-    font-size: var(--fs-sm);
+    color: var(--text);
     line-height: var(--lh-body);
 }
 /* Inset hairline above the footer text: centered, with breathing room on both
@@ -319,7 +318,7 @@
     content: "";
     display: block;
     width: min(460px, calc(100% - 64px));
-    margin: 0 auto var(--s4);
+    margin: 0 auto var(--s5);
     border-top: 1px solid var(--line);
 }
 .site-footer .foot-links {
@@ -327,28 +326,39 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--s2);
-    margin: 0;
+    margin-top: var(--s3);
     font-size: var(--fs-xs);
-    font-weight: 600;
 }
 .site-footer .foot-links a { color: var(--muted); text-decoration: none; }
 .site-footer .foot-links a:hover,
 .site-footer .foot-links a:focus-visible { color: var(--brand); text-decoration: underline; }
 .site-footer .foot-links span { color: var(--line); }
-.site-footer .foot-copy { margin: var(--s3) 0 0; }
-.site-footer .foot-portfolio {
-    display: inline-block;
-    margin-top: var(--s2);
+.site-footer .foot-cta {
+    display: flex; /* portfolio CTA sits on its own lines, like the original footer */
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: var(--s3);
+    text-decoration: none;
+    font-family: "Playfair Display", Georgia, serif;
+}
+.site-footer .foot-cta-kicker {
+    font-size: 10px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
     color: var(--muted);
-    font-size: var(--fs-xs);
+}
+.site-footer .foot-cta-link {
+    font-size: var(--fs-sm);
     font-weight: 600;
+    color: var(--text);
     text-decoration: underline;
-    text-underline-offset: 2px;
-    text-decoration-color: var(--line);
+    text-decoration-color: color-mix(in srgb, var(--brand) 40%, transparent);
+    text-underline-offset: 4px;
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
-.site-footer .foot-portfolio:hover,
-.site-footer .foot-portfolio:focus-visible {
+.site-footer .foot-cta:hover .foot-cta-link,
+.site-footer .foot-cta:focus-visible .foot-cta-link {
     color: var(--brand);
     text-decoration-color: var(--brand);
 }

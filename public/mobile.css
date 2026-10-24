@@ -45,7 +45,7 @@
     .toolbar-row .toolbar-actions .btn { flex: 1; }
     .status { font-size: var(--fs-sm); }
 
-    footer {
+    footer, .site-footer {
         font-size: var(--fs-sm);
         padding: var(--s4) var(--s3) calc(var(--s6) + env(safe-area-inset-bottom, 0px));
     }
