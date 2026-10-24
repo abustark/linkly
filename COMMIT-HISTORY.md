@@ -7,11 +7,22 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.2`** (current head is `2.1.1` — see below)
+> - **`main` → `2.1.3`** (current head is `2.1.2` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.2 - remove the border box around the home sign-in area
+
+- **Date**: 2026-10-24
+- **Why**: owner — the whole home content area read as a bordered card while scrolling, and the hero description needed more technical detail.
+- **Changes**:
+  - Removed the card chrome from the home sign-in prompt (no border, background, radius or card padding), so the section sits directly on the page instead of inside a bordered box.
+  - `<main>` no longer paints a focus ring when the skip link moves focus to it (that ring wrapped the entire content area like a card border).
+  - Expanded the hero description with product/stack detail: click and unique-visitor analytics, QR codes, CSV export, REST API, Express, MongoDB and Firebase.
+  - Service-worker cache bumped to `linkly-v9`.
+- **Verification**: visual only — home at 1440×1000, 700×646 and 390×844; skip-link focus checked; no test/build run (owner rule).
 
 ### 2.1.1 - restore the original footer text style
 

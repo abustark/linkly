@@ -161,6 +161,10 @@
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-sm); }
 .input:focus-visible, .search:focus-visible { outline: none; }
 .avatar:focus-visible { outline-offset: 2px; }
+/* The skip link moves focus to <main>, which must not paint a ring around the
+   whole content area. */
+main[tabindex="-1"]:focus,
+main[tabindex="-1"]:focus-visible { outline: none; }
 
 .theme-switch { position: relative; width: 48px; height: 28px; display: inline-block; flex-shrink: 0; }
 .theme-switch input { opacity: 0; width: 0; height: 0; }
