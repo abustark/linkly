@@ -7,11 +7,20 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.5`** (current head is `2.1.4` — see below)
+> - **`main` → `2.1.6`** (current head is `2.1.5` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.5 - restore the Live demo button color
+
+- **Date**: 2026-10-25
+- **Why**: owner — `Live demo` lost its blue primary styling when the demo/API pair was moved below the recent-links card in 2.1.3.
+- **Changes**:
+  - `Live demo` is `btn btn-primary` again; `API docs` stays the neutral secondary button, matching the original hero pair.
+  - Service-worker cache bumped to `linkly-v12`.
+- **Verification**: visual only — home `.home-links` row checked locally; no test/build run (owner rule).
 
 ### 2.1.4 - bold the footer links
 
