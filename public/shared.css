@@ -330,7 +330,7 @@ main[tabindex="-1"]:focus-visible { outline: none; }
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--s2);
-    margin-top: var(--s5);
+    margin-top: var(--s4);
     font-size: var(--fs-xs);
 }
 .site-footer .foot-links a { color: var(--muted); font-weight: 700; text-decoration: none; }

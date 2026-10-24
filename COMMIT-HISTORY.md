@@ -7,11 +7,20 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.6`** (current head is `2.1.5` — see below)
+> - **`main` → `2.1.7`** (current head is `2.1.6` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.6 - tighten the footer link row spacing
+
+- **Date**: 2026-10-25
+- **Why**: owner — the gap between the footer copyright text and the `Privacy · Terms · API` row was slightly too large.
+- **Changes**:
+  - Footer links row `margin-top` reduced from 24px to 16px on every page (shared footer); the 404 footer was already tighter at 10px.
+  - Service-worker cache bumped to `linkly-v13`.
+- **Verification**: visual only — no test/build run (owner rule).
 
 ### 2.1.5 - restore the Live demo button color
 
