@@ -34,8 +34,9 @@ main {
 }
 .hero h1 .grad { display: block; color: var(--brand); }
 .hero .subtitle { margin: var(--s3) auto 0; color: var(--muted); font-size: var(--fs-md); max-width: 640px; line-height: var(--lh-body); font-weight: 500; }
-.hero-actions { display: flex; justify-content: center; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s4); }
-.hero-actions .btn { min-height: var(--tap); padding: 12px 18px; font-size: var(--fs-sm); }
+/* Secondary entry points: below the recent-links card, out of the hero. */
+.home-links { display: flex; justify-content: center; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s5); }
+.home-links .btn { min-height: var(--tap); padding: 12px 18px; font-size: var(--fs-sm); }
 
 @media (min-width: 761px) {
     .hero h1 { font-size: var(--fs-3xl); }
@@ -47,7 +48,7 @@ main {
     border-radius: var(--r-lg);
     padding: var(--s5);
 }
-.auth-prompt { text-align: center; margin-top: var(--s5); }
+.auth-prompt { text-align: center; margin-top: var(--s4); padding-top: var(--s5); padding-bottom: var(--s5); }
 #shortenPanel { margin-top: var(--s4); }
 .auth-prompt .prompt-title { margin: 0 0 var(--s2); font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 800; letter-spacing: -0.02em; }
 .auth-prompt .prompt-text { margin: 0 auto var(--s4); color: var(--muted); max-width: 400px; line-height: var(--lh-body); }

@@ -7,11 +7,24 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.3`** (current head is `2.1.2` — see below)
+> - **`main` → `2.1.4`** (current head is `2.1.3` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.3 - restore the sign-in card and move the demo links out of the hero
+
+- **Date**: 2026-10-24
+- **Why**: owner — the 2.1.2 card removal was not wanted (only the focus ring was); the header and footer needed more breathing room; the home page should lead with the shortener again, with the demo/API entry points demoted.
+- **Changes**:
+  - Restored the `.panel` card on the home sign-in prompt (border, background, radius, padding). The `<main>` focus-ring suppression stays.
+  - Moved `Live demo` and `API docs` out of the hero into a quiet button row below the recent-links card (always visible, including for signed-out visitors).
+  - Header actions now use a 24px gap between Dashboard, the theme toggle and the Google button.
+  - Footer: the `Privacy · Terms · API` row now sits 24px below the copyright lines.
+  - Verified the recent-links section still renders as a card (same border/background/radius as the panels).
+  - Service-worker cache bumped to `linkly-v10`.
+- **Verification**: visual only — signed-in and signed-out home at 1366×768 and 390×844; no test/build run (owner rule).
 
 ### 2.1.2 - remove the border box around the home sign-in area
 

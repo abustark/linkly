@@ -154,7 +154,7 @@
     font-weight: 800;
     font-size: var(--fs-base);
 }
-.topbar-actions { display: flex; align-items: center; gap: var(--s3); margin-left: auto; }
+.topbar-actions { display: flex; align-items: center; gap: var(--s5); margin-left: auto; }
 .gsi-wrap { display: inline-flex; align-items: center; }
 .gsi-wrap > div { margin: 0 !important; }
 
@@ -330,7 +330,7 @@ main[tabindex="-1"]:focus-visible { outline: none; }
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--s2);
-    margin-top: var(--s3);
+    margin-top: var(--s5);
     font-size: var(--fs-xs);
 }
 .site-footer .foot-links a { color: var(--muted); text-decoration: none; }

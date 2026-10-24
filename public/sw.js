@@ -1,6 +1,6 @@
 /* Linkly service worker — app-shell caching.
    Bump CACHE to force a fresh cache after deploys. */
-const CACHE = 'linkly-v9';
+const CACHE = 'linkly-v10';
 const PRECACHE = [
     '/',
     '/shared.css',
