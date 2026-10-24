@@ -67,12 +67,6 @@ body {
     color: var(--muted);
     line-height: var(--lh-body);
 }
-.legal-footer {
-    text-align: center;
-    color: var(--muted);
-    font-size: var(--fs-sm);
-    padding: var(--s5) var(--s4) calc(var(--s6) + env(safe-area-inset-bottom, 0px));
-}
 
 @media (max-width: 760px) {
     .legal { padding: var(--s5) var(--s4) var(--s6); }

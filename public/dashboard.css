@@ -74,7 +74,7 @@ table { width: 100%; border-collapse: collapse; background: var(--card); table-l
 th, td { padding: 13px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: middle; overflow: hidden; }
 th { font-size: var(--fs-xs); color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; white-space: nowrap; }
 th:nth-child(3) { width: 90px; }
-th:nth-child(4) { width: 120px; }
+th:nth-child(4) { width: 150px; }
 th.actions-col { width: 360px; }
 th.actions-col, td.actions-col { text-align: center; }
 tbody tr:last-child td { border-bottom: none; }
@@ -104,8 +104,13 @@ td .o:hover { color: var(--brand); }
 .traffic-top { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s3); margin-bottom: var(--s4); font-size: var(--fs-sm); font-weight: 600; }
 .traffic-sub { color: var(--muted); font-weight: 500; font-size: var(--fs-xs); }
 .traffic-grid { display: grid; grid-template-columns: 1fr; gap: var(--s4); }
-@media (min-width: 761px) { .traffic-grid { grid-template-columns: repeat(3, 1fr); } }
+.traffic-grid > div { break-inside: avoid; }
+@media (min-width: 761px) {
+    .traffic-grid { display: block; columns: 3; column-gap: var(--s5); }
+    .traffic-grid > div { margin-bottom: var(--s4); }
+}
 .traffic-label { font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
+.traffic-label-sub { margin-top: var(--s4); }
 .traffic-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px var(--s2); align-items: center; font-size: var(--fs-sm); padding: 5px 0; }
 .traffic-row .tl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .traffic-row .tc { color: var(--muted); font-variant-numeric: tabular-nums; }
@@ -145,7 +150,7 @@ td .exp-badge { display: block; width: fit-content; margin: 4px 0 0; }
 footer { text-align: center; color: var(--muted); font-size: var(--fs-sm); padding: var(--s5) var(--s4) calc(var(--s6) + env(safe-area-inset-bottom, 0px)); line-height: var(--lh-body); }
 
 @media (min-width: 761px) {
-    .stats { grid-template-columns: repeat(5, 1fr); }
+    .stats { grid-template-columns: repeat(4, 1fr); }
     .controls { grid-template-columns: 1fr auto auto; align-items: center; }
     .panel { padding: var(--s6); }
 }
@@ -265,7 +270,7 @@ footer { text-align: center; color: var(--muted); font-size: var(--fs-sm); paddi
 }
 
 @media (min-width: 1000px) {
-    .traffic-grid { grid-template-columns: repeat(4, 1fr); }
+    .traffic-grid { column-gap: var(--s6); }
 }
 @media (max-width: 760px) {
     .demo-banner { align-items: flex-start; }

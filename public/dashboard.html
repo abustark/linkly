@@ -53,7 +53,7 @@
         <div id="demoBanner" class="demo-banner" hidden>
             <div class="demo-copy">
                 <span class="demo-pill">Live demo</span>
-                <span>Sample workspace with realistic analytics — read-only, no sign-in required.</span>
+                <span>Read-only sample workspace.</span>
             </div>
             <a class="btn tiny btn-primary" href="/">Create your own links</a>
         </div>
@@ -63,7 +63,6 @@
             <div class="stat"><div class="k">Total Clicks</div><div id="totalClicks" class="v">0</div></div>
             <div class="stat"><div class="k">Unique Visitors</div><div id="uniqueVisitors" class="v">0</div></div>
             <div class="stat"><div class="k">Top Link</div><div id="topClicks" class="v">0</div></div>
-            <div class="stat"><div class="k">Filtered</div><div id="filteredLinks" class="v">0</div></div>
         </section>
 
         <section class="panel">
@@ -137,18 +136,14 @@
                     <div>
                         <div class="traffic-label">UTM sources</div>
                         <div id="trafficUtmSources" class="traffic-list"></div>
-                    </div>
-                    <div>
-                        <div class="traffic-label">Campaigns</div>
+                        <div class="traffic-label traffic-label-sub">Campaigns</div>
                         <div id="trafficUtmCampaigns" class="traffic-list"></div>
                     </div>
                 </div>
             </div>
         </section>
 
-        <footer>
-            © <span id="year">2026</span> ABu. All rights reserved.<br>
-            Linkly — link management &amp; analytics.
+        <footer class="site-footer">
             <div class="foot-links">
                 <a href="/privacy.html">Privacy</a>
                 <span aria-hidden="true">·</span>
@@ -156,10 +151,8 @@
                 <span aria-hidden="true">·</span>
                 <a href="/api.html">API</a>
             </div>
-            <a class="foot-cta" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">
-                <span class="foot-cta-kicker">Like this build? There's more of my work</span>
-                <span class="foot-cta-link">Open my portfolio ↗</span>
-            </a>
+            <p class="foot-copy">© <span id="year">2026</span> ABu · Linkly</p>
+            <a class="foot-portfolio" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">More of my work ↗</a>
         </footer>
     </div>
 
@@ -306,7 +299,6 @@
         const totalClicks = document.getElementById("totalClicks");
         const uniqueVisitors = document.getElementById("uniqueVisitors");
         const topClicks = document.getElementById("topClicks");
-        const filteredLinks = document.getElementById("filteredLinks");
         const sparkline = document.getElementById("sparkline");
         const sparkSummary = document.getElementById("sparkSummary");
         const trafficSub = document.getElementById("trafficSub");
@@ -443,12 +435,11 @@
             sparkSummary.textContent = max > 0 ? `Max ${max}/day` : "No clicks in 30 days";
         }
 
-        function renderStats(count) {
+        function renderStats() {
             totalLinks.textContent = String(accountTotal);
             totalClicks.textContent = String(accountTotalClicks);
             uniqueVisitors.textContent = String(accountUniqueVisitors);
             topClicks.textContent = String(accountTopClicks);
-            filteredLinks.textContent = String(count);
             renderSpark();
         }
 
@@ -629,7 +620,7 @@
         function renderAll(list) {
             renderRows(list);
             renderCards(list);
-            renderStats(list.length);
+            renderStats();
         }
 
         async function loadLinks(user, page = 1) {

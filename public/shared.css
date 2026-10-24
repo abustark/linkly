@@ -194,6 +194,10 @@
 .btn-danger { color: var(--danger); border-color: var(--line); }
 .btn-danger:hover { background: var(--danger-soft); border-color: var(--danger); }
 .btn.tiny { padding: 0 12px; min-height: 38px; font-size: var(--fs-sm); }
+/* Legal pages style every anchor as a content link; buttons must keep their
+   own colors (otherwise a primary button is blue-on-blue and looks empty). */
+.legal a.btn, .legal a.btn:hover { color: var(--text); text-decoration: none; }
+.legal a.btn-primary, .legal a.btn-primary:hover { color: #fff; }
 
 .sheet-backdrop {
     position: fixed; inset: 0; background: rgba(15, 23, 42, 0.45);
@@ -298,58 +302,53 @@
     .sheet-theme { display: none; }
 }
 
-/* Footer: brand serif font (Playfair Display) + portfolio CTA — font, link and
-   welcome line taken from the project BMW footer (ecom-seven-sand.vercel.app). */
-footer {
+/* One site footer for every page: same order, type and centered alignment.
+   Links → copyright → a single portfolio line. */
+.site-footer {
+    margin-top: var(--s5);
+    padding: var(--s4) var(--s4) calc(var(--s5) + env(safe-area-inset-bottom, 0px));
+    text-align: center;
+    color: var(--muted);
     font-family: var(--font-body);
-    margin-top: var(--s6); /* extra drop below the content so it reads as a footer, not a caption */
+    font-size: var(--fs-sm);
+    line-height: var(--lh-body);
 }
 /* Inset hairline above the footer text: centered, with breathing room on both
    sides instead of a full edge-to-edge rule. */
-footer::before {
+.site-footer::before {
     content: "";
     display: block;
     width: min(460px, calc(100% - 64px));
-    margin: 0 auto var(--s5);
+    margin: 0 auto var(--s4);
     border-top: 1px solid var(--line);
 }
-.foot-cta {
-    display: flex; /* block-level: portfolio CTA sits on its own lines (3 & 4) */
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    margin-top: var(--s3);
-    text-decoration: none;
-    font-family: "Playfair Display", Georgia, serif; /* portfolio lines keep the BMW font */
-}
-.foot-cta-kicker {
-    font-size: 10px;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: var(--muted);
-}
-.foot-links {
+.site-footer .foot-links {
     display: flex;
     justify-content: center;
     flex-wrap: wrap;
     gap: var(--s2);
-    margin-top: var(--s3);
+    margin: 0;
     font-size: var(--fs-xs);
-}
-.foot-links a { color: var(--muted); text-decoration: none; }
-.foot-links a:hover, .foot-links a:focus-visible { color: var(--brand); text-decoration: underline; }
-.foot-links span { color: var(--line); }
-.foot-cta-link {
-    font-size: var(--fs-sm);
     font-weight: 600;
-    color: var(--text);
+}
+.site-footer .foot-links a { color: var(--muted); text-decoration: none; }
+.site-footer .foot-links a:hover,
+.site-footer .foot-links a:focus-visible { color: var(--brand); text-decoration: underline; }
+.site-footer .foot-links span { color: var(--line); }
+.site-footer .foot-copy { margin: var(--s3) 0 0; }
+.site-footer .foot-portfolio {
+    display: inline-block;
+    margin-top: var(--s2);
+    color: var(--muted);
+    font-size: var(--fs-xs);
+    font-weight: 600;
     text-decoration: underline;
-    text-decoration-color: color-mix(in srgb, var(--brand) 40%, transparent);
-    text-underline-offset: 4px;
+    text-underline-offset: 2px;
+    text-decoration-color: var(--line);
     transition: color 0.15s ease, text-decoration-color 0.15s ease;
 }
-.foot-cta:hover .foot-cta-link,
-.foot-cta:focus-visible .foot-cta-link {
+.site-footer .foot-portfolio:hover,
+.site-footer .foot-portfolio:focus-visible {
     color: var(--brand);
     text-decoration-color: var(--brand);
 }

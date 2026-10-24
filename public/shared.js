@@ -130,9 +130,12 @@
         if (signin && signinModal && signinModal.classList.contains("open")) targets.push(signin);
         targets.forEach((t) => {
             if (t.getAttribute("data-gsi-rendered") === "1") return;
+            // A container inside a hidden section renders nothing; leave it
+            // unmarked so the next call (after the section is shown) retries.
+            if (!t.offsetParent && t.id !== "gsi-button-container") return;
             try {
                 google.accounts.id.renderButton(t, { theme: "outline", size: "large" });
-                t.setAttribute("data-gsi-rendered", "1");
+                if (t.childElementCount > 0) t.setAttribute("data-gsi-rendered", "1");
             } catch (e) { /* render failed; a later call can retry */ }
         });
     }

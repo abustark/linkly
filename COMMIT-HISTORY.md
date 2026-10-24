@@ -1,17 +1,31 @@
 # linkly Commit Log
 
-This document tracks every commit following the `2.0.x` versioning schema:
+This document tracks every commit following the `2.x` versioning schema:
 
 - Sequence: `2.0.1`, `2.0.2`, ..., `2.0.9`, `2.0.10` ➔ `2.1.0`, `2.1.1`, ..., `2.1.10` ➔ `2.2.0`, etc. The third number never exceeds `.10`.
 - Format: `<version> - <short sentence>`
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.0`** (current head is `2.0.10` — see below)
+> - **`main` → `2.1.1`** (current head is `2.1.0` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.0 - simplify the landing page and unify site footers
+
+- **Date**: 2026-10-24
+- **Why**: owner — after the demo/API push the home page read as too much text, spacing and alignment were inconsistent, the demo CTAs used different wording, and every page had a different footer.
+- **Changes**:
+  - **Home:** shortened the hero to one headline, one line of copy and two actions (`Live demo`, `API docs`); removed the feature-points line, the duplicate "Just exploring?" demo line and the tech-stack sentence from the hero. Centered the content block vertically on tall viewports.
+  - **Footers:** one `.site-footer` component on home, dashboard, API, privacy, terms and 404 — same centered order (links → copyright → one portfolio line), same hairline and spacing. Removed the old `.legal-footer`, `.foot-cta` and `.foot-cta-kicker` variants.
+  - **Demo dashboard:** dropped the redundant "Filtered" stat (2×2 stats on mobile, 4 across on desktop), shortened the demo banner, merged UTM sources and campaigns into one traffic cell, and switched the traffic grid to balanced CSS columns so no empty cell is left at the end.
+  - **Table:** widened the Created column so "3d ago · expires 10/30/2026" no longer truncates.
+  - **API page:** fixed primary buttons rendering blue-on-blue (invisible label) because `.legal a` overrode `.btn-primary`; unified demo CTA wording.
+  - **Sign-in:** Google's button is no longer marked rendered when it is inside a hidden section, so the home auth card retries and does not leave an empty gap.
+  - **Cache:** service-worker cache bumped to `linkly-v7` so returning visitors get the new CSS/JS.
+- **Verification**: visual only — desktop/mobile screenshots of the home, demo dashboard, API, privacy and 404 pages; no test/build run (owner rule).
 
 ### 2.0.10 - public API, live demo, deeper analytics + repositioning
 

@@ -51,19 +51,17 @@
     <main id="main" tabindex="-1">
         <section class="hero">
             <h1>Short links. <span class="grad">Real analytics.</span></h1>
-            <p class="subtitle">Create branded links, track clicks and unique visitors, and ship integrations through a documented REST API — built on Express, MongoDB and Firebase.</p>
+            <p class="subtitle">Branded links, click analytics and a documented REST API.</p>
             <div class="hero-actions">
-                <a class="btn btn-primary" href="/dashboard.html?demo=1">Explore the live demo</a>
+                <a class="btn btn-primary" href="/dashboard.html?demo=1">Live demo</a>
                 <a class="btn" href="/api.html">API docs</a>
             </div>
-            <p class="hero-points">REST API · QR codes · 30-day trends · CSV export</p>
         </section>
 
         <section class="panel auth-prompt" id="authPrompt" hidden>
             <h2 class="prompt-title">Sign in to start shortening</h2>
-            <p class="prompt-text">Create branded short links and track every click from your personal dashboard.</p>
+            <p class="prompt-text">Create branded links and track every click from your dashboard.</p>
             <div id="gsi-prompt-container" class="gsi-prompt"></div>
-            <p class="prompt-demo">Just exploring? <a href="/dashboard.html?demo=1">Open the live demo</a> — no account needed.</p>
         </section>
 
         <section class="panel" id="shortenPanel" hidden>
@@ -117,9 +115,7 @@
         </section>
     </main>
 
-    <footer>
-        © <span id="year">2026</span> ABu. All rights reserved.<br>
-        Linkly — link management &amp; analytics.
+    <footer class="site-footer">
         <div class="foot-links">
             <a href="/privacy.html">Privacy</a>
             <span aria-hidden="true">·</span>
@@ -127,10 +123,8 @@
             <span aria-hidden="true">·</span>
             <a href="/api.html">API</a>
         </div>
-        <a class="foot-cta" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">
-            <span class="foot-cta-kicker">Like this build? There's more of my work</span>
-            <span class="foot-cta-link">Open my portfolio ↗</span>
-        </a>
+        <p class="foot-copy">© <span id="year">2026</span> ABu · Linkly</p>
+        <a class="foot-portfolio" href="https://abufolio.vercel.app" target="_blank" rel="noopener noreferrer">More of my work ↗</a>
     </footer>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
