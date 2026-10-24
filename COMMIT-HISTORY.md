@@ -7,11 +7,20 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.7`** (current head is `2.1.6` — see below)
+> - **`main` → `2.1.8`** (current head is `2.1.7` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.7 - mention short links in the footer tagline
+
+- **Date**: 2026-10-25
+- **Why**: owner — the footer tagline should say what the product does, including short links.
+- **Changes**:
+  - Footer tagline is now `Linkly — short links, link management & analytics.` on every page (home, dashboard, API, privacy, terms, 404).
+  - Service-worker cache bumped to `linkly-v14`.
+- **Verification**: visual only — no test/build run (owner rule).
 
 ### 2.1.6 - tighten the footer link row spacing
 
