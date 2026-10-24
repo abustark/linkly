@@ -5,6 +5,8 @@
     { "source": "/m/:path*", "destination": "/:path*", "permanent": true }
   ],
   "rewrites": [
+    { "source": "/demo", "destination": "/dashboard.html?demo=1" },
+    { "source": "/docs", "destination": "/api.html" },
     {
       "source": "/:shortCode([a-zA-Z0-9_-]{3,12})",
       "destination": "/api/redirect?shortCode=:shortCode"

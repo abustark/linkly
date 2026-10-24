@@ -34,15 +34,15 @@
         <div class="legal-head">
             <span class="legal-kicker">Legal</span>
             <h1>Privacy Policy</h1>
-            <p class="legal-meta">Last updated: October 22, 2026</p>
+            <p class="legal-meta">Last updated: October 24, 2026</p>
         </div>
 
-        <p>Linkly is a URL shortener. This page explains what data the service handles, why, how long it is kept, and how to remove it. It describes the current version of the service and applies to the hosted Linkly site.</p>
+        <p>Linkly is a link management and analytics service. This page explains what data the service handles, why, how long it is kept, and how to remove it. It describes the current version of the service and applies to the hosted Linkly site.</p>
 
         <h2>1. Information we collect</h2>
         <p><strong>Account information.</strong> When you sign in with Google, Firebase Authentication provides your Google account identifier, display name, email address and profile photo URL. We use your Firebase user ID to associate links with your account.</p>
         <p><strong>Links you create.</strong> We store the destination URL, short code, creation time, optional expiration time, click totals and per-day click buckets.</p>
-        <p><strong>Click analytics.</strong> When someone follows a Linkly short link, we record the short code, referring host, a coarse device type (Desktop, Mobile or Tablet) and a two-letter country code when the hosting platform supplies one. Click records do not store the visitor's IP address or full user-agent string.</p>
+        <p><strong>Click analytics.</strong> When someone follows a Linkly short link, we record the short code, referring host, a coarse device type (Desktop, Mobile or Tablet), a two-letter country code when the hosting platform supplies one, a coarse browser and operating-system family, and any <code>utm_*</code> campaign tags present on the link. To estimate unique visitors we store a salted hash derived from the request IP address and user-agent; the hash rotates every day, cannot be reversed, and is not linked to any account or identity. Click records do not store the visitor's IP address or full user-agent string.</p>
         <p><strong>Rate-limit data.</strong> Short-lived records may contain the requesting IP address so the service can limit abuse. These records expire automatically and are not used for analytics.</p>
         <p><strong>Local browser storage.</strong> Your theme preference and a list of recent links you created are stored in your browser's local storage. They stay on your device and can be cleared from the Linkly interface or your browser settings.</p>
 
@@ -73,7 +73,7 @@
         <p>You can clear the recent-links list stored on your device with the <strong>Clear</strong> button on the home page.</p>
 
         <h2>6. Security</h2>
-        <p>We use HTTPS, short-lived authentication tokens, owner checks on link management endpoints, rate limiting and access controls on the database. No online service can guarantee absolute security, so please use a strong, unique Google account and report suspected abuse.</p>
+        <p>We use HTTPS, short-lived authentication tokens, owner checks on link management endpoints, rate limiting and access controls on the database. API keys are stored as SHA-256 hashes and shown only once at creation. No online service can guarantee absolute security, so please use a strong, unique Google account and report suspected abuse.</p>
 
         <h2>7. Children</h2>
         <p>Linkly is not directed to children under 13, and we do not knowingly collect personal information from them. If you believe a child has created an account, contact us so we can remove it.</p>
@@ -95,8 +95,10 @@
             <a href="/privacy.html" aria-current="page">Privacy</a>
             <span aria-hidden="true">·</span>
             <a href="/terms.html">Terms</a>
+            <span aria-hidden="true">·</span>
+            <a href="/api.html">API</a>
         </div>
-        <div>© <span id="year">2026</span> ABu. Linkly — short, clean links.</div>
+        <div>© <span id="year">2026</span> ABu. Linkly — link management &amp; analytics.</div>
     </footer>
 
     <script src="/shared.js"></script>

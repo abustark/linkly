@@ -34,6 +34,12 @@ main {
 }
 .hero h1 .grad { color: var(--brand); }
 .hero .subtitle { margin: var(--s3) auto 0; color: var(--muted); font-size: var(--fs-md); max-width: 640px; line-height: var(--lh-body); font-weight: 500; }
+.hero-actions { display: flex; justify-content: center; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s5); }
+.hero-actions .btn { min-height: var(--tap); padding: 12px 18px; font-size: var(--fs-sm); }
+.hero-points { margin: var(--s3) 0 0; color: var(--muted); font-size: var(--fs-xs); letter-spacing: 0.02em; }
+.prompt-demo { margin: var(--s4) 0 0; color: var(--muted); font-size: var(--fs-sm); }
+.prompt-demo a { color: var(--brand); font-weight: 600; text-decoration: none; }
+.prompt-demo a:hover { text-decoration: underline; }
 
 @media (min-width: 761px) {
     .hero h1 { font-size: var(--fs-3xl); }

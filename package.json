@@ -1,7 +1,7 @@
 {
   "name": "linkly-server",
   "version": "1.0.0",
-  "description": "Backend for Linkly URL Shortener",
+  "description": "Link management and analytics platform with a public REST API",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
@@ -20,8 +20,12 @@
   },
   "keywords": [
     "url-shortener",
+    "link-management",
+    "analytics",
+    "rest-api",
     "express",
-    "mongodb"
+    "mongodb",
+    "vercel"
   ],
   "author": "ABu",
   "license": "MIT"
