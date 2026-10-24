@@ -1,22 +1,15 @@
 const connectToDatabase = require('./_utils/database');
-const { generateShortCode, MAX_CODE_LENGTH } = require('./_utils/generateCode');
 const Url = require('./_models/Url');
 const admin = require('./_utils/firebase');
 const { checkRateLimit } = require('./_utils/rateLimit');
-
-const MAX_GENERATION_ATTEMPTS = 8;
-const parsedDailyQuota = parseInt(process.env.DAILY_LINK_QUOTA, 10);
-const DAILY_LINK_QUOTA = Number.isFinite(parsedDailyQuota) ? parsedDailyQuota : 50;
-
-// Optional lifetime for a short link. Empty/absent means "never expires".
-const EXPIRY_MS = {
-    '1d': 86400000,
-    '7d': 7 * 86400000,
-    '30d': 30 * 86400000
-};
-
-// Persistent rate limiting lives in ./_utils/rateLimit (Mongo-backed so the
-// limit holds across serverless instances, with an in-memory fallback).
+const {
+    buildShortUrl,
+    parseDestination,
+    validateAlias,
+    resolveExpiry,
+    generateUniqueShortCode,
+    dailyLinkQuota
+} = require('./_utils/linkUtils');
 
 function clientIp(req) {
     // x-real-ip is set by the platform (Vercel) and cannot be spoofed by the client.
@@ -25,21 +18,6 @@ function clientIp(req) {
     const forwarded = req.headers['x-forwarded-for'];
     if (forwarded) return String(forwarded).split(',')[0].trim();
     return (req.socket && req.socket.remoteAddress) || 'unknown';
-}
-
-// Only trust the Host header when it matches an allowlist (set via
-// ALLOWED_HOSTS=host1,host2). Empty list keeps the previous behavior.
-const ALLOWED_HOSTS = (process.env.ALLOWED_HOSTS || '')
-    .split(',')
-    .map((host) => host.trim().toLowerCase())
-    .filter(Boolean);
-
-function safeHost(req) {
-    const requestHost = (req.headers['x-forwarded-host'] || req.headers.host || '').toLowerCase();
-    if (ALLOWED_HOSTS.length && requestHost && !ALLOWED_HOSTS.includes(requestHost)) {
-        return ALLOWED_HOSTS[0];
-    }
-    return requestHost;
 }
 
 module.exports = async (req, res) => {
@@ -77,21 +55,19 @@ module.exports = async (req, res) => {
 
         await connectToDatabase();
 
-        const trimmedUrl = originalUrl.trim();
-        const parsedUrl = new URL(trimmedUrl);
-
-        if (parsedUrl.protocol !== 'http:' && parsedUrl.protocol !== 'https:') {
-            return res.status(400).json({ error: 'Only http and https URLs are allowed.' });
+        const destination = parseDestination(originalUrl);
+        if (destination.error) {
+            return res.status(400).json({ error: destination.error });
         }
 
-        const ALIAS_PATTERN = /^[a-zA-Z0-9_-]{3,12}$/;
-        let shortCode = customAlias;
+        const alias = validateAlias(customAlias);
+        if (alias.error) {
+            return res.status(400).json({ error: alias.error });
+        }
+
+        let shortCode = alias.alias;
         if (shortCode) {
-            shortCode = shortCode.trim();
-            if (!ALIAS_PATTERN.test(shortCode)) {
-                return res.status(400).json({ error: 'Custom alias must be 3-12 characters using letters, numbers, hyphens, or underscores.' });
-            }
-            const existing = await Url.findOne({ shortCode: shortCode });
+            const existing = await Url.findOne({ shortCode });
             if (existing) {
                 return res.status(409).json({ error: 'This custom alias is already in use.' });
             }
@@ -99,16 +75,13 @@ module.exports = async (req, res) => {
             shortCode = await generateUniqueShortCode(Url);
         }
 
-        let expiresAt = null;
-        if (expiresIn) {
-            if (!Object.prototype.hasOwnProperty.call(EXPIRY_MS, expiresIn)) {
-                return res.status(400).json({ error: 'expiresIn must be one of: 1d, 7d, 30d.' });
-            }
-            expiresAt = new Date(Date.now() + EXPIRY_MS[expiresIn]);
+        const expiry = resolveExpiry(expiresIn);
+        if (expiry.error) {
+            return res.status(400).json({ error: expiry.error });
         }
 
         const quota = await checkRateLimit(userId, 'shorten-daily', {
-            max: DAILY_LINK_QUOTA,
+            max: dailyLinkQuota(),
             windowMs: 86400000
         });
         if (quota.limited) {
@@ -118,24 +91,17 @@ module.exports = async (req, res) => {
             return res.status(429).json({ error: 'Daily link limit reached. Please try again tomorrow.' });
         }
 
-        const newUrlData = {
-            originalUrl: trimmedUrl,
+        const newUrl = new Url({
+            originalUrl: destination.url,
             shortCode: shortCode,
             userId: userId,
-            expiresAt: expiresAt
-        };
-
-        const newUrl = new Url(newUrlData);
+            expiresAt: expiry.expiresAt
+        });
         await newUrl.save();
-
-        const protocol = req.headers['x-forwarded-proto'] || 'http';
-        const host = safeHost(req);
-
-        const shortUrl = `${protocol}://${host}/${newUrl.shortCode}`;
 
         res.status(201).json({
             originalUrl: newUrl.originalUrl,
-            shortUrl: shortUrl,
+            shortUrl: buildShortUrl(req, newUrl.shortCode),
             expiresAt: newUrl.expiresAt,
             ownedByUser: !!newUrl.userId
         });
@@ -148,18 +114,3 @@ module.exports = async (req, res) => {
         res.status(500).json({ error: 'Something went wrong. Please try again.' });
     }
 };
-
-async function generateUniqueShortCode(Url) {
-    for (let attempt = 0; attempt < MAX_GENERATION_ATTEMPTS; attempt += 1) {
-        const candidate = generateShortCode();
-        const existing = await Url.findOne({ shortCode: candidate });
-        if (!existing) return candidate;
-        const suffix = (Math.floor(Math.random() * 90) + 10);
-        const retry = `${candidate}${suffix}`;
-        if (retry.length <= MAX_CODE_LENGTH) {
-            const retryExisting = await Url.findOne({ shortCode: retry });
-            if (!retryExisting) return retry;
-        }
-    }
-    throw new Error('Could not generate a unique short code. Please try again.');
-}

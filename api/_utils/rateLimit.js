@@ -23,15 +23,24 @@ function inMemoryLimit(key, now, max, windowMs) {
         }
     }
     const bucket = memoryBuckets.get(key);
-    if (!bucket || now - bucket.start >= windowMs) {
-        memoryBuckets.set(key, { start: now, count: 1 });
-        return { limited: false };
+    const active = bucket && now - bucket.start < windowMs;
+    const start = active ? bucket.start : now;
+    const resetAt = Math.ceil((start + windowMs) / 1000);
+    if (!active) {
+        memoryBuckets.set(key, { start, count: 1 });
+        return { limited: false, limit: max, remaining: Math.max(0, max - 1), resetAt };
     }
     bucket.count += 1;
     if (bucket.count > max) {
-        return { limited: true, retryAfterSec: Math.max(1, Math.ceil((bucket.start + windowMs - now) / 1000)) };
+        return {
+            limited: true,
+            retryAfterSec: Math.max(1, Math.ceil((start + windowMs - now) / 1000)),
+            limit: max,
+            remaining: 0,
+            resetAt
+        };
     }
-    return { limited: false };
+    return { limited: false, limit: max, remaining: Math.max(0, max - bucket.count), resetAt };
 }
 
 // `options` lets callers apply a different budget/window (e.g. the daily
@@ -68,13 +77,17 @@ async function checkRateLimit(identifier, keyPrefix, options = {}) {
         }
 
         const count = (updated && updated.count) || 1;
+        const resetAt = Math.ceil((windowStart + windowMs) / 1000);
         if (count > max) {
             return {
                 limited: true,
-                retryAfterSec: Math.max(1, Math.ceil((windowStart + windowMs - now) / 1000))
+                retryAfterSec: Math.max(1, Math.ceil((windowStart + windowMs - now) / 1000)),
+                limit: max,
+                remaining: 0,
+                resetAt
             };
         }
-        return { limited: false };
+        return { limited: false, limit: max, remaining: Math.max(0, max - count), resetAt };
     } catch (error) {
         console.warn('Rate limiter using in-memory fallback:', error.message);
         return inMemoryLimit(key, now, max, windowMs);

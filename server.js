@@ -46,6 +46,9 @@ const healthRoute = require('./api/health');
 const accountRoute = require('./api/account');
 const adminRoute = require('./api/admin');
 const cleanupRoute = require('./api/cleanup');
+const keysRoute = require('./api/keys');
+const v1LinksRoute = require('./api/v1/links');
+const v1LinkRoute = require('./api/v1/links/[code]');
 
 app.all('/api/health', (req, res) => healthRoute(req, res));
 app.post('/api/shorten', (req, res) => shortenRoute(req, res));
@@ -56,6 +59,11 @@ app.delete('/api/links', (req, res) => linksRoute(req, res));
 app.all('/api/account', (req, res) => accountRoute(req, res));
 app.all('/api/admin', (req, res) => adminRoute(req, res));
 app.all('/api/cleanup', (req, res) => cleanupRoute(req, res));
+app.all('/api/keys', (req, res) => keysRoute(req, res));
+app.all('/api/v1/links', (req, res) => v1LinksRoute(req, res));
+app.all('/api/v1/links/:code', (req, res) => v1LinkRoute(req, res));
+app.get('/demo', (req, res) => res.redirect(302, '/dashboard.html?demo=1'));
+app.get('/docs', (req, res) => res.redirect(302, '/api.html'));
 app.get('/:shortCode', (req, res, next) => {
     if (req.path.startsWith('/api') || req.path.includes('.')) return next();
     req.query.shortCode = req.params.shortCode;
