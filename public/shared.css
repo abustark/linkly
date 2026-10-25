@@ -157,6 +157,9 @@
 .topbar-actions { display: flex; align-items: center; gap: var(--s5); margin-left: auto; }
 .gsi-wrap { display: inline-flex; align-items: center; }
 .gsi-wrap > div { margin: 0 !important; }
+/* Google's fixed-width button sits outside .topbar-actions; give it the same
+   24px gap the other header controls use so it never crowds the theme toggle. */
+.topbar-actions + .gsi-wrap { margin-left: calc(var(--s5) - var(--s3)); }
 
 :focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; border-radius: var(--r-sm); }
 .input:focus-visible, .search:focus-visible { outline: none; }

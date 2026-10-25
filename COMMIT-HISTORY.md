@@ -7,11 +7,20 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.10`** (current head is `2.1.9` — see below)
+> - **`main` → `2.2.0`** (current head is `2.1.10` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.10 - add breathing room before the Google sign-in button
+
+- **Date**: 2026-10-26
+- **Why**: owner — the Google sign-in widget sat almost flush against the theme toggle in the desktop header.
+- **Changes**:
+  - The Google button container now gets the same 24px gap the other header controls use (it lives outside `.topbar-actions`, so it never inherited that gap).
+  - Service-worker cache bumped to `linkly-v17`.
+- **Verification**: visual only — desktop header at 1366px, gap measured 12px → 24px. No test/build run (owner rule).
 
 ### 2.1.9 - align the recent-link time and rebuild the account menu icons
 
