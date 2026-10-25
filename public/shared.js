@@ -134,7 +134,13 @@
             // unmarked so the next call (after the section is shown) retries.
             if (!t.offsetParent && t.id !== "gsi-button-container") return;
             try {
-                google.accounts.id.renderButton(t, { theme: "outline", size: "large" });
+                // 180px keeps Google's plain standard button. Google swaps in its
+                // "personalized" variant (profile card) for anyone with an approved
+                // Google session, and that variant is drawn inside an
+                // accounts.google.com iframe with white padding around the button -
+                // the "box inside a box" that shows up on dark pages. Google only
+                // offers one way to opt out: a button narrower than 200px.
+                google.accounts.id.renderButton(t, { theme: "outline", size: "large", width: 180 });
                 if (t.childElementCount > 0) t.setAttribute("data-gsi-rendered", "1");
             } catch (e) { /* render failed; a later call can retry */ }
         });

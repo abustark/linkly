@@ -7,11 +7,21 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.2.0`** (current head is `2.1.10` — see below)
+> - **`main` → `2.2.1`** (current head is `2.2.0` — see below)
 
 ---
 
 ## Commit History
+
+### 2.2.0 - drop Google's white "box inside a box" on the sign-in button
+
+- **Date**: 2026-10-26
+- **Why**: owner — the Sign in with Google widget showed a white rectangle wrapped around the button (a bordered box sticking out of a larger white box), most obvious in dark mode.
+- **Cause**: Google swaps its normal button for the "personalized" variant (the little profile card) once a Google session has approved the site. That variant is rendered inside an `accounts.google.com` iframe that paints its own white padding around the button, so a white page shows a white band and a dark page shows a white box inside a white box. Google exposes no API to turn personalization off.
+- **Changes**:
+  - `renderGSI()` now renders the button at an explicit `width: 180`. Google only uses the personalized variant when the button is 200px or wider, so the plain standard button is always rendered — one pill, one border, no white card. Visually the button is ~3px wider than the auto-sized one it replaces.
+  - Service-worker cache bumped to `linkly-v18`.
+- **Verification**: visual only — desktop header and mobile account sheet in dark mode; button measured 180×40, single 1px `#dadce0` border, header gap still 24px. No test/build run (owner rule).
 
 ### 2.1.10 - add breathing room before the Google sign-in button
 
