@@ -1,7 +1,7 @@
 {
-  "name": "Linkly — Link management & analytics",
+  "name": "Linkly — Short links & analytics",
   "short_name": "Linkly",
-  "description": "Create branded short links, track clicks and unique visitors, and manage everything from one dashboard.",
+  "description": "Shorten long links, track clicks and unique visitors, and manage everything from one dashboard.",
   "id": "/",
   "start_url": "/",
   "scope": "/",

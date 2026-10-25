@@ -7,11 +7,23 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.8`** (current head is `2.1.7` — see below)
+> - **`main` → `2.1.9`** (current head is `2.1.8` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.8 - lead with shortening, regenerate the OG card
+
+- **Date**: 2026-10-25
+- **Why**: owner — the site was built as a link shortener; keep analytics/API as supporting features rather than the main pitch (hybrid positioning).
+- **Changes**:
+  - Home hero now leads with the action: `Shorten long links. / Track every click.` with a one-line description of shortening plus analytics, QR and REST API.
+  - Title, description, Open Graph, Twitter and JSON-LD copy updated to `Shorten long links, track clicks` wording.
+  - `public/og-image.png` regenerated at 1200×630 with the new headline and chips (`One-click shorten`, `Click analytics`, `REST API`, `Live demo`).
+  - PWA manifest name/description aligned with the hybrid pitch.
+  - Service-worker cache bumped to `linkly-v15`.
+- **Verification**: OG card rendered in the browser at 1200×630; no test/build run (owner rule).
 
 ### 2.1.7 - mention short links in the footer tagline
 
