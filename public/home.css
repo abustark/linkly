@@ -23,6 +23,8 @@ main {
 }
 
 .hero { text-align: center; margin: var(--s3) 0 var(--s4); }
+/* The headline stays at one size at every width: the longer copy would wrap to
+   four lines inside the 560px content column if it grew on desktop. */
 .hero h1 {
     margin: 0;
     font-family: var(--font-display);
@@ -33,14 +35,10 @@ main {
     color: var(--text);
 }
 .hero h1 .grad { display: block; color: var(--brand); }
-.hero .subtitle { margin: var(--s3) auto 0; color: var(--muted); font-size: var(--fs-md); max-width: 640px; line-height: var(--lh-body); font-weight: 500; }
+.hero .subtitle { margin: var(--s3) auto 0; color: var(--muted); font-size: var(--fs-md); max-width: 640px; line-height: var(--lh-body); font-weight: 500; text-wrap: balance; }
 /* Secondary entry points: below the recent-links card, out of the hero. */
 .home-links { display: flex; justify-content: center; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s5); }
 .home-links .btn { min-height: var(--tap); padding: 12px 18px; font-size: var(--fs-sm); }
-
-@media (min-width: 761px) {
-    .hero h1 { font-size: var(--fs-3xl); }
-}
 
 .panel {
     background: var(--card);
@@ -132,7 +130,9 @@ select.input { cursor: pointer; }
     font-size: var(--fs-sm); font-weight: 700;
 }
 .recent-body { min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.recent-top { display: flex; align-items: baseline; gap: 5px; min-width: 0; }
 .recent-short {
+    flex: 0 1 auto; min-width: 0;
     color: var(--text); font-weight: 600; font-size: var(--fs-sm);
     text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
@@ -150,7 +150,7 @@ select.input { cursor: pointer; }
 }
 .recent-copy:hover { border-color: var(--brand); color: var(--brand); }
 .recent-copy:active { transform: translateY(1px); }
-.recent-time { color: var(--muted); font-size: 0.6875rem; line-height: 1; }
+.recent-time { flex: 0 0 auto; color: var(--muted); font-size: 0.6875rem; line-height: 1.4; font-weight: 500; white-space: nowrap; }
 .recent-empty {
     border: 1px dashed var(--line); border-radius: var(--r-md);
     padding: var(--s5) var(--s4); text-align: center; background: var(--bg);

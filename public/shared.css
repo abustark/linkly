@@ -231,9 +231,15 @@ main[tabindex="-1"]:focus-visible { outline: none; }
     color: var(--text); font: inherit; font-weight: 600; font-size: var(--fs-base);
     padding: var(--s3) var(--s3); border-radius: var(--r-md); cursor: pointer;
     min-height: var(--tap); -webkit-tap-highlight-color: transparent; transition: background 0.15s ease;
+    text-decoration: none; line-height: 1.2;
 }
 .sheet-item:hover { background: var(--brand-soft); }
-.sheet-item .ic { width: 20px; text-align: center; opacity: 0.8; }
+.sheet-item .ic {
+    width: 20px; height: 20px; flex: 0 0 20px;
+    display: inline-flex; align-items: center; justify-content: center;
+    opacity: 0.85;
+}
+.sheet-item .ic svg { width: 18px; height: 18px; display: block; }
 .sheet-item.logout { color: var(--danger); }
 .sheet-item.logout:hover { background: var(--danger-soft); }
 .sheet-divider { height: 1px; background: var(--line); margin: var(--s2) 0; }

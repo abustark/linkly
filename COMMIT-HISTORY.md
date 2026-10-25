@@ -7,11 +7,22 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.1.9`** (current head is `2.1.8` — see below)
+> - **`main` → `2.1.10`** (current head is `2.1.9` — see below)
 
 ---
 
 ## Commit History
+
+### 2.1.9 - align the recent-link time and rebuild the account menu icons
+
+- **Date**: 2026-10-26
+- **Why**: owner — on mobile the `just now` label looked misplaced in the recent-links card, and account-menu icons were inconsistent (logout showed a missing-glyph box, API docs looked unfinished and its text sat tighter than the other rows). Same checks requested for desktop.
+- **Changes**:
+  - Recent links: the relative time now sits on the short-link line (`/Flip · just now`) instead of floating under the Copy button, so it aligns with the text column on both mobile and desktop.
+  - Account menu: replaced the text glyphs with inline SVG icons (home, dashboard, theme, key, external link, logout, trash) so they render the same on every device; removed the underline from the `API docs` link and matched its line-height to the button rows.
+  - Hero headline no longer grows on desktop (it wrapped to four lines at 1366px after the copy change); it now stays one line per sentence. Subtitle uses balanced wrapping to avoid a single-word last line.
+  - Service-worker cache bumped to `linkly-v16`.
+- **Verification**: visual only — mobile 390×844 and desktop 1366×900, account menu and recent card; row spacing measured equal (48px). No test/build run (owner rule).
 
 ### 2.1.8 - lead with shortening, regenerate the OG card
 

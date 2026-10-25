@@ -158,14 +158,14 @@
         <div class="sheet-list">
             <div id="gsi-sheet-container" class="gsi-sheet"></div>
             <button class="sheet-item" id="sheetHome" type="button" data-close-sheet>
-                <span class="ic">⌂</span> Home
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5.5 9.8V20a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V9.8"/></svg></span> Home
             </button>
             <button class="sheet-item" id="sheetDashboard" type="button">
-                <span class="ic">▦</span> Dashboard
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg></span> Dashboard
             </button>
             <div class="sheet-divider"></div>
             <label class="sheet-item sheet-theme" for="sheetThemeToggle">
-                <span class="ic">◐</span> <span id="themeLabel">Dark mode</span>
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A8.5 8.5 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg></span> <span id="themeLabel">Dark mode</span>
                 <span class="theme-switch">
                     <input id="sheetThemeToggle" type="checkbox" aria-label="Toggle dark mode">
                     <span class="slider"></span>
@@ -173,7 +173,7 @@
             </label>
             <div class="sheet-divider"></div>
             <button class="sheet-item logout" id="sheetLogout" type="button" data-close-sheet>
-                <span class="ic">⏻</span> Logout
+                <span class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4"/><path d="m16 16 5-4-5-4"/><path d="M21 12H9"/></svg></span> Logout
             </button>
         </div>
     </div>
@@ -307,12 +307,14 @@
                 row.innerHTML = `
                     <span class="recent-favicon" aria-hidden="true">${initial}</span>
                     <div class="recent-body">
-                        <a class="recent-short" href="${sUrl}" target="_blank" rel="noopener noreferrer" title="${sUrl}">${shortLabel}</a>
+                        <span class="recent-top">
+                            <a class="recent-short" href="${sUrl}" target="_blank" rel="noopener noreferrer" title="${sUrl}">${shortLabel}</a>
+                            ${when ? `<span class="recent-time">· ${L.escapeHtml(when)}</span>` : ""}
+                        </span>
                         <span class="recent-original" title="${oUrl}">${origLabel}</span>
                     </div>
                     <div class="recent-side">
                         <button class="recent-copy" data-url="${sUrl}" type="button" aria-label="Copy short link ${shortLabel}">Copy</button>
-                        ${when ? `<span class="recent-time">${L.escapeHtml(when)}</span>` : ""}
                     </div>`;
                 recentList.appendChild(row);
             });
