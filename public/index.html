@@ -136,7 +136,7 @@
 
     <div id="signinModal" class="modal modal-auth" role="dialog" aria-modal="true" aria-labelledby="signinTitle">
         <div class="modal-box">
-            <div class="modal-title" id="signinTitle">Sign in to continue</div>
+            <div class="modal-title" id="signinTitle" tabindex="-1">Sign in to continue</div>
             <p class="modal-text">Sign in with Google to open your dashboard.</p>
             <div id="gsi-signin-container" class="gsi-signin"></div>
             <div class="modal-actions" style="margin-top: var(--s4);">
@@ -221,7 +221,9 @@
                     if (L.initGSI(GSI_CLIENT_ID, handleCredentialResponse) || gsiTries >= 30) clearInterval(gsiRetry);
                 }, 400);
             }
-            signinCancel.focus({ preventScroll: true });
+            // Focus the heading, not the cancel button: focusing the button
+            // painted a focus ring around it the moment the dialog opened.
+            signinModal.querySelector(".modal-title").focus({ preventScroll: true });
         }
         function goDashboard() {
             if (auth.currentUser) { window.location.href = "/dashboard.html"; return; }

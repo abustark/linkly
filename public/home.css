@@ -51,6 +51,11 @@ main {
 .auth-prompt .prompt-title { margin: 0 0 var(--s2); font-family: var(--font-display); font-size: var(--fs-lg); font-weight: 800; letter-spacing: -0.02em; }
 .auth-prompt .prompt-text { margin: 0 auto var(--s4); color: var(--muted); max-width: 400px; line-height: var(--lh-body); }
 .gsi-prompt { display: flex; justify-content: center; min-height: 44px; }
+/* The sign-in card keeps Google's classic white button — the widget used to
+   paint a white rectangle there, so white is what the card was designed
+   around. It stays white in both themes. */
+.gsi-prompt .btn-google { background: #fff; border-color: #dadce0; color: #3c4043; }
+.gsi-prompt .btn-google:hover { background: #f8f9fa; border-color: #c6c9ce; }
 select.input { cursor: pointer; }
 .field { margin-bottom: var(--s4); }
 .field.optional .field-label { color: var(--muted); font-weight: 500; }

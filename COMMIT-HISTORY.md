@@ -7,11 +7,21 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.2.3`** (current head is `2.2.2` — see below)
+> - **`main` → `2.2.4`** (current head is `2.2.3` — see below)
 
 ---
 
 ## Commit History
+
+### 2.2.3 - white Google button on the sign-in card, no focus ring on the dialog
+
+- **Date**: 2026-10-26
+- **Why**: owner — two follow-ups after 2.2.2: (1) the dashboard sign-in dialog opened with a focus ring painted around "Go home"; (2) the "Sign in to start shortening" card should keep Google's white button, as it had before.
+- **Changes**:
+  - `openSigninModal()` on both pages now focuses the dialog heading instead of the cancel button. The heading has `tabindex="-1"` (so it is programmatically focusable but not tabbable) and `.modal-title:focus { outline: none }` in `shared.css`, so no ring appears. The dialog still traps focus and Tab still lands on the Google button first.
+  - `home.css`: `.gsi-prompt .btn-google` is white (`#fff`, `#dadce0` border, `#3c4043` text, `#f8f9fa` on hover) in both themes — Google's classic button, which is what the card was laid out for. The header, account sheet and dashboard dialog keep Linkly's own `.btn` styling.
+  - Service-worker cache bumped to `linkly-v21`.
+- **Verification**: visual only, service worker and caches cleared — card button measured 207×44 with `rgb(255,255,255)` background in dark and light; dashboard dialog opens with `document.activeElement` on `.modal-title` and no outline on "Go home". No test/build run (owner rule).
 
 ### 2.2.2 - draw our own Google sign-in button instead of Google's widget
 

@@ -266,6 +266,9 @@ main[tabindex="-1"]:focus-visible { outline: none; }
 .modal.open { display: flex; }
 .modal-box { background: var(--card); border: 1px solid var(--line); border-radius: var(--r-lg); padding: var(--s5); width: min(380px, 100%); }
 .modal-title { font-weight: 700; font-size: var(--fs-md); margin: 0; }
+/* The dialog opens with focus on its heading (not the cancel button), so the
+   heading must not paint a focus ring of its own. */
+.modal-title:focus { outline: none; }
 .modal-text { margin: var(--s3) 0 var(--s5); color: var(--muted); font-size: var(--fs-base); line-height: var(--lh-body); }
 .modal-actions { display: flex; gap: var(--s2); justify-content: flex-end; }
 .modal-actions .btn { flex: 1; }
