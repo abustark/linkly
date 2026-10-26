@@ -321,8 +321,14 @@
         }
 
         async function handleCredentialResponse(response) {
+            // One Tap hands us an ID token; the button's OAuth popup hands us an
+            // access token. Firebase accepts either, so both paths end up here.
+            if (!response || (!response.credential && !response.access_token)) return;
             try {
-                const credential = window.LinklyFirebase.GoogleAuthProvider.credential(response.credential);
+                const provider = window.LinklyFirebase.GoogleAuthProvider;
+                const credential = response.access_token
+                    ? provider.credential(null, response.access_token)
+                    : provider.credential(response.credential);
                 await auth.signInWithCredential(credential);
                 L.showToast("Signed in");
                 const nav = pendingDashboardNav;

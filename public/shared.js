@@ -96,64 +96,87 @@
         }
     }
 
-    // Google Sign-In initialization is idempotent: pages (and the auth state
-    // callback) can call initGSI any number of times, in any order, without
-    // racing or re-initializing. Buttons render only after initialization.
-    let gsiInitialized = false;
+    // Sign in with Google.
+    //
+    // Google's own button widget draws itself inside an accounts.google.com
+    // iframe for some accounts, and that iframe paints a white card around the
+    // button - a "box inside a box" on dark pages that cannot be styled away.
+    // So we draw the button ourselves (same label, same G mark) and use
+    // Google's OAuth popup instead: it returns an access token that Firebase
+    // accepts exactly like the ID token the widget used to hand us. Nothing
+    // Google draws lands inside the page any more.
+    const GOOGLE_G_SVG = '<svg viewBox="0 0 48 48" aria-hidden="true" focusable="false">' +
+        '<path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>' +
+        '<path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>' +
+        '<path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.219,0-9.559-3.397-11.28-7.962l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>' +
+        '<path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.574l6.19,5.238C39.99,35.59,44,29.89,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>' +
+        '</svg>';
 
+    let tokenClient = null;
+    let oneTapReady = false;
+    let googleClientId = null;
+    let googleCallback = null;
+
+    function googleButton() {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "btn btn-google";
+        btn.innerHTML = GOOGLE_G_SVG + "<span>Sign in with Google</span>";
+        btn.addEventListener("click", startGoogleSignIn);
+        return btn;
+    }
+
+    function startGoogleSignIn() {
+        // The client is rebuilt on demand: after a sign-out Google's script can
+        // lose its init state, and a stale client would silently do nothing.
+        if (!tokenClient && googleClientId) initGSI(googleClientId, googleCallback);
+        if (!tokenClient) {
+            showToast("Google sign-in is still loading - try again in a second.");
+            return;
+        }
+        try {
+            // Must stay synchronous inside the click, or the browser blocks the
+            // popup window Google opens.
+            tokenClient.requestAccessToken();
+        } catch (e) {
+            showToast("Google sign-in failed");
+        }
+    }
+
+    // Idempotent: pages and the auth-state callback can call this any number of
+    // times, in any order, without racing or re-initializing.
     function initGSI(clientId, callback) {
-        if (!window.google || !google.accounts || !google.accounts.id) return false;
-        if (!gsiInitialized) {
+        if (clientId) googleClientId = clientId;
+        if (callback) googleCallback = callback;
+        if (!window.google || !google.accounts) return false;
+        if (!tokenClient && google.accounts.oauth2) {
             try {
-                google.accounts.id.initialize({ client_id: clientId, callback: callback });
-                gsiInitialized = true;
-            } catch (e) {
-                return false;
-            }
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: googleClientId,
+                    scope: "openid email profile",
+                    callback: function (resp) {
+                        if (!googleCallback) return;
+                        if (resp && (resp.access_token || resp.credential)) googleCallback(resp);
+                        else googleCallback({ error: (resp && resp.error) || "google_signin_failed" });
+                    }
+                });
+            } catch (e) { tokenClient = null; }
+        }
+        // One Tap still works for returning users; it only reads the profile.
+        if (!oneTapReady && google.accounts.id) {
+            try {
+                google.accounts.id.initialize({
+                    client_id: googleClientId,
+                    callback: function (resp) { if (googleCallback) googleCallback(resp); }
+                });
+                oneTapReady = true;
+            } catch (e) { /* ignore: the button does not depend on it */ }
         }
         renderGSI();
-        return gsiInitialized;
-    }
-
-    // The size we ask Google for. Google keeps these numbers when it draws the
-    // standard button, which lets us work out how much margin it added if it
-    // falls back to drawing the button inside its own iframe.
-    const GSI_W = 180;
-    const GSI_H = 40;
-
-    // Google can draw the button inside an accounts.google.com iframe that
-    // paints a white margin around it - invisible on a light page, a bright
-    // "box inside a box" on a dark one. Nothing inside that iframe can be
-    // styled from here, so pin the container to the button box and shift the
-    // iframe until only the button itself is inside the crop.
-    function fitGSI(t) {
-        const f = t.querySelector("iframe");
-        if (!f) return;
-        const fr = f.getBoundingClientRect();
-        if (!fr.width || !fr.height) return; // plain button, nothing to crop
-        const padX = (fr.width - GSI_W) / 2;
-        const padY = (fr.height - GSI_H) / 2;
-        // Crop a thin margin only; a much bigger frame is a different Google UI.
-        if (padX < 0 || padY < 0 || padX > 24 || padY > 8) return;
-        t.style.width = GSI_W + "px";
-        t.style.height = GSI_H + "px";
-        t.style.overflow = "hidden";
-        if (!padX && !padY) return;
-        const tr = t.getBoundingClientRect();
-        const dx = fr.left - tr.left + padX;
-        const dy = fr.top - tr.top + padY;
-        f.style.transform = "translate(" + (-dx) + "px," + (-dy) + "px)";
-    }
-
-    // The iframe is injected asynchronously, so re-check while it settles.
-    function scheduleGSIFit(t) {
-        [0, 150, 500, 1200].forEach(function (delay) {
-            setTimeout(function () { fitGSI(t); }, delay);
-        });
+        return !!tokenClient;
     }
 
     function renderGSI() {
-        if (!gsiInitialized || !window.google || !google.accounts || !google.accounts.id) return;
         const mobile = window.matchMedia("(max-width: 760px)").matches;
         const targets = [];
         const header = document.getElementById("gsi-button-container");
@@ -170,15 +193,9 @@
             // A container inside a hidden section renders nothing; leave it
             // unmarked so the next call (after the section is shown) retries.
             if (!t.offsetParent && t.id !== "gsi-button-container") return;
-            try {
-                // An explicit width keeps Google's plain standard button (the
-                // "personalized" profile card is only offered at 200px and up).
-                google.accounts.id.renderButton(t, { theme: "outline", size: "large", width: GSI_W });
-                if (t.childElementCount > 0) {
-                    t.setAttribute("data-gsi-rendered", "1");
-                    scheduleGSIFit(t);
-                }
-            } catch (e) { /* render failed; a later call can retry */ }
+            t.innerHTML = "";
+            t.appendChild(googleButton());
+            t.setAttribute("data-gsi-rendered", "1");
         });
     }
 

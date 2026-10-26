@@ -156,7 +156,10 @@
 }
 .topbar-actions { display: flex; align-items: center; gap: var(--s5); margin-left: auto; }
 .gsi-wrap { display: inline-flex; align-items: center; }
-.gsi-wrap > div { margin: 0 !important; }
+/* Our own Google button: the widget is not used any more, so nothing Google
+   draws (and no white card around it) can appear inside the page. */
+.btn-google { gap: 10px; padding-left: 16px; padding-right: 16px; }
+.btn-google svg { width: 18px; height: 18px; flex: 0 0 18px; display: block; }
 /* Google's fixed-width button sits outside .topbar-actions; give it the same
    24px gap the other header controls use so it never crowds the theme toggle. */
 .topbar-actions + .gsi-wrap { margin-left: calc(var(--s5) - var(--s3)); }
@@ -248,7 +251,6 @@ main[tabindex="-1"]:focus-visible { outline: none; }
 .sheet-divider { height: 1px; background: var(--line); margin: var(--s2) 0; }
 
 .gsi-sheet { display: none; justify-content: center; padding: var(--s2) 0 var(--s3); }
-.gsi-sheet > div { margin: 0 auto !important; }
 .sheet-theme { justify-content: space-between; }
 
 .toast {
@@ -272,7 +274,6 @@ main[tabindex="-1"]:focus-visible { outline: none; }
 /* Sign-in popup sits above the dashboard auth gate (z-index 960). */
 .modal-auth { z-index: 970; }
 .gsi-signin { display: flex; justify-content: center; padding: var(--s2) 0; }
-.gsi-signin > div { margin: 0 auto !important; }
 
 .field-label { display: block; font-size: var(--fs-xs); color: var(--muted); font-weight: 600; margin-bottom: var(--s2); }
 .input {

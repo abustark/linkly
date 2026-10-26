@@ -1116,8 +1116,12 @@
             signinCancel.focus();
         }
         async function handleCredentialResponse(response) {
+            if (!response || (!response.credential && !response.access_token)) return;
             try {
-                const credential = window.LinklyFirebase.GoogleAuthProvider.credential(response.credential);
+                const provider = window.LinklyFirebase.GoogleAuthProvider;
+                const credential = response.access_token
+                    ? provider.credential(null, response.access_token)
+                    : provider.credential(response.credential);
                 await auth.signInWithCredential(credential);
                 L.showToast("Signed in");
             } catch (error) {

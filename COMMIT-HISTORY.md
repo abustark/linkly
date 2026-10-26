@@ -7,11 +7,26 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.2.2`** (current head is `2.2.1` — see below)
+> - **`main` → `2.2.3`** (current head is `2.2.2` — see below)
 
 ---
 
 ## Commit History
+
+### 2.2.2 - draw our own Google sign-in button instead of Google's widget
+
+- **Date**: 2026-10-26
+- **Why**: owner — the white "box inside a box" survived both 2.2.0 (explicit width) and 2.2.1 (iframe crop). The owner pointed at the ABot project, whose "Continue with Google" is a single clean rectangle, and asked to do the same in Linkly using Linkly's own `.btn` style, in the same places, keeping the label "Sign in with Google".
+- **Cause**: the widget is the problem, not its styling. For some accounts Google renders its button inside an `accounts.google.com` iframe that paints its own white card around it; nothing in that iframe can be restyled from this page. ABot avoids it entirely by drawing its own `<button>` and signing in through Google's OAuth popup.
+- **Changes**:
+  - `shared.js`: the widget is gone. `renderGSI()` now injects our own `<button class="btn btn-google">` with the official 4-colour Google "G" inline SVG and the label "Sign in with Google", in exactly the same mount points (desktop header, mobile account sheet, home sign-in card, dashboard sign-in modal).
+  - Sign-in now uses `google.accounts.oauth2.initTokenClient({client_id, scope: "openid email profile", callback})`; the click calls `requestAccessToken()` synchronously (browsers block the popup otherwise) and the callback hands the access token to the page callback. The token client is rebuilt on demand, so a stale client after sign-out cannot leave the button dead.
+  - `handleCredentialResponse` in `index.html` and `dashboard.html` now accepts either shape — `access_token` from the popup (`GoogleAuthProvider.credential(null, access_token)`) or `credential` from One Tap (`credential(id_token)`) — and returns silently when the popup is cancelled. Everything downstream (`signInWithCredential`, `getIdToken`, API auth) is untouched.
+  - One Tap (`google.accounts.id.initialize` + `prompt()`) still runs for returning users; the button does not depend on it.
+  - `fitGSI()`, `scheduleGSIFit()`, `GSI_W`/`GSI_H` and the `width: 180` workaround removed — there is no Google-drawn element left to crop.
+  - CSS: new `.btn-google` (Linkly's `.btn` look plus a 10px gap and an 18px G mark) in `shared.css`; the `.gsi-* > div` margin hacks in `shared.css`/`home.css` removed.
+  - Service-worker cache bumped to `linkly-v20`.
+- **Verification**: visual only, dark mode, service worker and caches cleared — desktop header, mobile account sheet, home sign-in card and dashboard sign-in modal all show the single `btn btn-google` (207×44, no iframe anywhere), header gap still 24px; clicking it synchronously opens `https://accounts.google.com/o/oauth2/v2/auth?gsiwebsdk=gis_a`. No test/build run (owner rule).
 
 ### 2.2.1 - crop the white margin Google paints around the sign-in button
 
