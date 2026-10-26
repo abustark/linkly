@@ -115,6 +115,43 @@
         return gsiInitialized;
     }
 
+    // The size we ask Google for. Google keeps these numbers when it draws the
+    // standard button, which lets us work out how much margin it added if it
+    // falls back to drawing the button inside its own iframe.
+    const GSI_W = 180;
+    const GSI_H = 40;
+
+    // Google can draw the button inside an accounts.google.com iframe that
+    // paints a white margin around it - invisible on a light page, a bright
+    // "box inside a box" on a dark one. Nothing inside that iframe can be
+    // styled from here, so pin the container to the button box and shift the
+    // iframe until only the button itself is inside the crop.
+    function fitGSI(t) {
+        const f = t.querySelector("iframe");
+        if (!f) return;
+        const fr = f.getBoundingClientRect();
+        if (!fr.width || !fr.height) return; // plain button, nothing to crop
+        const padX = (fr.width - GSI_W) / 2;
+        const padY = (fr.height - GSI_H) / 2;
+        // Crop a thin margin only; a much bigger frame is a different Google UI.
+        if (padX < 0 || padY < 0 || padX > 24 || padY > 8) return;
+        t.style.width = GSI_W + "px";
+        t.style.height = GSI_H + "px";
+        t.style.overflow = "hidden";
+        if (!padX && !padY) return;
+        const tr = t.getBoundingClientRect();
+        const dx = fr.left - tr.left + padX;
+        const dy = fr.top - tr.top + padY;
+        f.style.transform = "translate(" + (-dx) + "px," + (-dy) + "px)";
+    }
+
+    // The iframe is injected asynchronously, so re-check while it settles.
+    function scheduleGSIFit(t) {
+        [0, 150, 500, 1200].forEach(function (delay) {
+            setTimeout(function () { fitGSI(t); }, delay);
+        });
+    }
+
     function renderGSI() {
         if (!gsiInitialized || !window.google || !google.accounts || !google.accounts.id) return;
         const mobile = window.matchMedia("(max-width: 760px)").matches;
@@ -134,14 +171,13 @@
             // unmarked so the next call (after the section is shown) retries.
             if (!t.offsetParent && t.id !== "gsi-button-container") return;
             try {
-                // 180px keeps Google's plain standard button. Google swaps in its
-                // "personalized" variant (profile card) for anyone with an approved
-                // Google session, and that variant is drawn inside an
-                // accounts.google.com iframe with white padding around the button -
-                // the "box inside a box" that shows up on dark pages. Google only
-                // offers one way to opt out: a button narrower than 200px.
-                google.accounts.id.renderButton(t, { theme: "outline", size: "large", width: 180 });
-                if (t.childElementCount > 0) t.setAttribute("data-gsi-rendered", "1");
+                // An explicit width keeps Google's plain standard button (the
+                // "personalized" profile card is only offered at 200px and up).
+                google.accounts.id.renderButton(t, { theme: "outline", size: "large", width: GSI_W });
+                if (t.childElementCount > 0) {
+                    t.setAttribute("data-gsi-rendered", "1");
+                    scheduleGSIFit(t);
+                }
             } catch (e) { /* render failed; a later call can retry */ }
         });
     }

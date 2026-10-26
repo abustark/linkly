@@ -7,11 +7,22 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.2.1`** (current head is `2.2.0` — see below)
+> - **`main` → `2.2.2`** (current head is `2.2.1` — see below)
 
 ---
 
 ## Commit History
+
+### 2.2.1 - crop the white margin Google paints around the sign-in button
+
+- **Date**: 2026-10-26
+- **Why**: owner — the white "box inside a box" survived 2.2.0 and only shows in dark mode (in light mode the white margin blends into the page). Confirmed on mobile too.
+- **Cause**: for accounts with an approved Google session, Google draws the button inside an `accounts.google.com` iframe and paints a white margin around it. The margin is inside a cross-origin iframe, so no CSS here can restyle it, and the explicit `width: 180` from 2.2.0 is not enough on its own to keep Google out of that path.
+- **Changes**:
+  - New `fitGSI()` in `shared.js`: after the widget renders, if Google's iframe has a real size, the container is pinned to the button box (180×40, `overflow: hidden`) and the iframe is translated so the white margin falls outside the crop. The crop is only applied for a thin margin (≤24px horizontal, ≤8px vertical); a bigger frame means a different Google UI and is left alone. Re-checked at 0/150/500/1200ms because Google injects the iframe asynchronously.
+  - When Google renders the plain button (iframe 0×0) the function returns before touching anything — verified the header still measures 180×40 with no inline styles.
+  - Service-worker cache bumped to `linkly-v19`.
+- **Verification**: visual only — desktop dark mode (header + sign-in card) unchanged at 180×40 with the standard button; the crop maths checked against simulated iframe offsets (left-aligned, centred, right-shifted) — button lands exactly on the container in each. No test/build run (owner rule).
 
 ### 2.2.0 - drop Google's white "box inside a box" on the sign-in button
 
