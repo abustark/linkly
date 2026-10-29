@@ -33,40 +33,44 @@
     </header>
 
     <main id="main" class="legal api-page" tabindex="-1">
-        <div class="legal-head">
-            <span class="legal-kicker">Developer API</span>
-            <h1>Linkly REST API</h1>
-            <p class="legal-meta">v1 · OpenAPI 3.1 · updated October 24, 2026</p>
-        </div>
+        <div class="api-layout">
+            <aside class="api-nav" aria-label="On this page">
+                <div class="api-nav-title">On this page</div>
+                <a href="#auth">Authentication</a>
+                <a href="#quickstart">Quick start</a>
+                <a href="#endpoints">Endpoints</a>
+                <a href="#examples">Examples</a>
+                <a href="#limits">Rate limits</a>
+                <a href="#errors">Errors</a>
+                <a href="#openapi">OpenAPI</a>
+            </aside>
 
-        <p>Create and manage short links from your own scripts, CI pipelines or apps. The API uses the same links, analytics and daily quota as the dashboard, and every request is authenticated with a key you control.</p>
+            <div class="api-body">
+                <div class="legal-head">
+                    <span class="legal-kicker">Developer API</span>
+                    <h1>Linkly REST API</h1>
+                    <p class="legal-meta">v1 · OpenAPI 3.1 · updated October 24, 2026</p>
+                </div>
 
-        <div class="api-hero-actions">
-            <a class="btn btn-primary" href="/dashboard.html">Create an API key</a>
-            <a class="btn" href="/openapi.json">OpenAPI spec</a>
-            <a class="btn" href="/dashboard.html?demo=1">Live demo</a>
-        </div>
+                <p class="api-lead">Create and manage short links from your own scripts, CI pipelines or apps. The API uses the same links, analytics and daily quota as the dashboard, and every request is authenticated with a key you control.</p>
 
-        <div class="api-toc">
-            <a href="#auth">Authentication</a>
-            <a href="#quickstart">Quick start</a>
-            <a href="#endpoints">Endpoints</a>
-            <a href="#examples">Examples</a>
-            <a href="#limits">Rate limits</a>
-            <a href="#errors">Errors</a>
-        </div>
+                <div class="api-hero-actions">
+                    <a class="btn btn-primary" href="/dashboard.html">Create an API key</a>
+                    <a class="btn" href="/openapi.json">OpenAPI spec</a>
+                    <a class="btn" href="/dashboard.html?demo=1">Live demo</a>
+                </div>
 
-        <h2 id="auth">1. Authentication</h2>
-        <p>Open your <a href="/dashboard.html">dashboard</a>, choose <strong>API keys</strong> from the account menu, and create a key. The raw key (<code>lk_live_…</code>) is shown once — store it in an environment variable or secret manager.</p>
-        <p>Send the key with either header:</p>
-        <pre><code>Authorization: Bearer lk_live_your_key_here
+                <h2 id="auth"><span class="api-num">1</span>Authentication</h2>
+                <p>Open your <a href="/dashboard.html">dashboard</a>, choose <strong>API keys</strong> from the account menu, and create a key. The raw key (<code>lk_live_…</code>) is shown once — store it in an environment variable or secret manager.</p>
+                <p>Send the key with either header:</p>
+                <pre><code>Authorization: Bearer lk_live_your_key_here
 # or
 X-API-Key: lk_live_your_key_here</code></pre>
-        <div class="api-callout"><strong>Keys are hashed at rest.</strong> Linkly stores only a SHA-256 hash, so a lost key cannot be recovered. Revoke a key from the dashboard at any time; requests using it fail immediately.</div>
+                <div class="api-callout"><strong>Keys are hashed at rest.</strong> Linkly stores only a SHA-256 hash, so a lost key cannot be recovered. Revoke a key from the dashboard at any time; requests using it fail immediately.</div>
 
-        <h2 id="quickstart">2. Quick start</h2>
-        <p>Create a short link:</p>
-        <pre><code>curl -X POST https://linkly-link.vercel.app/api/v1/links \
+                <h2 id="quickstart"><span class="api-num">2</span>Quick start</h2>
+                <p>Create a short link:</p>
+                <pre><code>curl -X POST https://linkly-link.vercel.app/api/v1/links \
   -H "Authorization: Bearer $LINKLY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{
@@ -74,8 +78,8 @@ X-API-Key: lk_live_your_key_here</code></pre>
     "alias": "launch",
     "expiresIn": "30d"
   }'</code></pre>
-        <p>Response:</p>
-        <pre><code>{
+                <p>Response:</p>
+                <pre><code>{
   "data": {
     "shortCode": "launch",
     "shortUrl": "https://linkly-link.vercel.app/launch",
@@ -87,71 +91,73 @@ X-API-Key: lk_live_your_key_here</code></pre>
   }
 }</code></pre>
 
-        <h2 id="endpoints">3. Endpoints</h2>
-        <div class="api-table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td><span class="method get">GET</span></td><td><code>/api/v1/links</code></td><td>List your links with pagination, search and date filters.</td></tr>
-                    <tr><td><span class="method post">POST</span></td><td><code>/api/v1/links</code></td><td>Create a link (optional alias and expiry).</td></tr>
-                    <tr><td><span class="method get">GET</span></td><td><code>/api/v1/links/{code}</code></td><td>Fetch one link by short code.</td></tr>
-                    <tr><td><span class="method patch">PATCH</span></td><td><code>/api/v1/links/{code}</code></td><td>Change the destination without changing the short code.</td></tr>
-                    <tr><td><span class="method delete">DELETE</span></td><td><code>/api/v1/links/{code}</code></td><td>Delete the link and its click events.</td></tr>
-                </tbody>
-            </table>
-        </div>
-        <p>Listing accepts <code>page</code> (default 1), <code>pageSize</code> (default 25, max 100), <code>q</code> (URL or code search), and <code>range</code> (<code>7d</code> or <code>30d</code>).</p>
-        <p>Creating accepts <code>url</code>, optional <code>alias</code> (3–12 letters, numbers, hyphens or underscores) and optional <code>expiresIn</code> (<code>1d</code>, <code>7d</code>, <code>30d</code>).</p>
+                <h2 id="endpoints"><span class="api-num">3</span>Endpoints</h2>
+                <div class="api-table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Method</th><th>Path</th><th>Purpose</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td><span class="method get">GET</span></td><td><code>/api/v1/links</code></td><td>List your links with pagination, search and date filters.</td></tr>
+                            <tr><td><span class="method post">POST</span></td><td><code>/api/v1/links</code></td><td>Create a link (optional alias and expiry).</td></tr>
+                            <tr><td><span class="method get">GET</span></td><td><code>/api/v1/links/{code}</code></td><td>Fetch one link by short code.</td></tr>
+                            <tr><td><span class="method patch">PATCH</span></td><td><code>/api/v1/links/{code}</code></td><td>Change the destination without changing the short code.</td></tr>
+                            <tr><td><span class="method delete">DELETE</span></td><td><code>/api/v1/links/{code}</code></td><td>Delete the link and its click events.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <p>Listing accepts <code>page</code> (default 1), <code>pageSize</code> (default 25, max 100), <code>q</code> (URL or code search), and <code>range</code> (<code>7d</code> or <code>30d</code>).</p>
+                <p>Creating accepts <code>url</code>, optional <code>alias</code> (3–12 letters, numbers, hyphens or underscores) and optional <code>expiresIn</code> (<code>1d</code>, <code>7d</code>, <code>30d</code>).</p>
 
-        <h2 id="examples">4. Examples</h2>
-        <h3>List links</h3>
-        <pre><code>curl "https://linkly-link.vercel.app/api/v1/links?range=30d&amp;pageSize=10" \
+                <h2 id="examples"><span class="api-num">4</span>Examples</h2>
+                <h3>List links</h3>
+                <pre><code>curl "https://linkly-link.vercel.app/api/v1/links?range=30d&amp;pageSize=10" \
   -H "Authorization: Bearer $LINKLY_API_KEY"</code></pre>
-        <h3>Update a destination</h3>
-        <pre><code>curl -X PATCH https://linkly-link.vercel.app/api/v1/links/launch \
+                <h3>Update a destination</h3>
+                <pre><code>curl -X PATCH https://linkly-link.vercel.app/api/v1/links/launch \
   -H "Authorization: Bearer $LINKLY_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{ "url": "https://example.com/new-destination" }'</code></pre>
-        <h3>Delete a link</h3>
-        <pre><code>curl -X DELETE https://linkly-link.vercel.app/api/v1/links/launch \
+                <h3>Delete a link</h3>
+                <pre><code>curl -X DELETE https://linkly-link.vercel.app/api/v1/links/launch \
   -H "Authorization: Bearer $LINKLY_API_KEY"</code></pre>
 
-        <h2 id="limits">5. Rate limits and quota</h2>
-        <ul>
-            <li><strong>120 requests per minute</strong> per API key.</li>
-            <li>Link creation also counts against your account's daily quota (50 links per UTC day by default).</li>
-            <li>Responses include <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code> and <code>X-RateLimit-Reset</code> (Unix seconds).</li>
-            <li>A <code>429</code> response includes <code>Retry-After</code>.</li>
-        </ul>
+                <h2 id="limits"><span class="api-num">5</span>Rate limits and quota</h2>
+                <ul>
+                    <li><strong>120 requests per minute</strong> per API key.</li>
+                    <li>Link creation also counts against your account's daily quota (50 links per UTC day by default).</li>
+                    <li>Responses include <code>X-RateLimit-Limit</code>, <code>X-RateLimit-Remaining</code> and <code>X-RateLimit-Reset</code> (Unix seconds).</li>
+                    <li>A <code>429</code> response includes <code>Retry-After</code>.</li>
+                </ul>
 
-        <h2 id="errors">6. Errors</h2>
-        <p>Errors use a stable shape:</p>
-        <pre><code>{ "error": { "code": "invalid_alias", "message": "Custom alias must be 3-12 characters…" } }</code></pre>
-        <div class="api-table-wrap">
-            <table>
-                <thead>
-                    <tr><th>Status</th><th>Code</th><th>Meaning</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>400</td><td><code>invalid_url</code></td><td>The destination is missing, malformed, or not http(s).</td></tr>
-                    <tr><td>400</td><td><code>invalid_alias</code></td><td>The alias does not match the allowed pattern.</td></tr>
-                    <tr><td>400</td><td><code>invalid_expiry</code></td><td><code>expiresIn</code> is not one of <code>1d</code>, <code>7d</code>, <code>30d</code>.</td></tr>
-                    <tr><td>401</td><td><code>invalid_api_key</code></td><td>Missing, revoked or unrecognised API key.</td></tr>
-                    <tr><td>403</td><td><code>forbidden</code></td><td>The key does not own that link.</td></tr>
-                    <tr><td>404</td><td><code>not_found</code></td><td>No link exists with that short code.</td></tr>
-                    <tr><td>409</td><td><code>alias_taken</code></td><td>The alias is already in use.</td></tr>
-                    <tr><td>429</td><td><code>rate_limited</code> / <code>quota_exceeded</code></td><td>Slow down or wait for the daily quota to reset.</td></tr>
-                    <tr><td>503</td><td><code>database_unavailable</code></td><td>Temporary backend outage; retry later.</td></tr>
-                </tbody>
-            </table>
+                <h2 id="errors"><span class="api-num">6</span>Errors</h2>
+                <p>Errors use a stable shape:</p>
+                <pre><code>{ "error": { "code": "invalid_alias", "message": "Custom alias must be 3-12 characters…" } }</code></pre>
+                <div class="api-table-wrap">
+                    <table>
+                        <thead>
+                            <tr><th>Status</th><th>Code</th><th>Meaning</th></tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>400</td><td><code>invalid_url</code></td><td>The destination is missing, malformed, or not http(s).</td></tr>
+                            <tr><td>400</td><td><code>invalid_alias</code></td><td>The alias does not match the allowed pattern.</td></tr>
+                            <tr><td>400</td><td><code>invalid_expiry</code></td><td><code>expiresIn</code> is not one of <code>1d</code>, <code>7d</code>, <code>30d</code>.</td></tr>
+                            <tr><td>401</td><td><code>invalid_api_key</code></td><td>Missing, revoked or unrecognised API key.</td></tr>
+                            <tr><td>403</td><td><code>forbidden</code></td><td>The key does not own that link.</td></tr>
+                            <tr><td>404</td><td><code>not_found</code></td><td>No link exists with that short code.</td></tr>
+                            <tr><td>409</td><td><code>alias_taken</code></td><td>The alias is already in use.</td></tr>
+                            <tr><td>429</td><td><code>rate_limited</code> / <code>quota_exceeded</code></td><td>Slow down or wait for the daily quota to reset.</td></tr>
+                            <tr><td>503</td><td><code>database_unavailable</code></td><td>Temporary backend outage; retry later.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <h2 id="openapi"><span class="api-num">7</span>OpenAPI</h2>
+                <p>The machine-readable contract lives at <a href="/openapi.json"><code>/openapi.json</code></a> (OpenAPI 3.1). Import it into Postman, Insomnia or your code generator.</p>
+
+                <div class="legal-note">The API is intended for the account that owns the key. Do not ship keys in client-side code; call Linkly from a server you control.</div>
+            </div>
         </div>
-
-        <h2>7. OpenAPI</h2>
-        <p>The machine-readable contract lives at <a href="/openapi.json"><code>/openapi.json</code></a> (OpenAPI 3.1). Import it into Postman, Insomnia or your code generator.</p>
-
-        <div class="legal-note">The API is intended for the account that owns the key. Do not ship keys in client-side code; call Linkly from a server you control.</div>
     </main>
 
     <footer class="site-footer">

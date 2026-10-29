@@ -1,74 +1,336 @@
-.api-page { max-width: 900px; }
-.api-hero-actions { display: flex; gap: var(--s2); flex-wrap: wrap; margin-top: var(--s4); }
-.api-hero-actions .btn { min-height: var(--tap); padding: 11px 16px; font-size: var(--fs-sm); }
-.api-page h2 { scroll-margin-top: 90px; }
+/* API reference.
+   Two columns on desktop: a sticky "On this page" rail and a measure-limited
+   body column, so prose lines stay readable and code blocks keep their width. */
+
+.api-page {
+    max-width: 1060px;
+    padding-top: var(--s6);
+}
+
+.api-layout {
+    display: grid;
+    grid-template-columns: 196px minmax(0, 1fr);
+    gap: var(--s7);
+    align-items: start;
+}
+
+.api-body { min-width: 0; }
+
+/* -- Section rail ------------------------------------------------------- */
+
+.api-nav {
+    position: sticky;
+    top: 88px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-left: var(--s3);
+    border-left: 1px solid var(--line);
+}
+
+.api-nav-title {
+    margin-bottom: var(--s2);
+    padding-left: 11px;
+    color: var(--muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.api-nav a {
+    padding: 6px 11px;
+    border-radius: var(--r-sm);
+    color: var(--muted);
+    font-size: var(--fs-sm);
+    line-height: 1.35;
+    text-decoration: none;
+    transition: background-color 120ms ease, color 120ms ease;
+}
+
+.api-nav a:hover {
+    background: var(--brand-soft);
+    color: var(--brand);
+}
+
+.api-nav a:focus-visible {
+    outline: 2px solid var(--brand);
+    outline-offset: 1px;
+}
+
+/* -- Hero --------------------------------------------------------------- */
+
+.api-page .legal-head { margin-bottom: var(--s5); }
+.api-page .legal-meta { font-size: 0.8125rem; letter-spacing: 0.01em; }
+
+.api-lead {
+    max-width: 62ch;
+    margin: 0 0 var(--s4);
+    font-size: 1.0625rem;
+    line-height: 1.65;
+}
+
+.api-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s2);
+    margin: 0 0 var(--s5);
+}
+
+.api-hero-actions .btn {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    padding: 0 15px;
+    font-size: var(--fs-sm);
+}
+
+/* -- Prose -------------------------------------------------------------- */
+
+.api-page p,
+.api-page li {
+    font-size: 1rem;
+    line-height: 1.7;
+}
+
+.api-page p { margin: 0 0 var(--s3); }
+.api-page p:last-child { margin-bottom: 0; }
+
+/* Prose keeps a comfortable measure; code and tables use the full column so
+   long commands do not need to scroll. */
+.api-page .api-body > p,
+.api-page .api-body > ul { max-width: 70ch; }
+
+.api-page .api-body > .api-table-wrap,
+.api-page .api-body > pre { max-width: 100%; }
+
+.api-page h2 {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin: var(--s7) 0 var(--s3);
+    padding-top: var(--s5);
+    border-top: 1px solid var(--line);
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 0.9rem + 0.5vw, 1.4375rem);
+    font-weight: 700;
+    letter-spacing: -0.015em;
+    line-height: 1.25;
+    scroll-margin-top: 92px;
+}
+
+.api-page h2:first-of-type {
+    margin-top: var(--s5);
+    padding-top: 0;
+    border-top: 0;
+}
+
+.api-num {
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.75em;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    opacity: 0.75;
+}
+
 .api-page h3 {
     margin: var(--s5) 0 var(--s2);
-    font-family: var(--font-display);
-    font-size: var(--fs-base);
-    letter-spacing: -0.01em;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0;
+    color: var(--text);
+    scroll-margin-top: 92px;
 }
-.api-page p code, .api-page li code, .api-page td code {
-    padding: 1px 6px;
-    border-radius: 6px;
+
+.api-page h3 + pre { margin-top: 0; }
+
+.api-page ul {
+    margin: 0 0 var(--s3);
+    padding-left: 1.15rem;
+}
+
+.api-page li { margin-bottom: 6px; }
+.api-page li:last-child { margin-bottom: 0; }
+.api-page li::marker { color: var(--muted); }
+
+/* Inline code stays a quiet monospace chip in prose. */
+.api-page p code,
+.api-page li code {
+    padding: 1px 3px;
+    border-radius: 5px;
     background: var(--brand-soft);
     color: var(--brand);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.86em;
-    word-break: break-word;
+    font-size: 0.85em;
+    overflow-wrap: break-word;
 }
+
+/* -- Code blocks -------------------------------------------------------- */
+
 .api-page pre {
     margin: 0 0 var(--s4);
-    padding: var(--s4);
+    padding: 16px 18px;
     border: 1px solid var(--line);
     border-radius: var(--r-md);
     background: #0b1220;
     color: #dbe7ff;
     overflow-x: auto;
-    line-height: 1.55;
-    font-size: 0.82rem;
+    font-size: 0.8125rem;
+    line-height: 1.7;
+    tab-size: 2;
 }
-.api-page pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
-.api-table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r-md); margin-bottom: var(--s4); }
-.api-page table { width: 100%; border-collapse: collapse; background: var(--card); table-layout: auto; }
-.api-page th, .api-page td { padding: 10px 12px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; font-size: var(--fs-sm); }
-.api-page th { color: var(--muted); font-size: var(--fs-xs); text-transform: uppercase; letter-spacing: 0.07em; white-space: nowrap; }
+
+.api-page pre code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: inherit;
+    background: none;
+    color: inherit;
+    padding: 0;
+}
+
+/* -- Tables ------------------------------------------------------------- */
+
+.api-table-wrap {
+    margin: 0 0 var(--s4);
+    border: 1px solid var(--line);
+    border-radius: var(--r-md);
+    overflow-x: auto;
+}
+
+.api-page table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--card);
+}
+
+.api-page th,
+.api-page td {
+    padding: 11px 16px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+    vertical-align: top;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+}
+
+.api-page th {
+    background: var(--bg);
+    color: var(--muted);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.api-page td:first-child { white-space: nowrap; }
 .api-page tr:last-child td { border-bottom: none; }
+
+/* Code inside tables is structure, not a highlight - keep it plain. */
+.api-page td code {
+    padding: 0;
+    background: none;
+    color: var(--text);
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 0.8125rem;
+}
+
+.api-page td:first-child,
+.api-page td:first-child code {
+    font-variant-numeric: tabular-nums;
+    color: var(--muted);
+}
+
+/* -- Method / status badges --------------------------------------------- */
+
 .method {
     display: inline-block;
-    min-width: 54px;
+    min-width: 58px;
     padding: 2px 8px;
     border-radius: var(--r-pill);
     font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-    font-size: 0.72rem;
+    font-size: 0.6875rem;
     font-weight: 700;
+    letter-spacing: 0.03em;
     text-align: center;
 }
+
 .method.get { background: var(--brand-soft); color: var(--brand); }
 .method.post { background: var(--ok-bg); color: var(--ok-text); }
 .method.patch { background: #fff7ed; color: #b45309; }
 .method.delete { background: var(--danger-soft); color: var(--danger); }
 [data-theme="dark"] .method.patch { background: #2a1e0b; color: #fbbf24; }
+
+/* -- Callout / note ----------------------------------------------------- */
+
 .api-callout {
     margin: var(--s4) 0;
-    padding: var(--s4);
-    border: 1px solid var(--brand);
-    border-radius: var(--r-md);
-    background: var(--brand-soft);
-    color: var(--text);
-    font-size: var(--fs-sm);
-    line-height: var(--lh-body);
-}
-.api-callout strong { color: var(--brand); }
-.api-toc { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0 var(--s2); }
-.api-toc a {
-    padding: 5px 11px;
+    padding: 14px 16px;
     border: 1px solid var(--line);
-    border-radius: var(--r-pill);
+    border-left: 3px solid var(--brand);
+    border-radius: var(--r-sm);
     background: var(--card);
     color: var(--muted);
-    font-size: var(--fs-xs);
-    font-weight: 600;
-    text-decoration: none;
+    font-size: 0.9375rem;
+    line-height: 1.65;
 }
-.api-toc a:hover { border-color: var(--brand); color: var(--brand); }
+
+.api-callout strong { color: var(--text); }
+
+.api-page .legal-note {
+    margin-top: var(--s6);
+    font-size: 0.9375rem;
+}
+
+/* -- Mobile ------------------------------------------------------------- */
+
+@media (max-width: 960px) {
+    .api-page { padding-top: var(--s5); }
+    .api-layout { display: block; }
+
+    .api-nav {
+        position: static;
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: var(--s5);
+        padding: 0 0 var(--s4);
+        border-left: 0;
+        border-bottom: 1px solid var(--line);
+    }
+
+    .api-nav-title { display: none; }
+
+    .api-nav a {
+        padding: 6px 11px;
+        border: 1px solid var(--line);
+        border-radius: var(--r-pill);
+        background: var(--card);
+        font-size: var(--fs-xs);
+        font-weight: 600;
+    }
+}
+
+@media (max-width: 760px) {
+    .api-page .legal-head { margin-bottom: var(--s4); }
+    .api-page p, .api-page li { font-size: 0.9375rem; }
+    .api-page h2 { margin-top: var(--s6); padding-top: var(--s4); }
+    .api-page pre { font-size: 0.78125rem; padding: 14px; }
+    .api-page th, .api-page td { padding: 10px 12px; font-size: 0.875rem; }
+    .api-page td code { font-size: 0.78125rem; }
+    /* Tables become stacked rows on phones: method + path on one line, the
+       description underneath - no sideways scrolling, nothing clipped. */
+    .api-table-wrap { border: 0; border-radius: 0; overflow: visible; }
+    .api-page table { display: block; min-width: 0; background: none; border: 1px solid var(--line); border-radius: var(--r-md); }
+    .api-page thead { display: none; }
+    .api-page tbody, .api-page tr, .api-page td { display: block; }
+    .api-page tr { padding: 12px 14px; border-bottom: 1px solid var(--line); }
+    .api-page tr:last-child { border-bottom: 0; }
+    .api-page td { padding: 0; border: 0; }
+    .api-page td:first-child { display: inline-block; margin-right: 8px; vertical-align: middle; }
+    .api-page td:nth-child(2) { display: inline; }
+    .api-page td:last-child { margin-top: 3px; color: var(--muted); }
+    .api-hero-actions .btn { flex: 1 1 100%; justify-content: center; }
+}

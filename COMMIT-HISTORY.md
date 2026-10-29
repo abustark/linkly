@@ -7,11 +7,27 @@ This document tracks every commit following the `2.x` versioning schema:
 - **One version number per agent response / request batch** — not per issue, not per commit: a single owner request (even if it fixes many issues) consumes exactly ONE version number, multiple commits inside one response all take that same number (fold follow-up fixes into it — never burn a second number), and only a genuinely new owner request (a new response turn) advances the number.
 
 > ### 📌 Next version — **keep this line current, every commit**
-> - **`main` → `2.2.4`** (current head is `2.2.3` — see below)
+> - **`main` → `2.2.5`** (current head is `2.2.4` — see below)
 
 ---
 
 ## Commit History
+
+### 2.2.4 - rebuild the API reference page with a real docs layout
+
+- **Date**: 2026-10-29
+- **Why**: owner — the API docs page needed proper alignment, type sizes, fonts and spacing before the site is posted.
+- **Changes**:
+  - `api.html` restructured into a two-column layout: a sticky "On this page" rail (196px) beside a measure-limited body column. The old inline chip row (`.api-toc`) is gone. Added the missing `#openapi` anchor for section 7.
+  - Section headings: `h2` is now `clamp(1.25rem … 1.4375rem)` Sora, separated by a hairline and a 48px top margin; the section number is a muted, tabular `1` in its own span. `h3` moved from the display face to Inter 600 at 1rem.
+  - Body copy is 1rem/1.7, prose capped at 70ch while code blocks and tables keep the full column; the lead paragraph is 1.0625rem/1.65 at 62ch.
+  - Code blocks: 0.8125rem/1.7, 16/18px padding, `tab-size: 2`, radius 14.
+  - Tables: 11/16px cell padding, 0.9375rem rows, uppercase header on a tinted band, muted tabular first column, plain mono for code cells (no blue pills), method badges narrowed to 58px at 0.6875rem.
+  - Inline code chips are quieter (1px 3px padding, 0.85em).
+  - Callout is now a card with a 3px brand left border instead of a full blue outline.
+  - Mobile (≤760px): tables turn into stacked rows (method + path on one line, description under) with no sideways scroll; the three hero buttons go full width; the nav rail becomes wrapping chips. At ≤960px the layout collapses to one column.
+  - Service-worker cache bumped to `linkly-v22`.
+- **Verification**: visual only, service worker and caches cleared — 1366×900 light and dark, 390×844 light; prose measured 707px inside a 768px column, nav sticky on desktop and static chips on mobile, no horizontal page overflow (`scrollWidth === clientWidth`), tables 358px wide with 0 scroll on mobile. No test/build run (owner rule).
 
 ### 2.2.3 - white Google button on the sign-in card, no focus ring on the dialog
 
